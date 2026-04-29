@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nasat
+  namespace: argocd
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  source:
+    repoURL: https://github.com/johndoe/nasat.git
+    targetRevision: master
+    path: ./nasat/k8s
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

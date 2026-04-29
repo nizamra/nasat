@@ -1,0 +1,56 @@
+# --- General ---
+.DS_Store
+.env
+*.log
+*.swp
+*.bak
+
+# --- Python (Django & Frontend) ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# --- Django Specific ---
+db.sqlite3
+db.sqlite3-journal
+media/
+static/
+# Collectstatic output
+staticfiles/
+
+# --- Frontend (Reflex/NiceGUI specific) ---
+.web/
+assets/__init__.py
+
+
+# --- Databases & Infrastructure ---
+# Ignore local data folders if you mount them to your filesystem
+postgres_data/
+minio_data/
+
+# --- Docker ---
+.docker/
+# Ignore docker-compose override files if they contain local secrets
+docker-compose.override.yml
+
+# --- Kubernetes / ArgoCD ---
+# NEVER commit files containing actual plain-text secrets
+# Use templates or SealedSecrets instead
+secrets/*.yaml
+!secrets/template.yaml
+kubeconfig
+.kube/
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
