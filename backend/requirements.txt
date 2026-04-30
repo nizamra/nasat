@@ -6,3 +6,4 @@ Pillow
 djangorestframework
 djangorestframework-simplejwt
 django-filter
+gunicorn
