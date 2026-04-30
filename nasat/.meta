@@ -1,3 +1,0 @@
-# Once inside frontend:
-mkdir -p src/{components,pages,styles} && touch src/{components/{Sidebar,Header,ProfileCard,Relations,SocialLinks,PostCard}.tsx,pages/{Profile,Feed}.tsx,styles/main.css,{App,main}.tsx}
-

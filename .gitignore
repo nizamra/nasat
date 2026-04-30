@@ -54,3 +54,6 @@ kubeconfig
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# --- personal ---
+.meta/

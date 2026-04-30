@@ -2,15 +2,17 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nasat
-  namespace: default
+  namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: nasat
   source:
     repoURL: https://github.com/nizamra/nasat
     targetRevision: master
-    path: nasat/k8s
+    path: k8s
+    directory:
+      recurse: true
   syncPolicy:
     automated:
       prune: true
