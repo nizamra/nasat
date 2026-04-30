@@ -15,9 +15,11 @@ spec:
     spec:
       containers:
         - name: backend
-          image: nasat/backend:latest
+          image: nizamra/nasat-backend:latest
           env:
             - name: DB_HOST
               value: postgres
           ports:
             - containerPort: 8000
+      imagePullSecrets:
+        - name: dockerhub-cred

@@ -1,0 +1,8 @@
+Django
+psycopg2-binary
+boto3
+django-storages
+Pillow
+djangorestframework
+djangorestframework-simplejwt
+django-filter
