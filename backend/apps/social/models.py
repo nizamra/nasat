@@ -6,14 +6,10 @@ User = get_user_model()
 class Follow(models.Model):
   follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following")
   following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers")
-  created_at = models.DateTimeField(auto_now_add=True)
+  created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
   class Meta:
-      unique_together = ("follower", "following")
+    unique_together = ("follower", "following")
 
-
-class Post(models.Model):
-  created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-class Follow(models.Model):
-  follower = models.ForeignKey(..., db_index=True)
-  following = models.ForeignKey(..., db_index=True)
+  def __str__(self):
+    return f"{self.follower} follows {self.following}"
