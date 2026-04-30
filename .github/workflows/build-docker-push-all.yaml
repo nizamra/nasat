@@ -1,9 +1,10 @@
-name: Build, Test, and Push Nasat
+name: Build, Test, and Push All Nasat
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - master
 
 env:
   REGISTRY: docker.io
@@ -22,7 +23,7 @@ jobs:
           python-version: '3.12'
 
       - name: Test Python Code
-        working-directory: ./nasat/backend
+        working-directory: ./backend
         run: |
           pip install -r requirements.txt
           # Replace with your actual test command (e.g., pytest, python manage.py test)
@@ -34,8 +35,8 @@ jobs:
       - name: Build Docker Image (Local Load)
         uses: docker/build-push-action@v5
         with:
-          context: ./nasat/backend
-          file: ./nasat/backend/Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           load: true
           tags: nasat-backend:test
 
@@ -59,8 +60,8 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./nasat/backend
-          file: ./nasat/backend/Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/nasat-backend:latest
@@ -78,9 +79,9 @@ jobs:
           node-version: '20'
 
       - name: Test Node Code
-        working-directory: ./nasat/frontend
+        working-directory: ./frontend
         run: |
-          npm ci
+          npm install
           # Replace with your actual test command (e.g., npm run test)
           echo "Running frontend tests..."
 
@@ -90,8 +91,8 @@ jobs:
       - name: Build Docker Image (Local Load)
         uses: docker/build-push-action@v5
         with:
-          context: ./nasat/frontend
-          file: ./nasat/frontend/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           load: true
           tags: nasat-frontend:test
 
@@ -114,8 +115,8 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./nasat/frontend
-          file: ./nasat/frontend/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/nasat-frontend:latest

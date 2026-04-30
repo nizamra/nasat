@@ -4,9 +4,12 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
+
+RUN ls -R
+
 RUN npm run build
 
 
