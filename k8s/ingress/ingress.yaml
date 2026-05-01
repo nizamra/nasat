@@ -4,7 +4,7 @@ metadata:
   name: nasat-ingress
 spec:
   rules:
-    - host: nasat.local
+    - host: staging.nasat.local
       http:
         paths:
           - path: /api
