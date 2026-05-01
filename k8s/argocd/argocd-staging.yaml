@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nasat
+  name: nasat-staging
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: nasat
+    namespace: nasat-staging
   source:
     repoURL: https://github.com/nizamra/nasat
-    targetRevision: master
+    targetRevision: staging
     path: k8s
     directory:
       recurse: true

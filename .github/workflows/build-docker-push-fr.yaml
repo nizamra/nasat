@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - staging   # Added staging branch
     paths:
       - 'frontend/**' # Trigger on changes to any files in the frontend directory
       - '.github/workflows/build-docker-push-fr.yaml'
@@ -23,6 +24,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 3
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -70,18 +74,23 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/nasat-frontend:latest
+            ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.ref_name }}
             ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.sha }}
 
       - name: Update K8s Image Tag in Git
         run: |
-          # Use sed to replace the image tag with the new GitHub SHA
-          sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.sha }}|g" k8s/frontend/Frontend.yaml
-          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git pull origin ${{ github.ref_name }} --rebase
+
+          # 2. Now apply the image tag update
+          sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.sha }}|g" k8s/frontend/Frontend.yaml
+          
           git add k8s/frontend/Frontend.yaml
-          git commit -m "chore: update frontend image tag to ${{ github.sha }}"
-          git push
+          git commit -m "chore: update frontend image tag to ${{ github.sha }} [skip ci]"
+          
+          git pull origin ${{ github.ref_name }} --rebase
+          git push origin ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -12,7 +12,7 @@ export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    fetch("http://nasat.local/api/posts/")
+    fetch("/api/posts/")
       .then(res => res.json())
       .then(data => setPosts(data));
   }, []);
