@@ -1,6 +1,13 @@
 name: BK Build Push
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'backend/**' # Trigger on changes to any files in the backend directory
+      - '.github/workflows/build-docker-push-bk.yaml'
+      - '!backend/**/*.md'  # Exclude markdown files from triggering the workflow
   workflow_dispatch:
 
 env:

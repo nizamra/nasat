@@ -1,6 +1,13 @@
 name: FR Build Push 
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'frontend/**' # Trigger on changes to any files in the frontend directory
+      - '.github/workflows/build-docker-push-fr.yaml'
+      - '!frontend/**/*.md'  # Exclude markdown files from triggering the workflow
   workflow_dispatch:
 
 env:
