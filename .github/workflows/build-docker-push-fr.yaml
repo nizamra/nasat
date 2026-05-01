@@ -17,6 +17,9 @@ env:
 jobs:
   frontend-pipeline:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -69,3 +72,16 @@ jobs:
           tags: |
             ${{ env.IMAGE_PREFIX }}/nasat-frontend:latest
             ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.sha }}
+
+      - name: Update K8s Image Tag in Git
+        run: |
+          # Use sed to replace the image tag with the new GitHub SHA
+          sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.sha }}|g" k8s/frontend/Frontend.yaml
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/frontend/Frontend.yaml
+          git commit -m "chore: update frontend image tag to ${{ github.sha }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
