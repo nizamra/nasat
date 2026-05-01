@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: nizamra/nasat-frontend:latest
+          image: nizamra/nasat-frontend:df62c7daef563af66fd709f5b26de9e6e743e655
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
