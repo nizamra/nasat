@@ -1,23 +1,20 @@
 const relations = [
-  { name: "Lisa", role: "Mother" },
-  { name: "Ethan", role: "Son" },
-  { name: "Sophie", role: "Fiancée" },
+  { name: "Lisa", role: "Mother", id: "1" },
+  { name: "Ethan", role: "Son", id: "2" },
+  { name: "Sophie", role: "Fiancée", id: "3" },
+  { name: "Mark", role: "Brother", id: "4" },
 ];
 
 export default function Relations() {
   return (
     <div className="card">
       <h3>Relations</h3>
-
-      <div className="row">
-        {relations.map((r, i) => (
-          <div key={i}>
-            <img
-              className="small-avatar"
-              src={`https://i.pravatar.cc/100?img=${i}`}
-            />
-            <p>{r.name}</p>
-            <small>{r.role}</small>
+      <div className="flex-row space-between" style={{ marginTop: '16px' }}>
+        {relations.map((r) => (
+          <div key={r.id} className="flex-col items-center">
+            <img className="avatar-sm" src={`https://i.pravatar.cc/100?img=${r.id}`} alt={r.name} />
+            <p style={{ fontSize: '14px', fontWeight: 500 }}>{r.name}</p>
+            <span className="text-muted" style={{ fontSize: '12px' }}>{r.role}</span>
           </div>
         ))}
       </div>
