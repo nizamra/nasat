@@ -11,6 +11,9 @@ on:
           - master
           - staging
 
+permissions:
+  contents: write
+
 jobs:
   call-frontend:
     uses: ./.github/workflows/build-docker-push-fr.yaml
