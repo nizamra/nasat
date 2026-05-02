@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nasat
+  namespace: argocd
   # annotations:
   #   # Check for new versions of the backend image
   #   argocd-image-updater.argoproj.io/image-list: backend=nizamra/nasat-backend
