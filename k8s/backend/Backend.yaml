@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: nizamra/nasat-backend:14ef94a5e764640ae45ca4dcc68a90b525373c13
+          image: nizamra/nasat-backend:79e21cc618d434f19eed68afa435b76efc28255a
           env:
             - name: DB_HOST
               value: postgres
