@@ -2,6 +2,13 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nasat
+  # annotations:
+  #   # Check for new versions of the backend image
+  #   argocd-image-updater.argoproj.io/image-list: backend=nizamra/nasat-backend
+  #   # Use the 'latest' update strategy
+  #   argocd-image-updater.argoproj.io/backend.update-strategy: latest
+  #   # (Optional) Write the change back to Git automatically
+  #   argocd-image-updater.argoproj.io/write-back-method: git
 spec:
   destination:
     server: https://kubernetes.default.svc
