@@ -21,11 +21,10 @@ spec:
           command:
             - sh
             - -c
-            - "until pg_isready -h postgres -p 5432; do echo waiting for database; sleep 2; done;"
             - |
-              python manage.py makemigrations users posts social && \
-              python manage.py migrate users && \
-              python manage.py migrate
+              python manage.py makemigrations users posts social
+              python manage.py migrate users --noinput
+              python manage.py migrate --noinput
         # Run the migration
         - name: db-migrate
           image: nizamra/nasat-backend:65692065824e09e53418266013c060184499f611
