@@ -8,3 +8,4 @@ djangorestframework-simplejwt
 django-filter
 gunicorn
 whitenoise
+django-cors-headers
