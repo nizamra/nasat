@@ -12,6 +12,15 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+        - name: db-migrate
+          image: your-registry/backend-image:latest
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secrets
       containers:
         - name: backend
           image: nizamra/nasat-backend:79e21cc618d434f19eed68afa435b76efc28255a

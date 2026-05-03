@@ -1,7 +1,7 @@
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import F, ExpressionWrapper, FloatField
-from .models import Post
+from apps.posts.models import Post
 from apps.social.models import Follow
 
 
@@ -26,8 +26,8 @@ def get_user_feed(user):
   # Extend later with engagement signals
   return qs.order_by("-created_at")[:50]
 
-score = (
-  w1 * recency_decay +
-  w2 * engagement_score +
-  w3 * relationship_strength
-)
+# score = (
+#   w1 * recency_decay +
+#   w2 * engagement_score +
+#   w3 * relationship_strength
+# )
