@@ -13,3 +13,28 @@ class Follow(models.Model):
 
   def __str__(self):
     return f"{self.follower} follows {self.following}"
+
+class FamilyRelation(models.Model):
+    RELATION_CHOICES = [
+        ('mother', 'Mother'),
+        ('son', 'Son'),
+        ('fiancee', 'Fiancée'),
+        ('brother', 'Brother'),
+        ('father', 'Father'),
+        ('daughter', 'Daughter'),
+        ('sister', 'Sister'),
+    ]
+    
+    # The user who is defining the relationship
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_defined')
+    # The user who is the family member
+    related_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_of')
+    
+    relation_type = models.CharField(max_length=20, choices=RELATION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "related_user")
+
+    def __str__(self):
+        return f"{self.user} -> {self.relation_type} -> {self.related_user}"

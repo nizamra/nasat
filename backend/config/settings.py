@@ -41,14 +41,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi:application'
 
-# Update this to your Postgres credentials once you have a DB pod in K3S
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -84,3 +76,19 @@ AWS_S3_ENDPOINT_URL = "http://minio:9000"
 AWS_S3_USE_SSL = False
 AWS_QUERYSTRING_AUTH = False
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# Tell Django to use your custom user model instead of the default one
+AUTH_USER_MODEL = 'users.User'
+
+# Update DATABASES to point to your K3s Postgres StatefulSet
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'nasat'),
+        'USER': os.environ.get('POSTGRES_USER', 'nasat'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'nasat'),
+        # The HOST must match the 'serviceName' defined in your StatefulSet
+        'HOST': os.environ.get('POSTGRES_HOST', 'postgres'), 
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+    }
+}
