@@ -10,6 +10,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-nasat-poc-key')
 
 DEBUG = True # Set to False in production
 
+# TODO: Change this in production to your actual domain or IP
+# Or ['staging.nasat.local', 'backend', 'localhost', '127.0.0.1']
 ALLOWED_HOSTS = ['*'] # For K3S access
 
 INSTALLED_APPS = [
@@ -32,6 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -39,6 +42,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi:application'
@@ -52,7 +59,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-STATIC_URL = 'static/'
 
 # --- Your Custom Configs ---
 REST_FRAMEWORK = {
@@ -71,13 +77,28 @@ SIMPLE_JWT = {
 }
 
 # MinIO/S3 Storage
-AWS_ACCESS_KEY_ID = "minioadmin"
-AWS_SECRET_ACCESS_KEY = "minioadmin"
-AWS_STORAGE_BUCKET_NAME = "nasat-media"
-AWS_S3_ENDPOINT_URL = "http://minio:9000"
+AWS_ACCESS_KEY_ID = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
+AWS_SECRET_ACCESS_KEY = os.environ.get('MINIO_SECRET_KEY', 'minioadmin')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('MINIO_BUCKET_NAME', 'nasat-media')
+AWS_S3_ENDPOINT_URL = os.environ.get('MINIO_ENDPOINT', 'http://minio:9000')
+AWS_S3_URL_PROTOCOL = 'http'
+AWS_S3_REGION_NAME = 'us-east-1'
 AWS_S3_USE_SSL = False
 AWS_QUERYSTRING_AUTH = False
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# This ensures Django uses MinIO for media files
+# Tells WhiteNoise to compress and cache the files for better performance
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Ensure media URLs point to MinIO
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
 
 # Tell Django to use your custom user model instead of the default one
 AUTH_USER_MODEL = 'users.User'
