@@ -12,10 +12,24 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+        - name: dockerhub-cred
       initContainers:
+        # Wait for Postgres to be reachable
+        - name: wait-for-db
+          image: postgres:16
+          command:
+            - sh
+            - -c
+            - "until pg_isready -h postgres -p 5432; do echo waiting for database; sleep 2; done;"
+            - |
+              python manage.py makemigrations users posts social && \
+              python manage.py migrate users && \
+              python manage.py migrate
+        # Run the migration
         - name: db-migrate
-          image: your-registry/backend-image:latest
-          command: ["python", "manage.py", "migrate", "--noinput"]
+          image: nizamra/nasat-backend:65692065824e09e53418266013c060184499f611
+          command: ["sh", "-c", "python manage.py migrate users && python manage.py migrate"]
           envFrom:
             - configMapRef:
                 name: backend-config
@@ -24,10 +38,10 @@ spec:
       containers:
         - name: backend
           image: nizamra/nasat-backend:65692065824e09e53418266013c060184499f611
-          env:
-            - name: DB_HOST
-              value: postgres
           ports:
             - containerPort: 8000
-      imagePullSecrets:
-        - name: dockerhub-cred
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secrets

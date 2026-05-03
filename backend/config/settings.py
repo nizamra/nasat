@@ -4,6 +4,8 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# TODO: change into SECRET_KEY = os.environ.get('SECRET_KEY') and set env var in K3s deployment
+# python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())' to generate a new one for production
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-nasat-poc-key')
 
 DEBUG = True # Set to False in production
