@@ -23,7 +23,7 @@ spec:
                 name: backend-secrets
       containers:
         - name: backend
-          image: nizamra/nasat-backend:79e21cc618d434f19eed68afa435b76efc28255a
+          image: nizamra/nasat-backend:3ccc424cc04a7f1b3748878565119c5f19f3fd3c
           env:
             - name: DB_HOST
               value: postgres
