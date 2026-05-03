@@ -28,7 +28,7 @@ spec:
               python manage.py migrate
         # Run the migration
         - name: db-migrate
-          image: nizamra/nasat-backend:65692065824e09e53418266013c060184499f611
+          image: nizamra/nasat-backend:69951030ff1566bca678f2ea32d06196a28b02a9
           command: ["sh", "-c", "python manage.py migrate users && python manage.py migrate"]
           envFrom:
             - configMapRef:
@@ -37,7 +37,7 @@ spec:
                 name: backend-secrets
       containers:
         - name: backend
-          image: nizamra/nasat-backend:65692065824e09e53418266013c060184499f611
+          image: nizamra/nasat-backend:69951030ff1566bca678f2ea32d06196a28b02a9
           ports:
             - containerPort: 8000
           envFrom:
