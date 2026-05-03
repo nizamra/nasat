@@ -25,7 +25,7 @@ spec:
         #       getent hosts postgres
         # # Run the migration
         # - name: db-migrate
-        #   image: nizamra/nasat-backend:1f74e0d44d608a092a4ce75ca74bb6d65bcff9c7
+        #   image: nizamra/nasat-backend:2a347160f4b058b1a4bcfa56cbfea0b3a4fb5951
         #   command: ["sh", "-c", "python manage.py migrate users && python manage.py migrate"]
         #   envFrom:
         #     - configMapRef:
@@ -34,7 +34,7 @@ spec:
         #         name: backend-secrets
       containers:
         - name: backend
-          image: nizamra/nasat-backend:1f74e0d44d608a092a4ce75ca74bb6d65bcff9c7
+          image: nizamra/nasat-backend:2a347160f4b058b1a4bcfa56cbfea0b3a4fb5951
           ports:
             - containerPort: 8000
           envFrom:
