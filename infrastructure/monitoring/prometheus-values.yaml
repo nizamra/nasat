@@ -28,6 +28,11 @@ kube-prometheus-stack:
     adminPassword: "adminadmin"
     rbac:
       pspEnabled: false
+    ingress:
+      enabled: true
+      hosts:
+        - grafana.nasat.local
+      path: /
 
   # Disable Alerting (Saves RAM)
   alertmanager:
