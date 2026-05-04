@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes-app-metrics
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  1471_rev1Kubernetes-App-Metrics.json: |-
+{{ .Files.Get "dashboards/1471_rev1Kubernetes-App-Metrics.json" | indent 4 }}

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-host-container-overview
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  10619_rev1docker-host-container-overview.json: |-
+{{ .Files.Get "dashboards/10619_rev1docker-host-container-overview.json" | indent 4 }}

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitor
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  14249_rev1cluster-monitor.json: |-
+{{ .Files.Get "dashboards/14249_rev1cluster-monitor.json" | indent 4 }}

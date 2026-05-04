@@ -34,6 +34,12 @@ kube-prometheus-stack:
         - grafana.nasat.local
       path: /
       pathType: Prefix
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        labelValue: "1"
+        searchNamespace: ALL
 
   # Disable Alerting
   alertmanager:

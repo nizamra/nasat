@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes-views-pods
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  15760_rev39Kubernetes-Views-Pods.json: |-
+{{ .Files.Get "dashboards/15760_rev39Kubernetes-Views-Pods.json" | indent 4 }}

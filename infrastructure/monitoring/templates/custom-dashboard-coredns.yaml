@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  15762_rev22kubernetes-system-coredns.json: |-
+{{ .Files.Get "dashboards/15762_rev22kubernetes-system-coredns.json" | indent 4 }}

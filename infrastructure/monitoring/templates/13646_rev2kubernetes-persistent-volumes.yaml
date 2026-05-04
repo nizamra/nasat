@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes-persistent-volumes
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  13646_rev2kubernetes-persistent-volumes.json: |-
+{{ .Files.Get "dashboards/13646_rev2kubernetes-persistent-volumes.json" | indent 4 }}

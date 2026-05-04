@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes-cluster
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  7249_rev1kubernetes-cluster.json: |-
+{{ .Files.Get "dashboards/7249_rev1kubernetes-cluster.json" | indent 4 }}
