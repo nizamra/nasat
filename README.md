@@ -1,5 +1,15 @@
 # NASAT - Social Media Platform
 
+![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://github.com/nizamra/nasat/actions/workflows/build-docker-push-all.yaml/badge.svg)
+![FR](https://github.com/nizamra/nasat/actions/workflows/build-docker-push-fr.yaml/badge.svg)
+![BK](https://github.com/nizamra/nasat/actions/workflows/build-docker-push-bk.yaml/badge.svg)
+![Backend](https://img.shields.io/badge/backend-Django-darkgreen)
+![Frontend](https://img.shields.io/badge/frontend-React-blue)
+![K8s](https://img.shields.io/badge/deployment-Kubernetes-blue)
+![Docker](https://img.shields.io/badge/docker-ready-blue)
+![ArgoCD](https://img.shields.io/badge/gitops-argocd-orange)
+
 A full-stack social media application built with Django, React, and Kubernetes. NASAT is a proof-of-concept platform that enables users to create posts, upload images, follow other users, and build a social network.
 
 ## Features
@@ -268,7 +278,7 @@ curl -X POST http://localhost:8000/api/social/follow/ \
 
 ## License
 
-[Add your license information here]
+This project is licensed under the MIT License.
 
 ## Support
 

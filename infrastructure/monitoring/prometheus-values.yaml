@@ -33,19 +33,22 @@ kube-prometheus-stack:
       hosts:
         - grafana.nasat.local
       path: /
+      pathType: Prefix
 
-  # Disable Alerting (Saves RAM)
+  # Disable Alerting
   alertmanager:
     enabled: false
 
-  # Disable complex validation
+  # Correctly disable webhooks for the Operator
   prometheusOperator:
     admissionWebhooks:
       enabled: false
       patch:
         enabled: false
+    tls:
+      enabled: false  # Explicitly disable TLS for the operator
 
-  # Disable scraping for components K3s handles differently
+  # Disable scraping for K3s internal components
   kubeProxy:
     enabled: false
   kubeScheduler:
@@ -53,7 +56,6 @@ kube-prometheus-stack:
   kubeControllerManager:
     enabled: false
 
-  # Disable PSPs for all Prometheus components
   prometheus-node-exporter:
     rbac:
       pspEnabled: false
