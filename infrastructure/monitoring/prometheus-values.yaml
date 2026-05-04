@@ -1,0 +1,54 @@
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      scrapeInterval: "20s"
+      retention: "30d"
+      retentionSize: "10GB"
+      resources:
+        requests:
+          memory: "800Mi"
+        limits:
+          memory: "1.5Gi"
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: local-path
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
+    rbac:
+      pspEnabled: false
+
+  grafana:
+    persistence:
+      enabled: true
+      storageClassName: local-path
+      size: 2Gi
+    adminPassword: "adminadmin"
+    rbac:
+      pspEnabled: false
+
+  # Disable Alerting (Saves RAM)
+  alertmanager:
+    enabled: false
+
+  # Disable complex validation
+  prometheusOperator:
+    admissionWebhooks:
+      enabled: false
+      patch:
+        enabled: false
+
+  # Disable scraping for components K3s handles differently
+  kubeProxy:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+
+  # Disable PSPs for all Prometheus components
+  prometheus-node-exporter:
+    rbac:
+      pspEnabled: false

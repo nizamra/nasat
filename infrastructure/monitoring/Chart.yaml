@@ -1,0 +1,11 @@
+apiVersion: v2
+name: monitoring-stack
+description: A Helm chart for deploying the monitoring stack (Prometheus and Loki)
+version: 1.0.0
+dependencies:
+  - name: kube-prometheus-stack
+    version: 84.5.0
+    repository: https://prometheus-community.github.io/helm-charts
+  - name: loki-stack
+    version: 2.5.1
+    repository: https://grafana.github.io/helm-charts
