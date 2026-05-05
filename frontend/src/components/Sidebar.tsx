@@ -1,5 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Compass, Bell, MessageCircle, Bookmark, Users, Calendar, User, Settings } from 'lucide-react';
+import { 
+  FaHome, 
+  FaCompass, 
+  FaBell, 
+  FaWhatsapp, 
+  FaBookmark, 
+  FaUsers, 
+  FaCalendar, 
+  FaUser, 
+  FaCog 
+} from 'react-icons/fa';
 
 // 1. Define exactly what a Menu Item looks like
 interface MenuItem {
@@ -15,34 +25,34 @@ export default function Sidebar() {
 
   // 2. Explicitly type the array as MenuItem[]
   const menuItems: MenuItem[] = [
-    { name: "Home", icon: Home, path: "/" },
-    { name: "Explore", icon: Compass, path: "/explore" },
-    { name: "Notifications", icon: Bell, path: "/notifications", badge: 3 },
-    { name: "Messages", icon: MessageCircle, path: "/messages", badge: 2 },
-    { name: "Bookmarks", icon: Bookmark, path: "/bookmarks" },
-    { name: "Groups", icon: Users, path: "/groups" },
-    { name: "Events", icon: Calendar, path: "/events" },
-    { name: "Profile", icon: User, path: "/profile/me" },
-    { name: "Settings", icon: Settings, path: "/settings" },
+    { name: "Home", icon: FaHome, path: "/" },
+    { name: "Explore", icon: FaCompass, path: "/explore" },
+    { name: "Notifications", icon: FaBell, path: "/notifications", badge: 3 },
+    { name: "Messages", icon: FaWhatsapp, path: "/messages", badge: 2 },
+    { name: "Bookmarks", icon: FaBookmark, path: "/bookmarks" },
+    { name: "Groups", icon: FaUsers, path: "/groups" },
+    { name: "Events", icon: FaCalendar, path: "/events" },
+    { name: "Profile", icon: FaUser, path: "/profile/me" },
+    { name: "Settings", icon: FaCog, path: "/settings" },
   ];
 
   return (
     <div className="sidebar">
       <h2><span className="sidebar-logo">🌀</span> Nexus</h2>
-      
+
       <ul className="menu-list">
         {menuItems.map((item) => {
           // Check if current URL matches the item path
           const isActive = location.pathname === item.path;
-          
+
           return (
-            <Link 
-              to={item.path} 
-              key={item.name} 
+            <Link
+              to={item.path}
+              key={item.name}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <li className={`menu-item ${isActive ? 'active' : ''}`}>
-                <span className="menu-icon">{item.icon}</span>
+                <span className="menu-icon"><item.icon size={20} /></span>
                 {item.name}
                 {item.badge && <span className="badge">{item.badge}</span>}
               </li>

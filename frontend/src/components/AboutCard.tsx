@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Mail, CalendarDays, Cake } from 'lucide-react';
+import { FaMapMarkerAlt, FaEnvelope, FaCalendarAlt, FaBirthdayCake } from 'react-icons/fa';
 // # TODO: test LocateFixed instead of MapPin
 
 interface UserData {
@@ -28,28 +28,28 @@ export default function AboutCard({ user }: { user?: UserData }) {
         
         {user.location && (
           <div className="flex-row" style={{ gap: '12px' }}>
-            <MapPin size={20} className="text-muted" />
+            <FaMapMarkerAlt size={20} className="text-muted" />
             <span className="text-muted">{user.location}</span>
           </div>
         )}
 
         {user.email && (
           <div className="flex-row" style={{ gap: '12px' }}>
-            <Mail size={20} className="text-muted" />
+            <FaEnvelope size={20} className="text-muted" />
             <a href={`mailto:${user.email}`} className="text-link">{user.email}</a>
           </div>
         )}
 
         {joinedDate && (
           <div className="flex-row" style={{ gap: '12px' }}>
-            <CalendarDays size={20} className="text-muted" />
+            <FaCalendarAlt size={20} className="text-muted" />
             <span className="text-muted">Joined {joinedDate}</span>
           </div>
         )}
 
         {birthDate && (
           <div className="flex-row" style={{ gap: '12px' }}>
-            <Cake size={20} className="text-muted" />
+            <FaBirthdayCake size={20} className="text-muted" />
             <span className="text-muted">Born {birthDate}</span>
           </div>
         )}
