@@ -33,7 +33,7 @@ export default function Profile() {
 
   return (
     <>
-      <Header />
+      <Header avatar={data.avatar} />
         <div style={{ marginTop: '24px' }}>
           <ProfileCard 
             username={data.username}
@@ -60,17 +60,17 @@ export default function Profile() {
         <div className="tab">Likes</div>
       </div>
 
-      <div className="grid-layout">
-        <div className="flex-col" style={{ gap: '20px' }}>
-          <CreatePost />
-          <PostCard 
-            user={data.username} 
-            handle={`@${data.username}`}
-            time="Now"
-            content="Finally connected to the backend!" 
-          />
-        </div>
-
+    <div className="grid-layout">
+      <div className="flex-col" style={{ gap: '20px' }}>
+        <CreatePost avatar={data.avatar} />
+        <PostCard 
+          user={data.username} 
+          handle={`@${data.username}`}
+          time="Now"
+          content="Finally connected to the backend!" 
+          avatar={data.avatar}
+        />
+      </div>
         <div>
           <PhotosCard />
         </div>

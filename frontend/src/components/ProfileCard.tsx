@@ -6,9 +6,10 @@ type ProfileProps = {
   is_verified: boolean;
 };
 
-// ... Props remain the same
 export default function ProfileCard({ username, title, bio, avatar, is_verified }: ProfileProps) {
-  const avatarSrc = avatar ? avatar : "https://i.pravatar.cc/300";
+  const avatarSrc = avatar && avatar.startsWith('http') 
+    ? avatar 
+    : "https://i.pravatar.cc/300";
 
   return (
     <div className="card flex-row" style={{ gap: '32px', alignItems: 'flex-start' }}>
@@ -17,6 +18,7 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
         src={avatarSrc}
         alt={username}
         referrerPolicy="no-referrer" 
+        crossOrigin="anonymous"
       />
 
       <div className="flex-col" style={{ flex: 1 }}>

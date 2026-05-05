@@ -1,10 +1,14 @@
 import { FaPhotoVideo, FaUserTag, FaSmile } from 'react-icons/fa';
 
-export default function CreatePost() {
+export default function CreatePost({ avatar }: { avatar?: string }) {
   return (
     <div className="card">
       <div className="flex-row">
-        <img className="avatar-md" src="https://i.pravatar.cc/150?u=alex" alt="Profile" />
+        <img 
+          className="avatar-md" 
+          src={avatar || "https://i.pravatar.cc/150?u=alex"} 
+          alt="Profile" 
+        />
         <input 
           className="input-field" 
           placeholder="What's on your mind?" 
