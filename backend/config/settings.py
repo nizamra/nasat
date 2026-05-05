@@ -8,11 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())' to generate a new one for production
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-nasat-poc-key')
 
-DEBUG = True # Set to False in production
+DEBUG = True  # Set to False in production
 
 # TODO: Change this in production to your actual domain or IP
 # Or ['staging.nasat.local', 'backend', 'localhost', '127.0.0.1']
-ALLOWED_HOSTS = ['*'] # For K3S access
+ALLOWED_HOSTS = ['*']  # For K3S access
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -74,8 +74,11 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        # Changed to AllowAny so public endpoints work
+        'rest_framework.permissions.AllowAny',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 SIMPLE_JWT = {
@@ -122,7 +125,7 @@ DATABASES = {
         'USER': os.environ.get('POSTGRES_USER', 'nasat'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'nasat'),
         # The HOST must match the 'serviceName' defined in your StatefulSet
-        'HOST': os.environ.get('POSTGRES_HOST', 'postgres'), 
+        'HOST': os.environ.get('POSTGRES_HOST', 'postgres'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }

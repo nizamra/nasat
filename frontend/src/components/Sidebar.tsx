@@ -1,14 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import { 
-  FaHome, 
-  FaCompass, 
-  FaBell, 
-  FaWhatsapp, 
-  FaBookmark, 
-  FaUsers, 
-  FaCalendar, 
-  FaUser, 
-  FaCog 
+import {
+  FaHome,
+  FaCompass,
+  FaBell,
+  FaWhatsapp,
+  FaBookmark,
+  FaUsers,
+  FaCalendar,
+  FaUser,
+  FaCog,
+  FaUserPlus
 } from 'react-icons/fa';
 
 // 1. Define exactly what a Menu Item looks like
@@ -27,6 +28,7 @@ export default function Sidebar() {
   const menuItems: MenuItem[] = [
     { name: "Home", icon: FaHome, path: "/" },
     { name: "Explore", icon: FaCompass, path: "/explore" },
+    { name: "Add User", icon: FaUserPlus, path: "/add-user" },
     { name: "Notifications", icon: FaBell, path: "/notifications", badge: 3 },
     { name: "Messages", icon: FaWhatsapp, path: "/messages", badge: 2 },
     { name: "Bookmarks", icon: FaBookmark, path: "/bookmarks" },

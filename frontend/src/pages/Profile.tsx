@@ -48,7 +48,7 @@ export default function Profile() {
 
       <div className="grid-3" style={{ marginTop: '20px' }}>
         <AboutCard user={data} />
-        <Relations />
+        <Relations username={data.username} />
         <SocialLinks links={data.social_links} />
       </div>
 
