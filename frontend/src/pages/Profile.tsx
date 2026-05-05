@@ -17,7 +17,7 @@ export default function Profile() {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`/api/users/${username}/`)
+    axios.get(`http://staging.nasat.local/api/users/${username}/`)
       .then(response => {
         setData(response.data);
         setLoading(false);
@@ -34,22 +34,21 @@ export default function Profile() {
   return (
     <>
       <Header />
+        <div style={{ marginTop: '24px' }}>
+          <ProfileCard 
+            username={data.username}
+            title={data.title}
+            bio={data.bio}
+            avatar={data.avatar}
+            is_verified={data.is_verified}
+          />
+        </div>
 
-      <div style={{ marginTop: '24px' }}>
-        <ProfileCard 
-          username={data.username}
-          title={data.title}
-          bio={data.bio}
-          avatar={data.avatar}
-          is_verified={data.is_verified}
-        />
-      </div>
-
-      <div className="grid-3" style={{ marginTop: '20px' }}>
-        <AboutCard />
-        <Relations />
-        <SocialLinks />
-      </div>
+        <div className="grid-3" style={{ marginTop: '20px' }}>
+          <AboutCard user={data} /> 
+          <Relations />
+          <SocialLinks links={data.social_links} />
+        </div>
 
       <div className="tabs">
         <div className="tab active">Posts</div>

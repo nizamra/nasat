@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: frontend
 spec:
+  revisionHistoryLimit: 3
   replicas: 2
   selector:
     matchLabels:

@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: backend
 spec:
+  revisionHistoryLimit: 3
   replicas: 2
   selector:
     matchLabels:
@@ -15,26 +16,9 @@ spec:
       imagePullSecrets:
         - name: dockerhub-cred
       initContainers:
-        # # Wait for Postgres to be reachable
-        # - name: wait-for-db
-        #   image: postgres:16
-        #   command:
-        #     - sh
-        #     - -c
-        #     - |
-        #       getent hosts postgres
-        # # Run the migration
-        # - name: db-migrate
-        #   image: nizamra/nasat-backend:52dc55f9ace38fd0414d1e642ef546bf3bd681fe
-        #   command: ["sh", "-c", "python manage.py migrate users && python manage.py migrate"]
-        #   envFrom:
-        #     - configMapRef:
-        #         name: backend-config
-        #     - secretRef:
-        #         name: backend-secrets
       containers:
         - name: backend
-          image: nizamra/nasat-backend:52dc55f9ace38fd0414d1e642ef546bf3bd681fe
+          image: nizamra/nasat-backend:998cfd59a6bd24a91e48462d2bad340331ea175a
           ports:
             - containerPort: 8000
           envFrom:
