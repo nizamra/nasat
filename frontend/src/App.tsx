@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Profile from "./pages/Profile";
 import Feed from "./pages/Feed";
+import Explore from "./pages/Explore";
 import Sidebar from "./components/Sidebar";
 
 export default function App() {
@@ -9,10 +10,11 @@ export default function App() {
       <div className="app-container">
         {/* Sidebar is global, so it stays outside the Routes */}
         <Sidebar />
-        
+
         <div className="main-content">
           <Routes>
             <Route path="/" element={<Feed />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/profile/:username" element={<Profile />} />
           </Routes>
         </div>
