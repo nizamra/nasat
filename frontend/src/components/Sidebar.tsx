@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { Home, Compass, Bell, MessageCircle, Bookmark, Users, Calendar, User, Settings } from 'lucide-react';
 
 // 1. Define exactly what a Menu Item looks like
 interface MenuItem {
   name: string;
-  icon: string;
+  icon: React.ElementType;
   path: string;   // This must be a string, not undefined
   badge?: number; // Optional
   active?: boolean; // Optional
@@ -14,15 +15,15 @@ export default function Sidebar() {
 
   // 2. Explicitly type the array as MenuItem[]
   const menuItems: MenuItem[] = [
-    { name: "Home", icon: "🏠", path: "/" },
-    { name: "Explore", icon: "🔍", path: "/explore" },
-    { name: "Notifications", icon: "🔔", path: "/notifications", badge: 3 },
-    { name: "Messages", icon: "💬", path: "/messages", badge: 2 },
-    { name: "Bookmarks", icon: "🔖", path: "/bookmarks" },
-    { name: "Groups", icon: "👥", path: "/groups" },
-    { name: "Events", icon: "📅", path: "/events" },
-    { name: "Profile", icon: "👤", path: "/profile/me" }, 
-    { name: "Settings", icon: "⚙️", path: "/settings" },
+    { name: "Home", icon: Home, path: "/" },
+    { name: "Explore", icon: Compass, path: "/explore" },
+    { name: "Notifications", icon: Bell, path: "/notifications", badge: 3 },
+    { name: "Messages", icon: MessageCircle, path: "/messages", badge: 2 },
+    { name: "Bookmarks", icon: Bookmark, path: "/bookmarks" },
+    { name: "Groups", icon: Users, path: "/groups" },
+    { name: "Events", icon: Calendar, path: "/events" },
+    { name: "Profile", icon: User, path: "/profile/me" },
+    { name: "Settings", icon: Settings, path: "/settings" },
   ];
 
   return (

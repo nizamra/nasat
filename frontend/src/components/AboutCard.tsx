@@ -1,24 +1,59 @@
-export default function AboutCard() {
+import React from 'react';
+import { MapPin, Mail, CalendarDays, Cake } from 'lucide-react';
+// # TODO: test LocateFixed instead of MapPin
+
+interface UserData {
+  location?: string;
+  email?: string;
+  date_joined?: string;
+  birth_date?: string;
+}
+
+export default function AboutCard({ user }: { user?: UserData }) {
+  if (!user) return null;
+
+  // Safely format dates if they exist
+  const joinedDate = user.date_joined 
+    ? new Date(user.date_joined).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+    : null;
+    
+  const birthDate = user.birth_date 
+    ? new Date(user.birth_date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
+    : null;
+
   return (
     <div className="card">
       <h3>About</h3>
       <div className="flex-col" style={{ marginTop: '16px', gap: '16px' }}>
-        <div className="flex-row" style={{ gap: '12px' }}>
-          <span className="text-muted">📍</span>
-          <span className="text-muted">San Francisco, CA</span>
-        </div>
-        <div className="flex-row" style={{ gap: '12px' }}>
-          <span className="text-muted">✉️</span>
-          <a href="#" className="text-link">alex.morgan@email.com</a>
-        </div>
-        <div className="flex-row" style={{ gap: '12px' }}>
-          <span className="text-muted">📅</span>
-          <span className="text-muted">Joined March 2019</span>
-        </div>
-        <div className="flex-row" style={{ gap: '12px' }}>
-          <span className="text-muted">🎂</span>
-          <span className="text-muted">Born May 15, 1990</span>
-        </div>
+        
+        {user.location && (
+          <div className="flex-row" style={{ gap: '12px' }}>
+            <MapPin size={20} className="text-muted" />
+            <span className="text-muted">{user.location}</span>
+          </div>
+        )}
+
+        {user.email && (
+          <div className="flex-row" style={{ gap: '12px' }}>
+            <Mail size={20} className="text-muted" />
+            <a href={`mailto:${user.email}`} className="text-link">{user.email}</a>
+          </div>
+        )}
+
+        {joinedDate && (
+          <div className="flex-row" style={{ gap: '12px' }}>
+            <CalendarDays size={20} className="text-muted" />
+            <span className="text-muted">Joined {joinedDate}</span>
+          </div>
+        )}
+
+        {birthDate && (
+          <div className="flex-row" style={{ gap: '12px' }}>
+            <Cake size={20} className="text-muted" />
+            <span className="text-muted">Born {birthDate}</span>
+          </div>
+        )}
+
       </div>
     </div>
   );

@@ -24,4 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'title', 'bio', 'location', 'avatar', 'is_verified', 'social_links']
+        # Added 'email', 'birth_date', and 'date_joined' to the fields array
+        fields = [
+            'id', 'username', 'email', 'title', 'bio', 'location', 
+            'avatar', 'is_verified', 'birth_date', 'date_joined', 'social_links'
+        ]
