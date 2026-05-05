@@ -21,31 +21,6 @@ spec:
           volumeMounts:
             - name: minio-data
               mountPath: /data
-        
-        # Wait for MinIO and set bucket policy
-        - name: setup-bucket-policy
-          image: minio/mc:latest
-          command:
-            - /bin/sh
-            - -c
-            - |
-              # Wait for MinIO API to be available
-              until mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} 2>/dev/null; do
-                echo "Waiting for MinIO service..."
-                sleep 2
-              done
-              
-              # Create bucket and set policy
-              mc mb --ignore-existing local/nasat-media
-              mc policy set download local/nasat-media
-              
-              echo "MinIO bucket nasat-media is now public"
-              exit 0
-          env:
-            - name: MINIO_ROOT_USER
-              value: minioadmin
-            - name: MINIO_ROOT_PASSWORD
-              value: minioadmin
       
       containers:
         - name: minio
@@ -56,12 +31,34 @@ spec:
               value: minioadmin
             - name: MINIO_ROOT_PASSWORD
               value: minioadmin
+            - name: MINIO_BUCKET
+              value: nasat-media
           ports:
             - containerPort: 9000
             - containerPort: 9001
           volumeMounts:
             - name: minio-data
               mountPath: /data
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    # Wait for MinIO to be ready
+                    until curl -s http://localhost:9000/minio/health/live; do
+                      echo "Waiting for MinIO to start..."
+                      sleep 2
+                    done
+                    
+                    # Install mc client and configure
+                    wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/local/bin/mc
+                    chmod +x /usr/local/bin/mc
+                    mc alias set local http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
+                    mc mb --ignore-existing local/nasat-media
+                    mc policy set download local/nasat-media
+                    echo "MinIO bucket nasat-media is now public"
       volumes:
         - name: minio-data
           persistentVolumeClaim:
