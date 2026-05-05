@@ -1,4 +1,4 @@
-export default function Header() {
+export default function Header({ avatar }: { avatar?: string }) {
   return (
     <div className="flex-row space-between">
       <div style={{ width: '400px', position: 'relative' }}>
@@ -14,7 +14,7 @@ export default function Header() {
         <button className="btn btn-secondary" style={{ borderRadius: '50%', width: '40px', height: '40px', padding: 0 }}>+</button>
         <button className="btn btn-secondary" style={{ borderRadius: '50%', width: '40px', height: '40px', padding: 0 }}>💬</button>
         <button className="btn btn-secondary" style={{ borderRadius: '50%', width: '40px', height: '40px', padding: 0 }}>🔔</button>
-        <img className="avatar-md" src="https://i.pravatar.cc/150?u=alex" alt="Profile" />
+        <img className="avatar-md" src={avatar || "https://via.placeholder.com/150"} alt="Profile" />
       </div>
     </div>
   );

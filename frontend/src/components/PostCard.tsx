@@ -3,14 +3,15 @@ type Props = {
   handle: string;
   time: string;
   content: string;
+  avatar?: string;
 };
 
-export default function PostCard({ user, handle, time, content }: Props) {
+export default function PostCard({ user, handle, time, content, avatar }: Props) {
   return (
     <div className="card">
       <div className="flex-row space-between">
         <div className="flex-row">
-          <img className="avatar-md" src="https://i.pravatar.cc/150?u=alex" alt={user} />
+          <img className="avatar-md" src={avatar || "https://i.pravatar.cc/150"} alt={user} />
           <div>
             <h4 style={{ fontSize: '15px' }}>{user}</h4>
             <span className="text-muted" style={{ fontSize: '13px' }}>{handle} · {time}</span>
