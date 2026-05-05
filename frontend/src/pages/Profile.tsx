@@ -10,13 +10,6 @@ import CreatePost from "../components/CreatePost";
 import PostCard from "../components/PostCard";
 import PhotosCard from "../components/PhotosCard";
 
-// Updated helper function to return string | null instead of string | undefined
-const getFullUrl = (path: string | null | undefined): string | null => {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  return `http://staging.nasat.local${path.startsWith('/') ? '' : '/'}${path}`;
-};
-
 export default function Profile() {
   const { username } = useParams();
   const [data, setData] = useState<any>(null);
@@ -38,13 +31,13 @@ export default function Profile() {
   if (loading) return <div>Loading...</div>;
   if (!data) return <div>User {username} not found.</div>;
 
-  const avatarUrl = getFullUrl(data.avatar);
+  const avatarUrl = data.avatar || null;
 
   return (
     <>
       <Header avatar={avatarUrl || undefined} />
       <div style={{ marginTop: '24px' }}>
-        <ProfileCard 
+        <ProfileCard
           username={data.username}
           title={data.title}
           bio={data.bio}
@@ -54,7 +47,7 @@ export default function Profile() {
       </div>
 
       <div className="grid-3" style={{ marginTop: '20px' }}>
-        <AboutCard user={data} /> 
+        <AboutCard user={data} />
         <Relations />
         <SocialLinks links={data.social_links} />
       </div>
@@ -72,11 +65,11 @@ export default function Profile() {
       <div className="grid-layout">
         <div className="flex-col" style={{ gap: '20px' }}>
           <CreatePost avatar={avatarUrl || undefined} />
-          <PostCard 
-            user={data.username} 
+          <PostCard
+            user={data.username}
             handle={`@${data.username}`}
             time="Now"
-            content="Finally connected to the backend!" 
+            content="Finally connected to the backend!"
             avatar={avatarUrl || undefined}
           />
         </div>

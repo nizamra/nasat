@@ -34,11 +34,11 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
             <button className="btn btn-primary">Add Story</button>
           </div>
         </div>
-
+{/* 
         <div style={{ marginTop: '16px', lineHeight: '1.6' }}>
           <p>Entrepreneur · Investor · Travel Enthusiast</p>
           <p className="text-muted">Building things, investing in people, and exploring the world.</p>
-        </div>
+        </div> */}
 
         <div style={{ marginTop: '16px', lineHeight: '1.6' }}>
           <p>{title}</p>
