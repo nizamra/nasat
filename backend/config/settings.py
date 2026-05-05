@@ -88,7 +88,13 @@ SIMPLE_JWT = {
 AWS_ACCESS_KEY_ID = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
 AWS_SECRET_ACCESS_KEY = os.environ.get('MINIO_SECRET_KEY', 'minioadmin')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('MINIO_BUCKET_NAME', 'nasat-media')
+
+# Internal K3s endpoint for Django backend to upload files
 AWS_S3_ENDPOINT_URL = os.environ.get('MINIO_ENDPOINT', 'http://minio:9000')
+
+# Public domain for the browser to fetch images
+# Update this to match however you expose MinIO through your Ingress or NodePort
+AWS_S3_CUSTOM_DOMAIN = os.environ.get('MINIO_PUBLIC_DOMAIN', 'staging.nasat.local:9000')
 AWS_S3_URL_PROTOCOL = 'http'
 AWS_S3_REGION_NAME = 'us-east-1'
 AWS_S3_USE_SSL = False
@@ -104,9 +110,6 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
-# Ensure media URLs point to MinIO
-MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
 
 # Tell Django to use your custom user model instead of the default one
 AUTH_USER_MODEL = 'users.User'

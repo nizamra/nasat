@@ -12,6 +12,14 @@ spec:
       labels:
         app: minio
     spec:
+      initContainers:
+        # create the 'nasat-media' bucket directory
+        - name: create-bucket
+          image: busybox:1.36
+          command: ['sh', '-c', 'mkdir -p /data/nasat-media']
+          volumeMounts:
+            - name: minio-data
+              mountPath: /data
       containers:
         - name: minio
           image: minio/minio
@@ -24,3 +32,10 @@ spec:
           ports:
             - containerPort: 9000
             - containerPort: 9001
+          volumeMounts:
+            - name: minio-data
+              mountPath: /data
+      volumes:
+        - name: minio-data
+          persistentVolumeClaim:
+            claimName: minio-pvc
