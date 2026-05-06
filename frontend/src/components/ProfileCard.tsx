@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 type ProfileProps = {
   username: string;
   title: string;
@@ -7,9 +9,12 @@ type ProfileProps = {
 };
 
 export default function ProfileCard({ username, title, bio, avatar, is_verified }: ProfileProps) {
-  const avatarSrc = avatar && avatar.startsWith('http') 
-    ? avatar 
-    : "https://i.pravatar.cc/300";
+  const navigate = useNavigate();
+  const defaultAvatar = "/default.jpg";
+
+  const avatarSrc = avatar && avatar.startsWith('http')
+    ? avatar
+    : defaultAvatar;
 
   return (
     <div className="card flex-row" style={{ gap: '32px', alignItems: 'flex-start' }}>
@@ -17,8 +22,11 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
         className="avatar-lg"
         src={avatarSrc}
         alt={username}
-        referrerPolicy="no-referrer" 
+        referrerPolicy="no-referrer"
         crossOrigin="anonymous"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = defaultAvatar;
+        }}
       />
 
       <div className="flex-col" style={{ flex: 1 }}>
@@ -30,11 +38,16 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
             <p className="text-muted" style={{ marginTop: '4px' }}>@{username}</p>
           </div>
           <div className="flex-row">
-            <button className="btn btn-secondary">Edit Profile</button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate(`/edit-user/${username}`)}
+            >
+              Edit Profile
+            </button>
             <button className="btn btn-primary">Add Story</button>
           </div>
         </div>
-{/* 
+        {/* 
         <div style={{ marginTop: '16px', lineHeight: '1.6' }}>
           <p>Entrepreneur · Investor · Travel Enthusiast</p>
           <p className="text-muted">Building things, investing in people, and exploring the world.</p>

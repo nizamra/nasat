@@ -1,21 +1,27 @@
 import { FaPhotoVideo, FaUserTag, FaSmile } from 'react-icons/fa';
 
 export default function CreatePost({ avatar }: { avatar?: string }) {
+  const defaultAvatar = "/default.jpg";
+  const avatarSrc = avatar || defaultAvatar;
+
   return (
     <div className="card">
       <div className="flex-row">
-        <img 
-          className="avatar-md" 
-          src={avatar || "https://i.pravatar.cc/150?u=alex"} 
-          alt="Profile" 
+        <img
+          className="avatar-md"
+          src={avatarSrc}
+          alt="Profile"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = defaultAvatar;
+          }}
         />
-        <input 
-          className="input-field" 
-          placeholder="What's on your mind?" 
+        <input
+          className="input-field"
+          placeholder="What's on your mind?"
           style={{ background: 'var(--bg-dark)' }}
         />
       </div>
-      
+
       <div className="flex-row space-between" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
         <div className="flex-row" style={{ gap: '24px' }}>
           <span className="text-muted" style={{ cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>

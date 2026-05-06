@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
-  FaWhatsapp, 
-  FaInstagram, 
-  FaTelegram, 
-  FaLinkedin, 
-  FaTwitter, 
-  FaFacebook, 
+import {
+  FaWhatsapp,
+  FaInstagram,
+  FaTelegram,
+  FaLinkedin,
+  FaTwitter,
+  FaFacebook,
   FaGithub,
-  FaLink 
+  FaLink
 } from 'react-icons/fa';
 
 // Map the backend platform choices to their respective react-icons
@@ -35,18 +35,42 @@ export default function SocialLinks({ links = [] }: { links?: SocialLinkData[] }
     <div className="card">
       <h3>Social Links</h3>
       <div className="flex-col" style={{ marginTop: '16px', gap: '16px' }}>
-        <div className="grid-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           {links.map((link, index) => {
             const IconComponent = iconMap[link.platform] || FaLink;
-            
+
             return (
-              <div key={index} className="flex-row" style={{ gap: '12px' }}>
-                <span><IconComponent size={20} /></span>
-                {/* Breaks long URLs or text so it doesn't overflow the container */}
-                <span style={{ fontSize: '14px', wordBreak: 'break-word' }}>
-                  {link.url}
-                </span>
-              </div>
+              <a
+                key={index}
+                href={link.url.startsWith('http') ? link.url : `https://${link.url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '8px',
+                  background: 'var(--bg-input)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-main)',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--accent-blue)';
+                  e.currentTarget.style.color = 'var(--accent-blue)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.color = 'var(--text-main)';
+                }}
+                title={link.url}
+              >
+                <IconComponent size={20} />
+              </a>
             );
           })}
         </div>

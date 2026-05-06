@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 type SocialLink = {
   platform: string;
@@ -7,9 +7,6 @@ type SocialLink = {
 };
 
 type UserFormData = {
-  username: string;
-  email: string;
-  password: string;
   first_name: string;
   last_name: string;
   title: string;
@@ -20,11 +17,9 @@ type UserFormData = {
   social_links: SocialLink[];
 };
 
-export default function AddUser() {
+export default function EditUser() {
+  const { username } = useParams();
   const [formData, setFormData] = useState<UserFormData>({
-    username: "",
-    email: "",
-    password: "",
     first_name: "",
     last_name: "",
     title: "",
@@ -36,11 +31,43 @@ export default function AddUser() {
   });
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [newSocialLink, setNewSocialLink] = useState<SocialLink>({ platform: "instagram", url: "" });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`http://staging.nasat.local/api/users/${username}/`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const data = await response.json();
+        setFormData({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          title: data.title || "",
+          bio: data.bio || "",
+          location: data.location || "",
+          birth_date: data.birth_date || "",
+          avatar: null,
+          social_links: data.social_links || [],
+        });
+        if (data.avatar) {
+          setAvatarPreview(data.avatar);
+        }
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load user data");
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [username]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -88,14 +115,11 @@ export default function AddUser() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    setSubmitting(true);
 
     try {
       // Create FormData for multipart upload
       const submitData = new FormData();
-      submitData.append("username", formData.username);
-      submitData.append("email", formData.email);
-      submitData.append("password", formData.password);
       submitData.append("first_name", formData.first_name);
       submitData.append("last_name", formData.last_name);
       submitData.append("title", formData.title);
@@ -112,40 +136,51 @@ export default function AddUser() {
         submitData.append(`social_links[${index}][url]`, link.url);
       });
 
-      const response = await fetch("/api/users/", {
-        method: "POST",
+      const response = await fetch(`http://staging.nasat.local/api/users/${username}/`, {
+        method: "PATCH",
         body: submitData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.detail || errorData.message || "Failed to create user"
+          errorData.detail || errorData.message || "Failed to update user"
         );
       }
 
       setSuccess(true);
       setTimeout(() => {
-        navigate("/explore");
+        navigate(`/profile/${username}`);
       }, 1500);
     } catch (err: any) {
-      setError(err.message || "Failed to create user. Please try again.");
+      setError(err.message || "Failed to update user. Please try again.");
       console.error("Error:", err);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="add-user-container">
+        <div className="add-user-header">
+          <h1>Edit Profile</h1>
+          <p className="text-muted">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="add-user-container">
       <div className="add-user-header">
-        <h1>Add New User</h1>
-        <p className="text-muted">Create a new user profile with complete information</p>
+        <h1>Edit Profile</h1>
+        <p className="text-muted">Update your profile information</p>
       </div>
 
       {success && (
         <div className="success-banner">
-          ✓ User created successfully! Redirecting...
+          ✓ Profile updated successfully! Redirecting...
         </div>
       )}
 
@@ -215,48 +250,6 @@ export default function AddUser() {
                 placeholder="Doe"
               />
             </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="username">Username *</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              className="input-field"
-              placeholder="johndoe"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="input-field"
-              placeholder="john@example.com"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="input-field"
-              placeholder="••••••••"
-              required
-            />
           </div>
         </div>
 
@@ -408,15 +401,15 @@ export default function AddUser() {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={loading}
+            disabled={submitting}
           >
-            {loading ? "Creating User..." : "Create User"}
+            {submitting ? "Updating Profile..." : "Update Profile"}
           </button>
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => navigate("/explore")}
-            disabled={loading}
+            onClick={() => navigate(`/profile/${username}`)}
+            disabled={submitting}
           >
             Cancel
           </button>

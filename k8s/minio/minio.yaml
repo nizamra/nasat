@@ -58,18 +58,6 @@ spec:
               mc mb --ignore-existing local/nasat-media
               mc anonymous set download local/nasat-media
               
-              # # Set CORS configuration for the bucket
-              # echo '{
-              #   "CORSRules": [
-              #     {
-              #       "AllowedOrigins": ["*"],
-              #       "AllowedMethods": ["GET", "HEAD", "PUT", "POST", "DELETE"],
-              #       "AllowedHeaders": ["*"],
-              #       "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2", "x-amz-version-id"],
-              #       "MaxAgeSeconds": 3600
-              #     }
-              #   ]
-              # }' | mc anonymous set-json local/nasat-media
               echo "MinIO bucket nasat-media is now public."
               
               # Keep container running
