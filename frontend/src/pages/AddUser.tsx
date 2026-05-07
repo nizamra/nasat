@@ -106,12 +106,6 @@ export default function AddUser() {
         submitData.append("avatar", formData.avatar);
       }
 
-      // Add social links
-      formData.social_links.forEach((link, index) => {
-        submitData.append(`social_links[${index}][platform]`, link.platform);
-        submitData.append(`social_links[${index}][url]`, link.url);
-      });
-
       const response = await fetch("/api/users/", {
         method: "POST",
         body: submitData,
@@ -124,13 +118,37 @@ export default function AddUser() {
         );
       }
 
+      const userData = await response.json();
+
+      // Add social links after user is created
+      if (formData.social_links.length > 0) {
+        for (const link of formData.social_links) {
+          const socialLinkData = new FormData();
+          socialLinkData.append("user", userData.id);
+          socialLinkData.append("platform", link.platform);
+          socialLinkData.append("url", link.url);
+
+          const socialResponse = await fetch("/api/social-links/", {
+            method: "POST",
+            body: socialLinkData,
+          });
+
+          if (!socialResponse.ok) {
+            console.error("Failed to add social link:", link.platform);
+          }
+        }
+      }
+
       setSuccess(true);
+      setError("");
+      
+      // Redirect after short delay
       setTimeout(() => {
         navigate("/explore");
-      }, 1500);
+      }, 2000);
+      
     } catch (err: any) {
-      setError(err.message || "Failed to create user. Please try again.");
-      console.error("Error:", err);
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -138,11 +156,8 @@ export default function AddUser() {
 
   return (
     <div className="add-user-container">
-      <div className="add-user-header">
-        <h1>Add New User</h1>
-        <p className="text-muted">Create a new user profile with complete information</p>
-      </div>
-
+      <h2>Add New User</h2>
+      
       {success && (
         <div className="success-banner">
           ✓ User created successfully! Redirecting...

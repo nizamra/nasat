@@ -81,7 +81,7 @@ export default function Explore() {
 
   const getAvatarUrl = (avatarPath: string | null) => {
     if (!avatarPath) {
-      return "https://via.placeholder.com/100?text=User";
+      return "/default.jpg";
     }
     if (avatarPath.startsWith("http")) {
       return avatarPath;
@@ -196,6 +196,9 @@ export default function Explore() {
                     src={getAvatarUrl(user.avatar)}
                     alt={getFullName(user)}
                     className="user-avatar"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/default.jpg";
+                    }}
                   />
                   {user.is_verified && (
                     <span className="verified-badge" title="Verified">

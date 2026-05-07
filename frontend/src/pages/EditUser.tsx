@@ -130,12 +130,6 @@ export default function EditUser() {
         submitData.append("avatar", formData.avatar);
       }
 
-      // Add social links
-      formData.social_links.forEach((link, index) => {
-        submitData.append(`social_links[${index}][platform]`, link.platform);
-        submitData.append(`social_links[${index}][url]`, link.url);
-      });
-
       const response = await fetch(`http://staging.nasat.local/api/users/${username}/`, {
         method: "PATCH",
         body: submitData,
@@ -146,6 +140,36 @@ export default function EditUser() {
         throw new Error(
           errorData.detail || errorData.message || "Failed to update user"
         );
+      }
+
+      const userData = await response.json();
+
+      // Delete all existing social links for this user
+      try {
+        await fetch(`http://staging.nasat.local/api/users/${username}/social-links/`, {
+          method: "DELETE",
+        });
+      } catch (err) {
+        console.error("Could not delete old social links:", err);
+      }
+
+      // Add new social links
+      if (formData.social_links.length > 0) {
+        for (const link of formData.social_links) {
+          const socialLinkData = new FormData();
+          socialLinkData.append("user", userData.id);
+          socialLinkData.append("platform", link.platform);
+          socialLinkData.append("url", link.url);
+
+          const socialResponse = await fetch("http://staging.nasat.local/api/social-links/", {
+            method: "POST",
+            body: socialLinkData,
+          });
+
+          if (!socialResponse.ok) {
+            console.error("Failed to add social link:", link.platform);
+          }
+        }
       }
 
       setSuccess(true);

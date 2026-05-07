@@ -50,7 +50,7 @@ export default function Relations({ username }: RelationsProps) {
 
   const getAvatarUrl = (avatarPath: string | null) => {
     if (!avatarPath) {
-      return "https://via.placeholder.com/56?text=U";
+      return "/default.jpg";
     }
     if (avatarPath.startsWith("http")) {
       return avatarPath;
@@ -83,6 +83,9 @@ export default function Relations({ username }: RelationsProps) {
                   src={getAvatarUrl(r.to_user.avatar)}
                   alt={getFullName(r)}
                   title={getFullName(r)}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/default.jpg";
+                  }}
                 />
                 <div className="relation-info">
                   <p className="relation-name">{getFullName(r)}</p>
