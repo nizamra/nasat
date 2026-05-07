@@ -18,7 +18,7 @@ spec:
       initContainers:
       containers:
         - name: backend
-          image: nizamra/nasat-backend:d97018cd5bf55702cbda9e32788b969c38bbdb65
+          image: nizamra/nasat-backend:6c68a16061e1bc8ce5a5ed808228b8ee8c393cce
           ports:
             - containerPort: 8000
           envFrom:
