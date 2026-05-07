@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import React from "react";
 
 type ProfileProps = {
   username: string;
@@ -10,7 +11,9 @@ type ProfileProps = {
 
 export default function ProfileCard({ username, title, bio, avatar, is_verified }: ProfileProps) {
   const navigate = useNavigate();
-  const defaultAvatar = "/default.jpg";
+  // Use a data URI for default avatar to avoid network issues and infinite loops
+  const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a2235' width='100' height='100'/%3E%3Ccircle cx='50' cy='35' r='20' fill='%2394a3b8'/%3E%3Cpath d='M30 70 Q30 55 50 55 Q70 55 70 70 L70 100 L30 100 Z' fill='%2394a3b8'/%3E%3C/svg%3E";
+  const [hasError, setHasError] = React.useState(false);
 
   const avatarSrc = avatar && avatar.startsWith('http')
     ? avatar
@@ -20,13 +23,11 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
     <div className="card flex-row" style={{ gap: '32px', alignItems: 'flex-start' }}>
       <img
         className="avatar-lg"
-        src={avatarSrc}
+        src={hasError ? defaultAvatar : avatarSrc}
         alt={username}
         referrerPolicy="no-referrer"
         crossOrigin="anonymous"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = defaultAvatar;
-        }}
+        onError={() => setHasError(true)}
       />
 
       <div className="flex-col" style={{ flex: 1 }}>

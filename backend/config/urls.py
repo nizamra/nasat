@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from apps.users.views import RegisterView, RelationViewSet
+from apps.users.views import RegisterView, RelationViewSet, SocialLinkViewSet
 from apps.social.views import FollowToggleView
 from apps.posts.views import CreatePostView, FeedView
 from django.urls import path, include
@@ -13,6 +13,7 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'relations', RelationViewSet, basename='relation')
+router.register(r'social-links', SocialLinkViewSet, basename='social-link')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -2,8 +2,8 @@ from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .serializers import RegisterSerializer, UserSerializer, RelationSerializer
-from .models import User, Relation
+from .serializers import RegisterSerializer, UserSerializer, RelationSerializer, SocialLinkSerializer
+from .models import User, Relation, SocialLink
 from django.db.models import Q
 
 User = get_user_model()
@@ -97,6 +97,53 @@ class RelationViewSet(viewsets.ModelViewSet):
                 )
 
             serializer = self.get_serializer(relation)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class SocialLinkViewSet(viewsets.ModelViewSet):
+    queryset = SocialLink.objects.all()
+    serializer_class = SocialLinkSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        user_id = self.request.query_params.get('user_id')
+        if user_id:
+            return SocialLink.objects.filter(user_id=user_id)
+        return SocialLink.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        """Create a social link for a user"""
+        user_id = request.data.get('user')
+        platform = request.data.get('platform')
+        url = request.data.get('url')
+
+        # Validate inputs
+        if not all([user_id, platform, url]):
+            return Response(
+                {'error': 'Missing required fields: user, platform, url'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            social_link = SocialLink.objects.create(
+                user=user,
+                platform=platform,
+                url=url
+            )
+            serializer = self.get_serializer(social_link)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(
