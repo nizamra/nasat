@@ -1,0 +1,29 @@
+# trivy-operator-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trivy-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://aquasecurity.github.io/helm-charts/
+    chart: trivy-operator
+    targetRevision: 0.30.1
+    helm:
+      values: |
+        operator:
+          replicas: 1
+        # This is where you can customize the operator's behavior.
+        # For a small cluster, keeping it simple is best.
+        trivy:
+          ignoreUnfixed: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: trivy-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
