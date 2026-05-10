@@ -1,28 +1,78 @@
-loki-stack:
-  loki:
-    auth_enabled: false
-    commonConfig:
-      replication_factor: 1
-    storage:
-      type: 'filesystem'
-    limits_config:
-      retention_period: 720h
-    schema_config:
-      configs:
-        - from: "2024-01-01"
-          store: tsdb
-          object_store: filesystem
-          schema: v13
-          index:
-            prefix: index_
-            period: 24h
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 720h
-    rbac:
-      pspEnabled: false
+deploymentMode: SingleBinary
 
-  promtail:
+loki:
+  auth_enabled: false
+
+  storage:
+    type: filesystem
+    bucketNames:
+      chunks: chunks
+      rules: rules
+      admin: admin
+
+  commonConfig:
+    replication_factor: 1
+    path_prefix: /var/loki
+    storage:
+      filesystem:
+        chunks_directory: /var/loki/chunks
+        rules_directory: /var/loki/rules
+
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+  limits_config:
+    retention_period: 720h
+    ingestion_rate_mb: 16
+    ingestion_burst_size_mb: 32
+
+  compactor:
+    working_directory: /var/loki/compactor
+    retention_enabled: true
+    delete_request_store: filesystem
+
+  ingester:
+    chunk_idle_period: 5m
+    chunk_retain_period: 30s
+
+  querier:
+    max_concurrent: 4
+
+singleBinary:
+  replicas: 1
+  persistence:
     enabled: true
-    rbac:
-      pspEnabled: false
+    storageClass: local-path
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+read:
+  replicas: 0
+write:
+  replicas: 0
+backend:
+  replicas: 0
+
+gateway:
+  enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+monitoring:
+  selfMonitoring:
+    enabled: false

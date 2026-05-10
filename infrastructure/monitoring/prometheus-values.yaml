@@ -1,67 +1,89 @@
-kube-prometheus-stack:
-  prometheus:
-    prometheusSpec:
-      scrapeInterval: "20s"
-      retention: "30d"
-      retentionSize: "10GB"
-      resources:
-        requests:
-          memory: "800Mi"
-        limits:
-          memory: "1.5Gi"
-      storageSpec:
-        volumeClaimTemplate:
-          spec:
-            storageClassName: local-path
-            accessModes: ["ReadWriteOnce"]
-            resources:
-              requests:
-                storage: 10Gi
-    rbac:
-      pspEnabled: false
+prometheus:
+  prometheusSpec:
+    scrapeInterval: "60s"
+    evaluationInterval: "60s"
+    retention: "30d"
+    retentionSize: "10GB"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "768Mi"
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+defaultRules:
+  rules:
+    kubeScheduler: false
+    kubeControllerManager: false
+    kubeProxy: false
+    etcd: false
 
-  grafana:
-    persistence:
-      enabled: true
-      storageClassName: local-path
-      size: 2Gi
-    adminPassword: "J2T9UY9RrlkAp-sj"
-    rbac:
-      pspEnabled: false
-    ingress:
-      enabled: true
-      hosts:
-        - grafana.nasat.local
-      path: /
-      pathType: Prefix
-    sidecar:
-      dashboards:
-        enabled: true
-        label: grafana_dashboard
-        labelValue: "1"
-        searchNamespace: ALL
-
-  # Disable Alerting
-  alertmanager:
+grafana:
+  persistence:
     enabled: false
-
-  # Correctly disable webhooks for the Operator
-  prometheusOperator:
-    admissionWebhooks:
+    storageClassName: local-path
+    size: 2Gi
+    accessModes: ["ReadWriteOnce"]
+  adminPassword: "J2T9UY9RrlkAp-sj"
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - grafana.nasat.local
+    path: /
+    pathType: Prefix
+  sidecar:
+    dashboards:
       enabled: false
-      patch:
-        enabled: false
-    tls:
-      enabled: false  # Explicitly disable TLS for the operator
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
 
-  # Disable scraping for K3s internal components
-  kubeProxy:
-    enabled: false
-  kubeScheduler:
-    enabled: false
-  kubeControllerManager:
-    enabled: false
+# Disable Alerting
+alertmanager:
+  enabled: false
 
-  prometheus-node-exporter:
-    rbac:
-      pspEnabled: false
+# # Correctly disable webhooks for the Operator
+# prometheusOperator:
+#   admissionWebhooks:
+#     enabled: false
+#     patch:
+#       enabled: false
+#   tls:
+#     enabled: false  # Explicitly disable TLS for the operator
+
+# Disable scraping for K3s internal components
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+windowsMonitoring:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+coreDns:
+  enabled: false
+
+kubeDns:
+  enabled: false
+
+kubelet:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: false
