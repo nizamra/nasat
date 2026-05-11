@@ -82,8 +82,5 @@ kubeDns:
 kubelet:
   enabled: false
 
-nodeExporter:
-  enabled: false
-
 kubeStateMetrics:
   enabled: false

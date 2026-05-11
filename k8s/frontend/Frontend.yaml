@@ -13,11 +13,27 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+        - name: dockerhub-cred
       containers:
         - name: frontend
           image: nizamra/nasat-frontend:bb5610cb1bb5ef2b276a2918830c72bb63fb1525
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
-      imagePullSecrets:
-        - name: dockerhub-cred
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkding
+  namespace: linkding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkding
+  template:
+    metadata:
+      labels:
+        app: linkding
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+      containers:
+      - name: linkding
+        image: sissbruecker/linkding:1.45.0
+        ports:
+        - containerPort: 9090
+        env:
+        - name: LD_SUPERUSER_NAME
+          value: "admin"
+        - name: LD_SUPERUSER_PASSWORD
+          value: "J2T9UY9RrlkAp-sj"
+        - name: LD_DISABLE_BACKGROUND_TASKS
+          value: "False"
+        volumeMounts:
+        - name: linkding-data
+          mountPath: /etc/linkding/data
+      volumes:
+      - name: linkding-data
+        persistentVolumeClaim:
+          claimName: linkding-data
