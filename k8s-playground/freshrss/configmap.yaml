@@ -1,0 +1,13 @@
+# ConfigMap for FreshRSS configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: freshrss-config
+  namespace: freshrss
+data:
+  # Base URL for FreshRSS
+  FRESHRSS_BASE_URL: "https://freshrss.nasat.local"
+  # Database type - using SQLite for simplicity
+  FRESHRSS_DB_TYPE: "sqlite"
+  # Language and timezone
+  TZ: "UTC"

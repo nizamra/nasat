@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  bookmarks.yaml: |
+    - Developer:
+        - Github:
+            - abbr: GH
+              href: https://github.com
+        - Project Docs:
+            - abbr: Docs
+              href: https://github.com/nizamra/nasat
+
+  services.yaml: |
+    - Infrastructure:
+        - ArgoCD:
+            href: https://argo.nasat.local
+            description: GitOps CD
+
+    - Main Application:
+        - NASAT Frontend:
+            href: https://staging.nasat.local
+            description: Main Application
+        - Backend API:
+            href: https://staging.nasat.local/api
+            description: REST API
+
+    - Playground Stack:
+        - Linkding:
+            href: https://bookmarks.nasat.local
+            description: Bookmark Manager
+        - n8n:
+            href: https://n8n.nasat.local
+            description: Workflow Automation
+        - Jellyfin:
+            href: https://jellyfin.nasat.local
+            description: Media Server
+        - FreshRSS:
+            href: https://freshrss.nasat.local
+            description: RSS Reader
+
+    - Storage:
+        - MinIO:
+            href: https://staging.nasat.local/media
+            description: Object Storage
+
+  widgets.yaml: |
+    - search:
+        provider: google
+        target: _blank
+
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: k3s-cluster
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+
+  settings.yaml: |
+    title: NASAT Homepage
+    theme: dark
+    color: slate
+    layout:
+      header:
+        title: true
+        icon: true
+        colorIcon: true
+      columns: 4
+
+  kubernetes.yaml: |
+    mode: cluster
+    ingress: true

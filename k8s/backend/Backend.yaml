@@ -27,13 +27,13 @@ spec:
                 name: backend-secrets
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /admin/login/
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /readyz
+              path: /admin/login/
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 5

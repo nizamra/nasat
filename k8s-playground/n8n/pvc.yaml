@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: linkding-data
-  namespace: linkding
+  name: n8n-data
+  namespace: n8n
 spec:
   accessModes:
     - ReadWriteOnce
+  # Uses default storage class (local-path for K3s)
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi

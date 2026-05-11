@@ -27,6 +27,10 @@ spec:
           value: "J2T9UY9RrlkAp-sj"
         - name: LD_DISABLE_BACKGROUND_TASKS
           value: "False"
+        - name: LD_CSRF_TRUSTED_ORIGINS
+          value: "http://bookmarks.nasat.local"
+        - name: LD_DISABLE_URL_VALIDATION
+          value: "True"
         volumeMounts:
         - name: linkding-data
           mountPath: /etc/linkding/data

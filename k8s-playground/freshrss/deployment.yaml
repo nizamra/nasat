@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freshrss
+  namespace: freshrss
+  labels:
+    app: freshrss
+    tier: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: freshrss
+  strategy:
+    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+  template:
+    metadata:
+      labels:
+        app: freshrss
+        tier: application
+    spec:
+      # Ensure pods run on worker nodes only
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      terminationGracePeriodSeconds: 15
+
+      containers:
+        - name: freshrss
+          image: freshrss/freshrss:1.29.0
+          imagePullPolicy: IfNotPresent
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+
+          # Load environment from ConfigMap and Secret
+          envFrom:
+            - configMapRef:
+                name: freshrss-config
+            - secretRef:
+                name: freshrss-secrets
+
+          # Volume mounts
+          volumeMounts:
+            - name: freshrss-data
+              mountPath: /var/www/FreshRSS/data
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          # Startup probe
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 20
+            periodSeconds: 5
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+
+      volumes:
+        - name: freshrss-data
+          persistentVolumeClaim:
+            claimName: freshrss-data

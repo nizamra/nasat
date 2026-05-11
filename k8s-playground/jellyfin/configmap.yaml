@@ -1,0 +1,11 @@
+# ConfigMap for Jellyfin environment configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jellyfin-config
+  namespace: jellyfin
+data:
+  JELLYFIN_PublishedServerUrl: "https://jellyfin.nasat.local"
+  JELLYFIN_FFmpeg__ProtonVideoToolsEnabled: "false"
+  # Optional: Enable hardware acceleration if available
+  # JELLYFIN_FFmpeg__HardwareAcceleration: "auto"

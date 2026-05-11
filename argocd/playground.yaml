@@ -4,6 +4,7 @@ metadata:
   name: playground
   namespace: argocd
 spec:
+  project: default
   destination:
     server: https://kubernetes.default.svc
     namespace: playground
@@ -17,5 +18,12 @@ spec:
     automated:
       prune: true
       selfHeal: true
+      enabled: true
     syncOptions:
       - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
