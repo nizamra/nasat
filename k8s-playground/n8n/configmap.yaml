@@ -6,11 +6,11 @@ metadata:
   namespace: n8n
 data:
   # n8n loads these as environment variables
-  N8N_PROTOCOL: "https"
+  N8N_PROTOCOL: "http"
   N8N_HOST: "n8n.nasat.local"
   N8N_PORT: "5678"
   N8N_PATH: "/"
-  N8N_SECURE_COOKIE: "true"
+  N8N_SECURE_COOKIE: "false"
   # Database configuration (internal SQLite for simplicity)
   DB_TYPE: "sqlite"
   # Execution mode

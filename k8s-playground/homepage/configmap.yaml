@@ -16,34 +16,34 @@ data:
   services.yaml: |
     - Infrastructure:
         - ArgoCD:
-            href: https://argo.nasat.local
+            href: http://argo.nasat.local
             description: GitOps CD
 
     - Main Application:
         - NASAT Frontend:
-            href: https://staging.nasat.local
+            href: http://staging.nasat.local/explore
             description: Main Application
         - Backend API:
-            href: https://staging.nasat.local/api
+            href: http://staging.nasat.local/api
             description: REST API
 
     - Playground Stack:
         - Linkding:
-            href: https://bookmarks.nasat.local
+            href: http://bookmarks.nasat.local
             description: Bookmark Manager
         - n8n:
-            href: https://n8n.nasat.local
+            href: http://n8n.nasat.local
             description: Workflow Automation
         - Jellyfin:
-            href: https://jellyfin.nasat.local
+            href: http://jellyfin.nasat.local
             description: Media Server
         - FreshRSS:
-            href: https://freshrss.nasat.local
+            href: http://freshrss.nasat.local
             description: RSS Reader
 
     - Storage:
         - MinIO:
-            href: https://staging.nasat.local/media
+            href: http://staging.nasat.local/media
             description: Object Storage
 
   widgets.yaml: |

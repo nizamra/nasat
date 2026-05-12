@@ -5,9 +5,7 @@ metadata:
   namespace: n8n
   annotations:
     kubernetes.io/ingress.class: "traefik"
-    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
-    # Redirect HTTP to HTTPS (requires TLS configuration)
-    traefik.ingress.kubernetes.io/router.middlewares: "n8n-redirect-https@kubernetescrd"
+    traefik.ingress.kubernetes.io/router.entrypoints: "web"
 spec:
   rules:
     - host: n8n.nasat.local
