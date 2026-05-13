@@ -40,6 +40,9 @@ data:
         - FreshRSS:
             href: http://freshrss.nasat.local
             description: RSS Reader
+        - Gotify:
+            href: http://gotify.nasat.local
+            description: Notification System
 
     - Storage:
         - MinIO:

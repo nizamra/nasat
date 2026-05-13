@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gotify
+  namespace: gotify
+  labels:
+    app: gotify
+    tier: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gotify
+  strategy:
+    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+  template:
+    metadata:
+      labels:
+        app: gotify
+        tier: application
+    spec:
+      # Ensure pods run on worker nodes only
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      terminationGracePeriodSeconds: 15
+
+      containers:
+        - name: gotify
+          image: gotify/server:2.9.1
+          imagePullPolicy: IfNotPresent
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+
+          # Load environment from ConfigMap and Secret
+          envFrom:
+            - configMapRef:
+                name: gotify-config
+            - secretRef:
+                name: gotify-secrets
+
+          # Volume mounts
+          volumeMounts:
+            - name: data
+              mountPath: /data
+
+          # Resource limits
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: gotify-data

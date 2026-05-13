@@ -43,13 +43,21 @@ nasat/
 │   ├── vite.config.ts   # Vite build configuration
 │   ├── tsconfig.json    # TypeScript configuration
 │   └── package.json     # Node dependencies
-├── k8s/                 # Kubernetes manifests
-│   ├── argocd/         # ArgoCD deployment configuration
+├── argocd/              # ArgoCD deployment configuration
+│   ├── app-of-apps.yaml      # Helm apps orchestration
+│   ├── argocd.yaml           # ArgoCD setup
+│   ├── argocd-staging.yaml   # Staging environment
+│   └── *.yaml                # Application stacks (monitoring, storage, etc.)
+├── k8s/                 # Kubernetes manifests for core services
 │   ├── backend/        # Backend deployment manifests
 │   ├── frontend/       # Frontend deployment manifests
-│   ├── ingress/        # Ingress configuration
+│   ├── ingress/        # Ingress & Traefik configuration
 │   ├── minio/          # MinIO object storage setup
 │   └── postgres/       # PostgreSQL database setup
+├── infrastructure/      # Infrastructure and monitoring configurations
+│   └── monitoring/     # Prometheus & Loki stack with dashboards
+├── k8s-playground/     # Playground applications (see k8s-playground/README.md)
+│   └── [Various applications in separate namespaces]
 └── README.md           # This file
 ```
 
@@ -175,16 +183,27 @@ This will start both the backend and frontend services.
 
 1. Apply the ArgoCD configuration:
 ```bash
-kubectl apply -f k8s/argocd/argocd.yaml
+kubectl apply -f argocd/argocd.yaml
 ```
 
-2. Deploy the application stack:
+2. Deploy the application stack using app-of-apps pattern:
+```bash
+kubectl apply -f argocd/app-of-apps.yaml
+```
+
+Or manually deploy core services:
 ```bash
 kubectl apply -f k8s/postgres/postgres.yaml
 kubectl apply -f k8s/minio/minio.yaml
 kubectl apply -f k8s/backend/Backend.yaml
 kubectl apply -f k8s/frontend/Frontend.yaml
 kubectl apply -f k8s/ingress/ingress.yaml
+```
+
+3. Deploy monitoring stack (optional):
+```bash
+kubectl apply -f argocd/prometheus-stack.yaml
+kubectl apply -f argocd/loki-stack.yaml
 ```
 
 ### Access the Application
@@ -252,6 +271,30 @@ curl -X POST http://localhost:8000/api/social/follow/ \
   -d '{"following_id": 2}'
 ```
 
+### Infrastructure & Monitoring
+
+#### Prometheus & Loki Stack
+
+The infrastructure includes comprehensive monitoring and logging:
+
+- **Prometheus**: Metrics collection and alerting
+- **Loki**: Log aggregation
+- **Dashboards**: Pre-configured Grafana dashboards in `infrastructure/monitoring/dashboards/`
+
+Deploy the monitoring stack:
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack -f infrastructure/monitoring/prometheus-values.yaml
+helm install loki grafana/loki-stack -f infrastructure/monitoring/loki-values.yaml
+```
+
+Or use ArgoCD:
+```bash
+kubectl apply -f argocd/prometheus-stack.yaml
+kubectl apply -f argocd/loki-stack.yaml
+```
+
 ## Troubleshooting
 
 ### Database Connection Issues
@@ -286,4 +329,4 @@ For issues or questions, please create an issue in the repository or contact the
 
 ---
 
-**Last Updated**: May 2026
+**Last Updated**: May 13, 2026

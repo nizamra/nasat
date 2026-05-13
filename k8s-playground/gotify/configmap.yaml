@@ -1,0 +1,14 @@
+# ConfigMap for Gotify configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gotify-config
+  namespace: gotify
+data:
+  # Timezone
+  TZ: "UTC"
+  # Gotify server settings
+  GOTIFY_PORT: "80"
+  GOTIFY_DEFAULTLANGUAGE: "en"
+  # SSL disabled since we use ingress for TLS termination
+  GOTIFY_SECURITY_ADMINEMAIL: "admin@nasat.local"
