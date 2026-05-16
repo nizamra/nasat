@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jspwiki-data
+  namespace: jspwiki
+spec:
+  accessModes:
+    - ReadWriteOnce
+  # Uses default storage class (local-path for K3s)
+  resources:
+    requests:
+      storage: 2Gi

@@ -8,7 +8,7 @@ This document provides a complete overview of what was created and how to get st
 
 ## What Was Created
 
-A **production-grade yet lightweight** Kubernetes playground stack with 5 applications:
+A **production-grade yet lightweight** Kubernetes playground stack with 7 applications:
 
 ### Applications Included
 
@@ -19,6 +19,8 @@ A **production-grade yet lightweight** Kubernetes playground stack with 5 applic
 | **Homepage** | 🏠 Dashboard | 1Gi | 50-200m | 64-256Mi |
 | **Jellyfin** | 🎬 Media Server | 5+100Gi | 200-2000m | 512Mi-2Gi |
 | **FreshRSS** | 📰 RSS Reader | 5Gi | 100-500m | 128-512Mi |
+| **JSPWiki** | 📝 Wiki Engine | 2Gi | 100-500m | 256-512Mi |
+| **Pi-hole** | 🛡️ DNS/Ad-Blocker | 2Gi | 100-500m | 128-512Mi |
 
 ### Key Features
 
@@ -64,12 +66,14 @@ nasat/
     │   │   └── kustomization.yaml
     │   ├── homepage/                      # 7 files
     │   ├── jellyfin/                      # 7 files
-    │   └── freshrss/                      # 8 files
+    │   ├── freshrss/                      # 8 files
+    │   ├── jspwiki/                       # 7 files
+    │   └── pihole/                        # 7 files
     │
     └── ingress/                           # (existing)
 ```
 
-**Total**: 41 new files + 7 comprehensive documentation files
+**Total**: 55 new files + 7 comprehensive documentation files
 
 ---
 
@@ -116,6 +120,8 @@ sudo nano /etc/hosts
 192.168.1.100  jellyfin.nasat.local
 192.168.1.100  freshrss.nasat.local
 192.168.1.100  bookmarks.nasat.local
+192.168.1.100  jspwiki.nasat.local
+192.168.1.100  pihole.nasat.local
 ```
 
 **That's it!** 🎉 Access applications in your browser:
@@ -125,6 +131,8 @@ sudo nano /etc/hosts
 - http://jellyfin.nasat.local
 - http://freshrss.nasat.local
 - http://bookmarks.nasat.local
+- http://jspwiki.nasat.local
+- http://pihole.nasat.local
 
 ---
 

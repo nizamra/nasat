@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pihole-config
+  namespace: pihole
+data:
+  # Pi-hole core settings
+  TZ: "UTC"
+  PIHOLE_DOMAIN: "pihole.nasat.local"
+  WEBPASSWORD: "J2T9UY9RrlkAp-sj"
+  DNSMASQ_LISTENING: "all"
+  # DNS settings
+  DNS_FQDN_REQUIRED: "true"
+  DNS_BOGUS_PRIV: "true"
+  # Query logging
+  QUERY_LOGGING: "true"
+  # FTL (Faster Than Light) daemon settings
+  RATE_LIMIT: "1000/60"

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jspwiki-config
+  namespace: jspwiki
+data:
+  # Wiki.js configuration
+  APP_URL: "http://jspwiki.nasat.local"
+  INSTANCE_TITLE: "NASAT Wiki"
+  LOG_LEVEL: "info"
+  # Database - using built-in SQLite for simplicity
+  DB_TYPE: "sqlite"
+  # Admin credentials (change in production)
+  ADMIN_EMAIL: "admin@nasat.local"
+  ADMIN_PASSWORD: "J2T9UY9RrlkAp-sj"
+  # Security
+  SECURE_COOKIES: "false"
+  # Features
+  ENABLE_TELEMETRY: "false"

@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jspwiki
+  namespace: jspwiki
+  labels:
+    app: jspwiki
+    tier: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jspwiki
+  strategy:
+    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+  template:
+    metadata:
+      labels:
+        app: jspwiki
+        tier: application
+      annotations:
+        prometheus.io/scrape: "false"
+    spec:
+      # Ensure pods run on worker nodes only
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      # Pod disruption budget for graceful shutdowns
+      terminationGracePeriodSeconds: 30
+
+      containers:
+        - name: wiki
+          image: ghcr.io/requarks/wiki:2.5.314
+          imagePullPolicy: IfNotPresent
+
+          # Security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+
+          # Load environment from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: jspwiki-config
+
+          # Volume mounts
+          volumeMounts:
+            - name: jspwiki-data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+
+          # Startup probe: give Wiki.js time to initialize (up to 3 minutes)
+          startupProbe:
+            httpGet:
+              path: /graphql
+              port: http
+            failureThreshold: 18
+            periodSeconds: 10
+
+          # Liveness probe: restart if unhealthy
+          livenessProbe:
+            httpGet:
+              path: /graphql
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe: don't accept traffic until ready
+          readinessProbe:
+            httpGet:
+              path: /graphql
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+      # Volumes
+      volumes:
+        - name: jspwiki-data
+          persistentVolumeClaim:
+            claimName: jspwiki-data
+        - name: tmp
+          emptyDir: {}

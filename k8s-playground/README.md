@@ -127,10 +127,28 @@ k8s-playground/
 │   │   ├── ingress.yaml
 │   │   └── kustomization.yaml
 │   │
-│   └── freshrss/
+│   ├── freshrss/
+│   │   ├── namespace.yaml
+│   │   ├── configmap.yaml
+│   │   ├── secret.yaml
+│   │   ├── pvc.yaml
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── ingress.yaml
+│   │   └── kustomization.yaml
+│   │
+│   ├── jspwiki/
+│   │   ├── namespace.yaml
+│   │   ├── configmap.yaml
+│   │   ├── pvc.yaml
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── ingress.yaml
+│   │   └── kustomization.yaml
+│   │
+│   └── pihole/
 │       ├── namespace.yaml
 │       ├── configmap.yaml
-│       ├── secret.yaml
 │       ├── pvc.yaml
 │       ├── deployment.yaml
 │       ├── service.yaml
@@ -192,6 +210,34 @@ k8s-playground/
 - **Storage**: 5Gi (database, cache, feeds)
 - **Domain**: `freshrss.nasat.local`
 - **Special Notes**: Lightweight, good for knowledge workers
+
+### 6. **JSPWiki** - Wiki Engine
+- **Purpose**: Self-hosted wiki for knowledge management
+- **Image**: `jspwiki/jspwiki:latest`
+- **Port**: 8080
+- **Storage**: 2Gi (wiki pages, attachments)
+- **Domain**: `jspwiki.nasat.local`
+- **Special Notes**: 
+  - Lightweight wiki engine
+  - File-based storage (no database)
+  - Good for documentation and personal knowledge base
+
+### 7. **Pi-hole** - DNS & Ad Blocking
+- **Purpose**: Network-wide ad blocking and DNS resolution
+- **Image**: `pihole/pihole:latest`
+- **Ports**:
+  - 53 (DNS - TCP/UDP)
+  - 67 (DHCP - UDP)
+  - 80/443 (Admin interface)
+- **Storage**:
+  - Config: 1Gi
+  - Dnsmasq: 1Gi
+- **Domain**: `pihole.nasat.local`
+- **Special Notes**:
+  - Requires elevated capabilities (NET_ADMIN, NET_BIND_SERVICE)
+  - DNS queries should be routed to this service
+  - Headless DNS service available for K8s-internal queries
+  - Consider using as cluster DNS server
 
 ---
 

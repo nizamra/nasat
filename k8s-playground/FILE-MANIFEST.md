@@ -74,10 +74,28 @@ k8s-playground/
 │   │   ├── ingress.yaml
 │   │   └── kustomization.yaml
 │   │
-│   └── freshrss/
+│   ├── freshrss/
+│   │   ├── namespace.yaml
+│   │   ├── configmap.yaml
+│   │   ├── secret.yaml
+│   │   ├── pvc.yaml
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── ingress.yaml
+│   │   └── kustomization.yaml
+│   │
+│   ├── jspwiki/
+│   │   ├── namespace.yaml
+│   │   ├── configmap.yaml
+│   │   ├── pvc.yaml
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── ingress.yaml
+│   │   └── kustomization.yaml
+│   │
+│   └── pihole/
 │       ├── namespace.yaml
 │       ├── configmap.yaml
-│       ├── secret.yaml
 │       ├── pvc.yaml
 │       ├── deployment.yaml
 │       ├── service.yaml
@@ -142,6 +160,8 @@ kubectl describe application playground -n argocd
   - **Homepage**: 50m CPU min (lightweight), 256Mi memory max
   - **Jellyfin**: 200m CPU min, 2Gi memory max, includes UDP port for discovery
   - **FreshRSS**: 100m CPU min, 512Mi memory max
+  - **JSPWiki**: 100m CPU min, 512Mi memory max, runs on port 8080
+  - **Pi-hole**: 100m CPU min, 512Mi memory max, requires elevated capabilities (NET_ADMIN, NET_BIND_SERVICE)
 
 #### 3. `service.yaml`
 - Exposes deployment internally to cluster
@@ -164,6 +184,8 @@ kubectl describe application playground -n argocd
   - Homepage: 1Gi
   - Jellyfin config: 5Gi + media: 100Gi
   - FreshRSS: 5Gi
+  - JSPWiki: 2Gi
+  - Pi-hole: 1Gi (config) + 1Gi (dnsmasq)
 
 #### 6. `configmap.yaml`
 - Non-secret environment variables
@@ -273,9 +295,11 @@ bash verify-deployment.sh
 - homepage: 7 files (namespace, configmap, pvc, deployment, service, ingress, kustomization)
 - jellyfin: 7 files (namespace, configmap, pvc, deployment, service, ingress, kustomization)
 - freshrss: 8 files (namespace, configmap, secret, pvc, deployment, service, ingress, kustomization)
+- jspwiki: 7 files (namespace, configmap, pvc, deployment, service, ingress, kustomization)
+- pihole: 7 files (namespace, configmap, pvc, deployment, service, ingress, kustomization)
 - linkding: 1 file (kustomization.yaml - enhanced existing)
 
-**Subtotal Application Files**: 32 files
+**Subtotal Application Files**: 46 files
 
 **Configuration & Orchestration**:
 - `argocd/playground.yaml`: 1 file
@@ -294,7 +318,7 @@ bash verify-deployment.sh
 
 **Subtotal Documentation**: 7 files
 
-**Total New Files**: ~41 files
+**Total New Files**: ~55 files
 
 ### Existing Files Enhanced
 - Linkding manifests: Already existed, added kustomization.yaml

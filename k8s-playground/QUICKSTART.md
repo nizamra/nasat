@@ -80,6 +80,8 @@ Add to `/etc/hosts` (or configure DNS server):
 192.168.1.100  jellyfin.nasat.local
 192.168.1.100  freshrss.nasat.local
 192.168.1.100  bookmarks.nasat.local
+192.168.1.100  jspwiki.nasat.local
+192.168.1.100  pihole.nasat.local
 ```
 
 **Replace `192.168.1.100` with your cluster's IP address**
@@ -93,6 +95,8 @@ Add to `/etc/hosts` (or configure DNS server):
 | Linkding | http://bookmarks.nasat.local |
 | Jellyfin | http://jellyfin.nasat.local |
 | FreshRSS | http://freshrss.nasat.local |
+| JSPWiki | http://jspwiki.nasat.local |
+| Pi-hole | http://pihole.nasat.local |
 
 ## Troubleshooting
 
