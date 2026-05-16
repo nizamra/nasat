@@ -1,6 +1,13 @@
+# Root nodeSelector applies to chart-wide helpers where supported
+nodeSelector:
+  node-role.kubernetes.io/worker: worker
+
 deploymentMode: SingleBinary
 
 loki:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+
   auth_enabled: false
 
   storage:
@@ -47,6 +54,8 @@ loki:
 
 singleBinary:
   replicas: 1
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
   persistence:
     enabled: true
     storageClass: local-path
@@ -68,10 +77,26 @@ backend:
 
 gateway:
   enabled: false
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
   resources:
     requests:
       cpu: 50m
       memory: 64Mi
+
+# Caches that appear as StatefulSets in the 7.x chart
+chunksCache:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+
+resultsCache:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+
+# Canary pods (loki-canary-*)
+canary:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
 
 monitoring:
   selfMonitoring:

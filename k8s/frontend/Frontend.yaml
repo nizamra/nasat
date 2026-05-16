@@ -13,6 +13,8 @@ spec:
       labels:
         app: frontend
     spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
       imagePullSecrets:
         - name: dockerhub-cred
       containers:

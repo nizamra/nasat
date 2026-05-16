@@ -31,7 +31,7 @@ data:
 
     # === MAIN APPLICATION ===
     - 🚀 NASAT Platform:
-        - Frontend:
+        - Nasat:
             href: http://staging.nasat.local/explore
             description: Main Application UI
             icon: mdi-web

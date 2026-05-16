@@ -1,3 +1,8 @@
+# Global nodeSelector ensures ALL kube-prometheus-stack children default to worker
+global:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+
 prometheus:
   prometheusSpec:
     scrapeInterval: "60s"
@@ -19,6 +24,9 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
+    nodeSelector:
+      node-role.kubernetes.io/worker: worker
+
 defaultRules:
   rules:
     kubeScheduler: false
@@ -27,6 +35,8 @@ defaultRules:
     etcd: false
 
 grafana:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
   persistence:
     enabled: false
     storageClassName: local-path
@@ -51,14 +61,16 @@ grafana:
 alertmanager:
   enabled: false
 
-# # Correctly disable webhooks for the Operator
-# prometheusOperator:
-#   admissionWebhooks:
-#     enabled: false
-#     patch:
-#       enabled: false
-#   tls:
-#     enabled: false  # Explicitly disable TLS for the operator
+prometheusOperator:
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+
+# Node-exporter is a DaemonSet: it runs on EVERY node by design to scrape host metrics.
+# If you truly want it ONLY on worker-node, uncomment below. Otherwise leave it alone
+# so you still get sysopspc node metrics in Prometheus.
+# nodeExporter:
+#   nodeSelector:
+#     node-role.kubernetes.io/worker: worker
 
 # Disable scraping for K3s internal components
 kubeProxy:
