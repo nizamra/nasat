@@ -14,8 +14,6 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: nasat
-    nodeSelector:
-      node-role.kubernetes.io/worker: "worker"
   source:
     repoURL: https://github.com/nizamra/nasat
     targetRevision: master
