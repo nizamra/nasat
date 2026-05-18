@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trilium
+  namespace: trilium
+  labels:
+    app: trilium
+    tier: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trilium
+  strategy:
+    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+  template:
+    metadata:
+      labels:
+        app: trilium
+        tier: application
+      annotations:
+        prometheus.io/scrape: "false"
+    spec:
+      # Ensure pods run on worker nodes only
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      # Pod disruption budget for graceful shutdowns
+      terminationGracePeriodSeconds: 30
+
+      containers:
+        - name: trilium
+          image: triliumnext/trilium:v0.103.0
+          imagePullPolicy: IfNotPresent
+
+          # Security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          # Load environment from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: trilium-config
+
+          # Volume mounts
+          volumeMounts:
+            - name: trilium-data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+
+          # Startup probe: give TriliumNext time to initialize (up to 2 minutes)
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 12
+            periodSeconds: 10
+
+          # Liveness probe: restart if unhealthy
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe: don't accept traffic until ready
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+      # Volumes
+      volumes:
+        - name: trilium-data
+          persistentVolumeClaim:
+            claimName: trilium-data
+        - name: tmp
+          emptyDir: {}

@@ -146,14 +146,22 @@ k8s-playground/
 │   │   ├── ingress.yaml
 │   │   └── kustomization.yaml
 │   │
-│   └── pihole/
+│   ├── pihole/
+│   │   ├── namespace.yaml
+│   │   ├── configmap.yaml
+│   │   ├── pvc.yaml
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── ingress.yaml
+│   │   └── kustomization.yaml
+│   │
+│   └── trilium/
 │       ├── namespace.yaml
 │       ├── configmap.yaml
 │       ├── pvc.yaml
 │       ├── deployment.yaml
 │       ├── service.yaml
-│       ├── ingress.yaml
-│       └── kustomization.yaml
+│       └── ingress.yaml
 │
 └── ingress/
     └── (ingress manifests shared by apps)
@@ -239,6 +247,19 @@ k8s-playground/
   - Headless DNS service available for K8s-internal queries
   - Consider using as cluster DNS server
 
+### 8. **TriliumNext** - Note-Taking Application
+- **Purpose**: Hierarchical note-taking and knowledge management
+- **Image**: `nyanmisaka/trilium:latest`
+- **Port**: 8080 (exposed via ingress on port 80)
+- **Storage**: 5Gi (notes, attachments, database)
+- **Domain**: `trilium.nasat.local`
+- **Special Notes**:
+  - Self-hosted note-taking app with powerful organization
+  - Built-in synchronization between devices
+  - Rich WYSIWYG editor with markdown support
+  - Full-text search across all notes
+  - Works similar to Notion but self-hosted
+
 ---
 
 ## Prerequisites
@@ -251,7 +272,7 @@ k8s-playground/
 
 ### Host Requirements
 - DNS resolution for `.nasat.local` domains (configure `/etc/hosts` or DNS server)
-- Adequate storage (minimum 130Gi for full stack with Jellyfin media)
+- Adequate storage (minimum 145Gi for full stack with Jellyfin media)
 - At least 4GB RAM per worker node (recommend 8GB)
 - Network connectivity to worker nodes
 

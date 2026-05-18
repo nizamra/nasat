@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trilium-config
+  namespace: trilium
+data:
+  # TriliumNext basic configuration
+  TRILIUM_PORT: "8080"
+  TRILIUM_DATA_DIR: "/data"
+  TRILIUM_BACKUP_DIR: "/data/backup"
+  # Logging
+  LOG_LEVEL: "info"
+  # Security - disable auth for local setup (enable in production)
+  AUTH_TOKEN: "trilium-change-me-in-production"

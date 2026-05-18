@@ -1,154 +1,159 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: homepage-config
-  namespace: homepage
-data:
-  bookmarks.yaml: |
-    - Developer:
-        - Github:
-            - abbr: GH
-              href: https://github.com
-              icon: github
-        - Project Docs:
-            - abbr: Docs
-              href: https://github.com/nizamra/nasat
-              icon: mdi-text-box-multiple
-
-  services.yaml: |
-    # === CORE INFRASTRUCTURE ===
-    - 🏗️ Infrastructure:
-        - ArgoCD:
-            href: http://argo.nasat.local
-            description: GitOps Deployment
-            icon: argocd
-            ping: http://argo.nasat.local
-        - Pi-hole:
-            href: http://pihole.nasat.local/admin
-            description: DNS & Ad Blocking
-            icon: pihole
-            ping: http://pihole.nasat.local
-
-    # === MAIN APPLICATION ===
-    - 🚀 NASAT Platform:
-        - Nasat:
-            href: http://staging.nasat.local/explore
-            description: Main Application UI
-            icon: mdi-web
-            ping: http://staging.nasat.local
-        - Backend API:
-            href: http://staging.nasat.local/api
-            description: REST API Server
-            icon: mdi-api
-            ping: http://staging.nasat.local
-
-    # === STORAGE & DATA ===
-    - 💾 Storage & Data:
-        - MinIO:
-            href: http://staging.nasat.local/media
-            description: Object Storage
-            icon: minio
-            ping: http://staging.nasat.local
-        - PostgreSQL:
-            href: http://staging.nasat.local
-            description: Primary Database
-            icon: postgresql
-            ping: http://staging.nasat.local
-
-    # === PRODUCTIVITY & TOOLS ===
-    - 📚 Knowledge & Organization:
-        - JSPWiki:
-            href: http://jspwiki.nasat.local
-            description: Wiki & Knowledge Base
-            icon: mdi-notebook
-            ping: http://jspwiki.nasat.local
-        - Linkding:
-            href: http://bookmarks.nasat.local
-            description: Bookmark Manager
-            icon: linkding
-            ping: http://bookmarks.nasat.local
-        - FreshRSS:
-            href: http://freshrss.nasat.local
-            description: RSS Feed Reader
-            icon: freshrss
-            ping: http://freshrss.nasat.local
-
-    # === AUTOMATION & STREAMING ===
-    - ⚙️ Automation & Media:
-        - n8n:
-            href: http://n8n.nasat.local
-            description: Workflow Automation
-            icon: n8n
-            ping: http://n8n.nasat.local
-        - Jellyfin:
-            href: http://jellyfin.nasat.local
-            description: Media Server (Movies, Music, TV)
-            icon: jellyfin
-            ping: http://jellyfin.nasat.local
-        - Gotify:
-            href: http://gotify.nasat.local
-            description: Push Notification System
-            icon: gotify
-            ping: http://gotify.nasat.local
-
-  widgets.yaml: |
-    - search:
-        provider: google
-        target: _blank
-
-    - datetime:
-        text_size: xl
-        format:
-          timeStyle: short
-          dateStyle: medium
-
-    - greeting:
-        text_size: xl
-        text: "Welcome to NASAT"
-        random: true
-
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: k3s-cluster
-        nodes:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-
-    - weather:
-        provider: openmeteo
-        location: "Ramallah" 
-        format: "auto"
-        units: "metric"
-
-  settings.yaml: |
-    title: NASAT Dashboard
-    subtitle: "Homelab Playground Stack"
-    favicon: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/kubernetes.png"
-    theme: dark
-    color: slate
-    background:
-      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-      blur: sm
-      brightness: 50
-      saturate: 75
-    layout:
-      header:
-        title: true
-        icon: true
-        colorIcon: true
-      cards:
-        columns: 3
-      groupsago: 1h
-    providers:
-      longurl: false
-
-  kubernetes.yaml: |
-    mode: cluster
-    ingress: true
+    name: homepage-config
     namespace: homepage
+data:
+    bookmarks.yaml: |
+        - Developer:
+            - Github:
+                - abbr: GH
+                  href: https://github.com
+                  icon: github
+            - Project Docs:
+                - abbr: Docs
+                  href: https://github.com/nizamra/nasat
+                  icon: mdi-text-box-multiple
+
+    services.yaml: |
+        # === CORE INFRASTRUCTURE ===
+        - 🏗️ Infrastructure:
+            - ArgoCD:
+                href: http://argo.nasat.local
+                description: GitOps Deployment
+                icon: argocd
+                ping: http://argo.nasat.local
+            - Pi-hole:
+                href: http://pihole.nasat.local/admin
+                description: DNS & Ad Blocking
+                icon: pihole
+                ping: http://pihole.nasat.local
+
+        # === MAIN APPLICATION ===
+        - 🚀 NASAT Platform:
+            - Nasat:
+                href: http://staging.nasat.local/explore
+                description: Main Application UI
+                icon: mdi-web
+                ping: http://staging.nasat.local
+            - Backend API:
+                href: http://staging.nasat.local/api
+                description: REST API Server
+                icon: mdi-api
+                ping: http://staging.nasat.local
+
+        # === STORAGE & DATA ===
+        - 💾 Storage & Data:
+            - MinIO:
+                href: http://staging.nasat.local/media
+                description: Object Storage
+                icon: minio
+                ping: http://staging.nasat.local
+            - PostgreSQL:
+                href: http://staging.nasat.local
+                description: Primary Database
+                icon: postgresql
+                ping: http://staging.nasat.local
+
+        # === PRODUCTIVITY & TOOLS ===
+        - 📚 Knowledge Base:
+            - JSPWiki:
+                href: http://jspwiki.nasat.local
+                description: Wiki & Knowledge Base
+                icon: mdi-notebook
+                ping: http://jspwiki.nasat.local
+            - TriliumNext:
+                href: http://trilium.nasat.local
+                description: Hierarchical Note-Taking & Knowledge Management
+                icon: mdi-notebook-multiple
+                ping: http://trilium.nasat.local
+            - Linkding:
+                href: http://bookmarks.nasat.local
+                description: Bookmark Manager
+                icon: linkding
+                ping: http://bookmarks.nasat.local
+            - FreshRSS:
+                href: http://freshrss.nasat.local
+                description: RSS Feed Reader
+                icon: freshrss
+                ping: http://freshrss.nasat.local
+
+        # === AUTOMATION & STREAMING ===
+        - ⚙️ Automation & Media:
+            - n8n:
+                href: http://n8n.nasat.local
+                description: Workflow Automation
+                icon: n8n
+                ping: http://n8n.nasat.local
+            - Jellyfin:
+                href: http://jellyfin.nasat.local
+                description: Media Server (Movies, Music, TV)
+                icon: jellyfin
+                ping: http://jellyfin.nasat.local
+            - Gotify:
+                href: http://gotify.nasat.local
+                description: Push Notification System
+                icon: gotify
+                ping: http://gotify.nasat.local
+
+    widgets.yaml: |
+        - search:
+            provider: google
+            target: _blank
+
+        - datetime:
+            text_size: xl
+            format:
+              timeStyle: short
+              dateStyle: medium
+
+        - greeting:
+            text_size: xl
+            text: "Welcome to NASAT"
+            random: true
+
+        - kubernetes:
+            cluster:
+              show: true
+              cpu: true
+              memory: true
+              showLabel: true
+              label: k3s-cluster
+            nodes:
+              show: true
+              cpu: true
+              memory: true
+              showLabel: true
+
+        - weather:
+            provider: openmeteo
+            location: "Ramallah" 
+            format: "auto"
+            units: "metric"
+
+    settings.yaml: |
+        title: NASAT Dashboard
+        subtitle: "Homelab Playground Stack"
+        favicon: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/kubernetes.png"
+        theme: dark
+        color: slate
+        background:
+          image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
+          blur: sm
+          brightness: 50
+          saturate: 75
+        layout:
+          header:
+            title: true
+            icon: true
+            colorIcon: true
+          cards:
+            columns: 3
+          groupsago: 1h
+        providers:
+          longurl: false
+
+    kubernetes.yaml: |
+        mode: cluster
+        ingress: true
+        namespace: homepage

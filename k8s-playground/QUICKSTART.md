@@ -17,8 +17,7 @@
 kubectl get nodes
 
 # Label each worker node
-kubectl label nodes <worker-node-1> node-role.kubernetes.io/worker=worker
-kubectl label nodes <worker-node-2> node-role.kubernetes.io/worker=worker
+kubectl label nodes worker-node node-role.kubernetes.io/worker=worker
 
 # Verify
 kubectl get nodes --show-labels
@@ -28,8 +27,7 @@ Output should show:
 ```
 NAME               STATUS   ROLES          AGE   VERSION   LABELS
 control-plane      Ready    control-plane  10d   v1.27.0   ...
-worker-1           Ready    worker         10d   v1.27.0   ...node-role.kubernetes.io/worker=worker
-worker-2           Ready    worker         10d   v1.27.0   ...node-role.kubernetes.io/worker=worker
+worker           Ready    worker         10d   v1.27.0   ...node-role.kubernetes.io/worker=worker
 ```
 
 ## Step 2: Deploy Playground Stack
@@ -75,16 +73,15 @@ kubectl get pvc -A
 Add to `/etc/hosts` (or configure DNS server):
 
 ```
-192.168.1.100  n8n.nasat.local
-192.168.1.100  homepage.nasat.local
-192.168.1.100  jellyfin.nasat.local
-192.168.1.100  freshrss.nasat.local
-192.168.1.100  bookmarks.nasat.local
-192.168.1.100  jspwiki.nasat.local
-192.168.1.100  pihole.nasat.local
+192.168.10.22  n8n.nasat.local
+192.168.10.22  homepage.nasat.local
+192.168.10.22  jellyfin.nasat.local
+192.168.10.22  freshrss.nasat.local
+192.168.10.22  bookmarks.nasat.local
+192.168.10.22  jspwiki.nasat.local
+192.168.10.22  pihole.nasat.local
+192.168.10.22  trilium.nasat.local
 ```
-
-**Replace `192.168.1.100` with your cluster's IP address**
 
 ## Step 5: Access Applications
 
@@ -97,6 +94,7 @@ Add to `/etc/hosts` (or configure DNS server):
 | FreshRSS | http://freshrss.nasat.local |
 | JSPWiki | http://jspwiki.nasat.local |
 | Pi-hole | http://pihole.nasat.local |
+| TriliumNext | http://trilium.nasat.local |
 
 ## Troubleshooting
 

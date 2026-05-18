@@ -297,9 +297,10 @@ bash verify-deployment.sh
 - freshrss: 8 files (namespace, configmap, secret, pvc, deployment, service, ingress, kustomization)
 - jspwiki: 7 files (namespace, configmap, pvc, deployment, service, ingress, kustomization)
 - pihole: 7 files (namespace, configmap, pvc, deployment, service, ingress, kustomization)
+- trilium: 6 files (namespace, configmap, pvc, deployment, service, ingress)
 - linkding: 1 file (kustomization.yaml - enhanced existing)
 
-**Subtotal Application Files**: 46 files
+**Subtotal Application Files**: 52 files
 
 **Configuration & Orchestration**:
 - `argocd/playground.yaml`: 1 file
@@ -318,7 +319,7 @@ bash verify-deployment.sh
 
 **Subtotal Documentation**: 7 files
 
-**Total New Files**: ~55 files
+**Total New Files**: ~61 files
 
 ### Existing Files Enhanced
 - Linkding manifests: Already existed, added kustomization.yaml

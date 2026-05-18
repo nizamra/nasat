@@ -8,7 +8,7 @@ This document provides a complete overview of what was created and how to get st
 
 ## What Was Created
 
-A **production-grade yet lightweight** Kubernetes playground stack with 7 applications:
+A **production-grade yet lightweight** Kubernetes playground stack with 8 applications:
 
 ### Applications Included
 
@@ -21,6 +21,7 @@ A **production-grade yet lightweight** Kubernetes playground stack with 7 applic
 | **FreshRSS** | 📰 RSS Reader | 5Gi | 100-500m | 128-512Mi |
 | **JSPWiki** | 📝 Wiki Engine | 2Gi | 100-500m | 256-512Mi |
 | **Pi-hole** | 🛡️ DNS/Ad-Blocker | 2Gi | 100-500m | 128-512Mi |
+| **TriliumNext** | 📓 Note-Taking | 5Gi | 100-500m | 256Mi-1Gi |
 
 ### Key Features
 
@@ -68,12 +69,13 @@ nasat/
     │   ├── jellyfin/                      # 7 files
     │   ├── freshrss/                      # 8 files
     │   ├── jspwiki/                       # 7 files
-    │   └── pihole/                        # 7 files
+    │   ├── pihole/                        # 7 files
+    │   └── trilium/                       # 6 files
     │
     └── ingress/                           # (existing)
 ```
 
-**Total**: 55 new files + 7 comprehensive documentation files
+**Total**: 61 new files + 7 comprehensive documentation files
 
 ---
 
@@ -122,6 +124,7 @@ sudo nano /etc/hosts
 192.168.1.100  bookmarks.nasat.local
 192.168.1.100  jspwiki.nasat.local
 192.168.1.100  pihole.nasat.local
+192.168.1.100  trilium.nasat.local
 ```
 
 **That's it!** 🎉 Access applications in your browser:
@@ -133,6 +136,7 @@ sudo nano /etc/hosts
 - http://bookmarks.nasat.local
 - http://jspwiki.nasat.local
 - http://pihole.nasat.local
+- http://trilium.nasat.local
 
 ---
 
