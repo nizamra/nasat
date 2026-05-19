@@ -38,7 +38,7 @@ grafana:
   nodeSelector:
     node-role.kubernetes.io/worker: worker
   persistence:
-    enabled: false
+    enabled: true
     storageClassName: local-path
     size: 2Gi
     accessModes: ["ReadWriteOnce"]
@@ -52,7 +52,7 @@ grafana:
     pathType: Prefix
   sidecar:
     dashboards:
-      enabled: false
+      enabled: true
       label: grafana_dashboard
       labelValue: "1"
       searchNamespace: ALL
@@ -64,13 +64,6 @@ alertmanager:
 prometheusOperator:
   nodeSelector:
     node-role.kubernetes.io/worker: worker
-
-# Node-exporter is a DaemonSet: it runs on EVERY node by design to scrape host metrics.
-# If you truly want it ONLY on worker-node, uncomment below. Otherwise leave it alone
-# so you still get sysopspc node metrics in Prometheus.
-# nodeExporter:
-#   nodeSelector:
-#     node-role.kubernetes.io/worker: worker
 
 # Disable scraping for K3s internal components
 kubeProxy:
@@ -91,8 +84,8 @@ coreDns:
 kubeDns:
   enabled: false
 
-kubelet:
-  enabled: false
+# kubelet:
+#   enabled: false
 
-kubeStateMetrics:
-  enabled: false
+# kubeStateMetrics:
+#   enabled: false

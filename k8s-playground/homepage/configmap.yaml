@@ -21,13 +21,18 @@ data:
             - ArgoCD:
                 href: http://argo.nasat.local
                 description: GitOps Deployment
-                icon: argocd
+                icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/argo-cd.png
                 ping: http://argo.nasat.local
             - Pi-hole:
                 href: http://pihole.nasat.local/admin
                 description: DNS & Ad Blocking
-                icon: pihole
-                ping: http://pihole.nasat.local
+                icon: si-pihole
+                ping: http://pihole.nasat.local/admin
+            - Grafana:
+                href: http://grafana.nasat.local
+                description: Metrics & Monitoring Dashboards
+                icon: grafana
+                ping: http://grafana.nasat.local
 
         # === MAIN APPLICATION ===
         - 🚀 NASAT Platform:
@@ -35,12 +40,12 @@ data:
                 href: http://staging.nasat.local/explore
                 description: Main Application UI
                 icon: mdi-web
-                ping: http://staging.nasat.local
+                ping: staging.nasat.local
             - Backend API:
                 href: http://staging.nasat.local/api
                 description: REST API Server
                 icon: mdi-api
-                ping: http://staging.nasat.local
+                ping: staging.nasat.local
 
         # === STORAGE & DATA ===
         - 💾 Storage & Data:
@@ -48,12 +53,12 @@ data:
                 href: http://staging.nasat.local/media
                 description: Object Storage
                 icon: minio
-                ping: http://staging.nasat.local
+                ping: staging.nasat.local
             - PostgreSQL:
                 href: http://staging.nasat.local
                 description: Primary Database
                 icon: postgresql
-                ping: http://staging.nasat.local
+                ping: staging.nasat.local
 
         # === PRODUCTIVITY & TOOLS ===
         - 📚 Knowledge Base:
@@ -61,12 +66,12 @@ data:
                 href: http://jspwiki.nasat.local
                 description: Wiki & Knowledge Base
                 icon: mdi-notebook
-                ping: http://jspwiki.nasat.local
+                ping: jspwiki.nasat.local
             - TriliumNext:
                 href: http://trilium.nasat.local
                 description: Hierarchical Note-Taking & Knowledge Management
                 icon: mdi-notebook-multiple
-                ping: http://trilium.nasat.local
+                ping: trilium.nasat.local
             - Linkding:
                 href: http://bookmarks.nasat.local
                 description: Bookmark Manager
@@ -76,7 +81,8 @@ data:
                 href: http://freshrss.nasat.local
                 description: RSS Feed Reader
                 icon: freshrss
-                ping: http://freshrss.nasat.local
+                ping: freshrss.nasat.local
+                # ping: http://freshrss.freshrss.svc.cluster.local
 
         # === AUTOMATION & STREAMING ===
         - ⚙️ Automation & Media:
@@ -84,21 +90,21 @@ data:
                 href: http://n8n.nasat.local
                 description: Workflow Automation
                 icon: n8n
-                ping: http://n8n.nasat.local
+                ping: n8n.nasat.local
             - Jellyfin:
                 href: http://jellyfin.nasat.local
                 description: Media Server (Movies, Music, TV)
                 icon: jellyfin
-                ping: http://jellyfin.nasat.local
+                ping: jellyfin.nasat.local
             - Gotify:
                 href: http://gotify.nasat.local
                 description: Push Notification System
                 icon: gotify
-                ping: http://gotify.nasat.local
+                ping: gotify.nasat.local
 
     widgets.yaml: |
         - search:
-            provider: google
+            provider: duckduckgo
             target: _blank
 
         - datetime:
@@ -109,7 +115,7 @@ data:
 
         - greeting:
             text_size: xl
-            text: "Welcome to NASAT"
+            text: "NASAT Home"
             random: true
 
         - kubernetes:
@@ -125,11 +131,12 @@ data:
               memory: true
               showLabel: true
 
-        - weather:
-            provider: openmeteo
-            location: "Ramallah" 
-            format: "auto"
-            units: "metric"
+        - openmeteo:
+            label: Ramallah
+            latitude: 31.9038
+            longitude: 35.2034
+            units: metric
+            cache: 5
 
     settings.yaml: |
         title: NASAT Dashboard
@@ -149,7 +156,6 @@ data:
             colorIcon: true
           cards:
             columns: 3
-          groupsago: 1h
         providers:
           longurl: false
 

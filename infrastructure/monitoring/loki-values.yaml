@@ -99,5 +99,11 @@ canary:
     node-role.kubernetes.io/worker: worker
 
 monitoring:
-  selfMonitoring:
+  dashboards:
     enabled: false
+  rules:
+    enabled: false
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: prometheus
