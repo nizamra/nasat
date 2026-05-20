@@ -14,6 +14,15 @@ data:
                 - abbr: Docs
                   href: https://github.com/nizamra/nasat
                   icon: mdi-text-box-multiple
+        - Social:
+            - SawSan:
+                - abbr: SW
+                  href: https://www.instagram.com/direct/t/17849074092606140/
+                  icon: mdi-instagram
+            - Doaa:
+                - abbr: DO
+                  href: https://www.instagram.com/direct/t/17843496342556189/
+                  icon: mdi-instagram
 
     services.yaml: |
         # === CORE INFRASTRUCTURE ===
@@ -22,17 +31,23 @@ data:
                 href: http://argo.nasat.local
                 description: GitOps Deployment
                 icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/argo-cd.png
-                ping: http://argo.nasat.local
+                kubernetes:
+                  - namespace: argocd
+                    app.kubernetes.io/name: argocd-server
             - Pi-hole:
                 href: http://pihole.nasat.local/admin
                 description: DNS & Ad Blocking
                 icon: si-pihole
-                ping: http://pihole.nasat.local/admin
+                kubernetes:
+                  - namespace: pihole
+                    app: pihole
             - Grafana:
                 href: http://grafana.nasat.local
                 description: Metrics & Monitoring Dashboards
                 icon: grafana
-                ping: http://grafana.nasat.local
+                kubernetes:
+                  - namespace: monitoring
+                    app.kubernetes.io/name: grafana
 
         # === MAIN APPLICATION ===
         - 🚀 NASAT Platform:
@@ -40,12 +55,16 @@ data:
                 href: http://staging.nasat.local/explore
                 description: Main Application UI
                 icon: mdi-web
-                ping: staging.nasat.local
+                kubernetes:
+                  - namespace: default
+                    app: frontend
             - Backend API:
                 href: http://staging.nasat.local/api
                 description: REST API Server
                 icon: mdi-api
-                ping: staging.nasat.local
+                kubernetes:
+                  - namespace: default
+                    app: backend
 
         # === STORAGE & DATA ===
         - 💾 Storage & Data:
@@ -53,12 +72,16 @@ data:
                 href: http://staging.nasat.local/media
                 description: Object Storage
                 icon: minio
-                ping: staging.nasat.local
+                kubernetes:
+                  - namespace: default
+                    app: minio
             - PostgreSQL:
                 href: http://staging.nasat.local
                 description: Primary Database
                 icon: postgresql
-                ping: staging.nasat.local
+                kubernetes:
+                  - namespace: default
+                    app: postgres
 
         # === PRODUCTIVITY & TOOLS ===
         - 📚 Knowledge Base:
@@ -66,23 +89,30 @@ data:
                 href: http://jspwiki.nasat.local
                 description: Wiki & Knowledge Base
                 icon: mdi-notebook
-                ping: jspwiki.nasat.local
+                kubernetes:
+                  - namespace: jspwiki
+                    app: jspwiki
             - TriliumNext:
                 href: http://trilium.nasat.local
                 description: Hierarchical Note-Taking & Knowledge Management
                 icon: mdi-notebook-multiple
-                ping: trilium.nasat.local
+                kubernetes:
+                  - namespace: trilium
+                    app: trilium
             - Linkding:
                 href: http://bookmarks.nasat.local
                 description: Bookmark Manager
                 icon: linkding
-                ping: http://bookmarks.nasat.local
+                kubernetes:
+                  - namespace: linkding
+                    app: linkding
             - FreshRSS:
                 href: http://freshrss.nasat.local
                 description: RSS Feed Reader
                 icon: freshrss
-                ping: freshrss.nasat.local
-                # ping: http://freshrss.freshrss.svc.cluster.local
+                kubernetes:
+                  - namespace: freshrss
+                    app: freshrss
 
         # === AUTOMATION & STREAMING ===
         - ⚙️ Automation & Media:
@@ -90,17 +120,23 @@ data:
                 href: http://n8n.nasat.local
                 description: Workflow Automation
                 icon: n8n
-                ping: n8n.nasat.local
+                kubernetes:
+                  - namespace: n8n
+                    app: n8n
             - Jellyfin:
                 href: http://jellyfin.nasat.local
                 description: Media Server (Movies, Music, TV)
                 icon: jellyfin
-                ping: jellyfin.nasat.local
+                kubernetes:
+                  - namespace: jellyfin
+                    app: jellyfin
             - Gotify:
                 href: http://gotify.nasat.local
                 description: Push Notification System
                 icon: gotify
-                ping: gotify.nasat.local
+                kubernetes:
+                  - namespace: gotify
+                    app: gotify
 
     widgets.yaml: |
         - search:
@@ -111,11 +147,12 @@ data:
             text_size: xl
             format:
               timeStyle: short
+              hourCycle: h23
               dateStyle: medium
 
         - greeting:
             text_size: xl
-            text: "NASAT Home"
+            text: "NASAT"
             random: true
 
         - kubernetes:
@@ -155,7 +192,7 @@ data:
             icon: true
             colorIcon: true
           cards:
-            columns: 3
+            columns: 2
         providers:
           longurl: false
 

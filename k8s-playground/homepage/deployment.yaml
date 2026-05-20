@@ -18,32 +18,6 @@ spec:
         tier: application
     spec:
       serviceAccountName: homepage
-      
-      dnsPolicy: "None"
-      dnsConfig:
-        nameservers:
-          - 192.168.10.1
-          - 8.8.8.8
-        searches:
-          - nasat.local
-      
-      hostAliases:
-        - ip: "192.168.10.21"
-          hostnames:
-            - "freshrss.nasat.local"
-            - "gotify.nasat.local"
-            - "jellyfin.nasat.local"
-            - "jspwiki.nasat.local"
-            - "bookmarks.nasat.local"
-            - "n8n.nasat.local"
-            - "pihole.nasat.local"
-            - "trilium.nasat.local"
-            - "argo.nasat.local"
-            - "grafana.nasat.local"
-        - ip: "192.168.10.22"
-          hostnames:
-            - "nasat.local"
-            - "staging.nasat.local"
 
       nodeSelector:
         node-role.kubernetes.io/worker: worker

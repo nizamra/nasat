@@ -76,7 +76,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: 8080
             initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
@@ -86,11 +86,11 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 3
-            failureThreshold: 2
+            failureThreshold: 3
 
       # Volumes
       volumes:
