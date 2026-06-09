@@ -113,6 +113,13 @@ data:
                 kubernetes:
                   - namespace: freshrss
                     app: freshrss
+            - Paperless-ngx:
+                href: http://paperless.nasat.local
+                description: Document Management System
+                icon: mdi-file-document-multiple-outline
+                kubernetes:
+                  - namespace: paperless
+                    app: paperless-ngx
 
         # === AUTOMATION & STREAMING ===
         - ⚙️ Automation & Media:

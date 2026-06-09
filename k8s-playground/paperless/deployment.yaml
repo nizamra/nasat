@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-ngx
+  namespace: paperless
+  labels:
+    app: paperless-ngx
+    tier: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless-ngx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: paperless-ngx
+        tier: application
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      terminationGracePeriodSeconds: 30
+
+      containers:
+        - name: paperless-ngx
+          image: paperlessngx/paperless-ngx:2.20.15
+          imagePullPolicy: IfNotPresent
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: paperless-config
+            - secretRef:
+                name: paperless-secrets
+
+          volumeMounts:
+            - name: paperless-data
+              mountPath: /usr/src/paperless/data
+            - name: paperless-media
+              mountPath: /usr/src/paperless/media
+            - name: paperless-consume
+              mountPath: /usr/src/paperless/consume
+            - name: paperless-export
+              mountPath: /usr/src/paperless/export
+
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            failureThreshold: 30
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+
+      volumes:
+        - name: paperless-data
+          persistentVolumeClaim:
+            claimName: paperless-data
+        - name: paperless-media
+          persistentVolumeClaim:
+            claimName: paperless-media
+        - name: paperless-consume
+          persistentVolumeClaim:
+            claimName: paperless-consume
+        - name: paperless-export
+          persistentVolumeClaim:
+            claimName: paperless-export
