@@ -48,6 +48,13 @@ data:
                 kubernetes:
                   - namespace: monitoring
                     app.kubernetes.io/name: grafana
+            - Uptime Kuma:
+                href: http://uptime.nasat.local
+                description: Uptime Monitoring
+                icon: mdi-monitor-dashboard
+                kubernetes:
+                  - namespace: uptime-kuma
+                    app: uptime-kuma
 
         # === MAIN APPLICATION ===
         - 🚀 NASAT Platform:
