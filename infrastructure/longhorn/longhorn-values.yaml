@@ -1,0 +1,38 @@
+preUpgradeChecker:
+  jobEnabled: false
+  upgradeVersionCheck: false
+
+defaultSettings:
+  defaultReplicaCount: 2
+  createDefaultDiskLabeledNodes: false
+  defaultDataPath: /var/lib/longhorn
+  replicaSoftAntiAffinity: true
+  storageOverProvisioningPercentage: 100
+  storageMinimalAvailablePercentage: 10
+  replicaAutoBalance: "best-effort"
+  backupTarget: "s3://longhorn-backups@us-east-1/"
+  backupTargetCredentialSecret: longhorn-backup-target
+
+persistence:
+  defaultClass: false
+  defaultClassReplicaCount: 2
+  defaultFsType: ext4
+
+csi:
+  kubeletRootDir: /var/lib/rancher/k3s/agent/kubelet
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  host: longhorn.nasat.local
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+
+nodeSelector:
+  node-role.kubernetes.io/worker: worker
+
+longhornUI:
+  replicas: 1
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker

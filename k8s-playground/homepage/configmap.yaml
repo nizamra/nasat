@@ -55,6 +55,10 @@ data:
                 kubernetes:
                   - namespace: uptime-kuma
                     app: uptime-kuma
+            - Longhorn:
+                href: http://longhorn.nasat.local
+                description: Distributed Block Storage
+                icon: mdi-harddisk
 
         # === MAIN APPLICATION ===
         - 🚀 NASAT Platform:
