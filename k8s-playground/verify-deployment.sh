@@ -90,7 +90,7 @@ fi
 # 6. Check playground applications
 echo ""
 echo "6. Checking playground applications..."
-NAMESPACES=("linkding" "n8n" "homepage" "jellyfin" "freshrss")
+NAMESPACES=("linkding" "n8n" "homepage" "jellyfin" "freshrss" "immich")
 for ns in "${NAMESPACES[@]}"; do
   if kubectl get namespace "$ns" &>/dev/null; then
     POD_COUNT=$(kubectl get pods -n "$ns" 2>/dev/null | wc -l)
@@ -134,7 +134,7 @@ fi
 # 9. Check DNS/Network (optional)
 echo ""
 echo "9. Checking DNS resolution (optional)..."
-DOMAINS=("n8n.nasat.local" "homepage.nasat.local" "jellyfin.nasat.local" "freshrss.nasat.local" "bookmarks.nasat.local")
+DOMAINS=("n8n.nasat.local" "homepage.nasat.local" "jellyfin.nasat.local" "freshrss.nasat.local" "bookmarks.nasat.local" "immich.nasat.local")
 for domain in "${DOMAINS[@]}"; do
   if nslookup "$domain" &>/dev/null; then
     check_pass "Domain '$domain' resolves"

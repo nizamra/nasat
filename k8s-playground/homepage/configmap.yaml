@@ -1,224 +1,231 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: homepage-config
-    namespace: homepage
+  name: homepage-config
+  namespace: homepage
 data:
-    bookmarks.yaml: |
-        - Developer:
-            - Github:
-                - abbr: GH
-                  href: https://github.com
-                  icon: github
-            - Project Docs:
-                - abbr: Docs
-                  href: https://github.com/nizamra/nasat
-                  icon: mdi-text-box-multiple
-            - Tailscale:
-                - abbr: TS
-                  href: https://console.tailscale.com/admin/machines
-                  icon: mdi-vpn
-        - Social:
-            - SawSan:
-                - abbr: SW
-                  href: https://www.instagram.com/direct/t/17849074092606140/
-                  icon: mdi-instagram
-            - Doaa:
-                - abbr: DO
-                  href: https://www.instagram.com/direct/t/17843496342556189/
-                  icon: mdi-instagram
+  bookmarks.yaml: |
+    - Developer:
+        - Github:
+            - abbr: GH
+              href: https://github.com
+              icon: github
+        - Project Docs:
+            - abbr: Docs
+              href: https://github.com/nizamra/nasat
+              icon: mdi-text-box-multiple
+        - Tailscale:
+            - abbr: TS
+              href: https://console.tailscale.com/admin/machines
+              icon: mdi-vpn
+    - Social:
+        - SawSan:
+            - abbr: SW
+              href: https://www.instagram.com/direct/t/17849074092606140/
+              icon: mdi-instagram
+        - Doaa:
+            - abbr: DO
+              href: https://www.instagram.com/direct/t/17843496342556189/
+              icon: mdi-instagram
 
-    services.yaml: |
-        # === CORE INFRASTRUCTURE ===
-        - 🏗️ Infrastructure:
-            - ArgoCD:
-                href: http://argo.nasat.local
-                description: GitOps Deployment
-                icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/argo-cd.png
-                kubernetes:
-                  - namespace: argocd
-                    app.kubernetes.io/name: argocd-server
-            - Pi-hole:
-                href: http://pihole.nasat.local/admin
-                description: DNS & Ad Blocking
-                icon: si-pihole
-                kubernetes:
-                  - namespace: pihole
-                    app: pihole
-            - Grafana:
-                href: http://grafana.nasat.local
-                description: Metrics & Monitoring Dashboards
-                icon: grafana
-                kubernetes:
-                  - namespace: monitoring
-                    app.kubernetes.io/name: grafana
-            - Uptime Kuma:
-                href: http://uptime.nasat.local
-                description: Uptime Monitoring
-                icon: mdi-monitor-dashboard
-                kubernetes:
-                  - namespace: uptime-kuma
-                    app: uptime-kuma
-            - Longhorn:
-                href: http://longhorn.nasat.local
-                description: Distributed Block Storage
-                icon: mdi-harddisk
+  services.yaml: |
+    # === CORE INFRASTRUCTURE ===
+    - 🏗️ Infrastructure:
+        - ArgoCD:
+            href: http://argo.nasat.local
+            description: GitOps Deployment
+            icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/argo-cd.png
+            kubernetes:
+              - namespace: argocd
+                app.kubernetes.io/name: argocd-server
+        - Pi-hole:
+            href: http://pihole.nasat.local/admin
+            description: DNS & Ad Blocking
+            icon: si-pihole
+            kubernetes:
+              - namespace: pihole
+                app: pihole
+        - Grafana:
+            href: http://grafana.nasat.local
+            description: Metrics & Monitoring Dashboards
+            icon: grafana
+            kubernetes:
+              - namespace: monitoring
+                app.kubernetes.io/name: grafana
+        - Uptime Kuma:
+            href: http://uptime.nasat.local
+            description: Uptime Monitoring
+            icon: mdi-monitor-dashboard
+            kubernetes:
+              - namespace: uptime-kuma
+                app: uptime-kuma
+        - Longhorn:
+            href: http://longhorn.nasat.local
+            description: Distributed Block Storage
+            icon: mdi-harddisk
 
-        # === MAIN APPLICATION ===
-        - 🚀 NASAT Platform:
-            - Nasat:
-                href: http://staging.nasat.local/explore
-                description: Main Application UI
-                icon: mdi-web
-                kubernetes:
-                  - namespace: default
-                    app: frontend
-            - Backend API:
-                href: http://staging.nasat.local/api
-                description: REST API Server
-                icon: mdi-api
-                kubernetes:
-                  - namespace: default
-                    app: backend
+    # === MAIN APPLICATION ===
+    - 🚀 NASAT Platform:
+        - Nasat:
+            href: http://staging.nasat.local/explore
+            description: Main Application UI
+            icon: mdi-web
+            kubernetes:
+              - namespace: default
+                app: frontend
+        - Backend API:
+            href: http://staging.nasat.local/api
+            description: REST API Server
+            icon: mdi-api
+            kubernetes:
+              - namespace: default
+                app: backend
 
-        # === STORAGE & DATA ===
-        - 💾 Storage & Data:
-            - MinIO:
-                href: http://staging.nasat.local/media
-                description: Object Storage
-                icon: minio
-                kubernetes:
-                  - namespace: default
-                    app: minio
-            - PostgreSQL:
-                href: http://staging.nasat.local
-                description: Primary Database
-                icon: postgresql
-                kubernetes:
-                  - namespace: default
-                    app: postgres
+    # === STORAGE & DATA ===
+    - 💾 Storage & Data:
+        - MinIO:
+            href: http://staging.nasat.local/media
+            description: Object Storage
+            icon: minio
+            kubernetes:
+              - namespace: default
+                app: minio
+        - PostgreSQL:
+            href: http://staging.nasat.local
+            description: Primary Database
+            icon: postgresql
+            kubernetes:
+              - namespace: default
+                app: postgres
 
-        # === PRODUCTIVITY & TOOLS ===
-        - 📚 Knowledge Base:
-            - JSPWiki:
-                href: http://jspwiki.nasat.local
-                description: Wiki & Knowledge Base
-                icon: mdi-notebook
-                kubernetes:
-                  - namespace: jspwiki
-                    app: jspwiki
-            - TriliumNext:
-                href: http://trilium.nasat.local
-                description: Hierarchical Note-Taking & Knowledge Management
-                icon: mdi-notebook-multiple
-                kubernetes:
-                  - namespace: trilium
-                    app: trilium
-            - Linkding:
-                href: http://bookmarks.nasat.local
-                description: Bookmark Manager
-                icon: linkding
-                kubernetes:
-                  - namespace: linkding
-                    app: linkding
-            - FreshRSS:
-                href: http://freshrss.nasat.local
-                description: RSS Feed Reader
-                icon: freshrss
-                kubernetes:
-                  - namespace: freshrss
-                    app: freshrss
-            - Paperless-ngx:
-                href: http://paperless.nasat.local
-                description: Document Management System
-                icon: mdi-file-document-multiple-outline
-                kubernetes:
-                  - namespace: paperless
-                    app: paperless-ngx
+    # === PRODUCTIVITY & TOOLS ===
+    - 📚 Knowledge Base:
+        - JSPWiki:
+            href: http://jspwiki.nasat.local
+            description: Wiki & Knowledge Base
+            icon: mdi-notebook
+            kubernetes:
+              - namespace: jspwiki
+                app: jspwiki
+        - TriliumNext:
+            href: http://trilium.nasat.local
+            description: Hierarchical Note-Taking & Knowledge Management
+            icon: mdi-notebook-multiple
+            kubernetes:
+              - namespace: trilium
+                app: trilium
+        - Linkding:
+            href: http://bookmarks.nasat.local
+            description: Bookmark Manager
+            icon: linkding
+            kubernetes:
+              - namespace: linkding
+                app: linkding
+        - FreshRSS:
+            href: http://freshrss.nasat.local
+            description: RSS Feed Reader
+            icon: freshrss
+            kubernetes:
+              - namespace: freshrss
+                app: freshrss
+        - Paperless-ngx:
+            href: http://paperless.nasat.local
+            description: Document Management System
+            icon: mdi-file-document-multiple-outline
+            kubernetes:
+              - namespace: paperless
+                app: paperless-ngx
 
-        # === AUTOMATION & STREAMING ===
-        - ⚙️ Automation & Media:
-            - n8n:
-                href: http://n8n.nasat.local
-                description: Workflow Automation
-                icon: n8n
-                kubernetes:
-                  - namespace: n8n
-                    app: n8n
-            - Jellyfin:
-                href: http://jellyfin.nasat.local
-                description: Media Server (Movies, Music, TV)
-                icon: jellyfin
-                kubernetes:
-                  - namespace: jellyfin
-                    app: jellyfin
-            - Gotify:
-                href: http://gotify.nasat.local
-                description: Push Notification System
-                icon: gotify
-                kubernetes:
-                  - namespace: gotify
-                    app: gotify
+    # === AUTOMATION & STREAMING ===
+    - ⚙️ Automation & Media:
+        - n8n:
+            href: http://n8n.nasat.local
+            description: Workflow Automation
+            icon: n8n
+            kubernetes:
+              - namespace: n8n
+                app: n8n
+        - Jellyfin:
+            href: http://jellyfin.nasat.local
+            description: Media Server (Movies, Music, TV)
+            icon: jellyfin
+            kubernetes:
+              - namespace: jellyfin
+                app: jellyfin
+        - Immich:
+            href: http://immich.nasat.local
+            description: Photo & Video Backup Library
+            icon: mdi-image-multiple
+            kubernetes:
+              - namespace: immich
+                app: immich
+        - Gotify:
+            href: http://gotify.nasat.local
+            description: Push Notification System
+            icon: gotify
+            kubernetes:
+              - namespace: gotify
+                app: gotify
 
-    widgets.yaml: |
-        - search:
-            provider: duckduckgo
-            target: _blank
+  widgets.yaml: |
+    - search:
+        provider: duckduckgo
+        target: _blank
 
-        - datetime:
-            text_size: xl
-            format:
-              timeStyle: short
-              hourCycle: h23
-              dateStyle: medium
+    - datetime:
+        text_size: xl
+        format:
+          timeStyle: short
+          hourCycle: h23
+          dateStyle: medium
 
-        - greeting:
-            text_size: xl
-            text: "NASAT"
-            random: true
+    - greeting:
+        text_size: xl
+        text: "NASAT"
+        random: true
 
-        - kubernetes:
-            cluster:
-              show: true
-              cpu: true
-              memory: true
-              showLabel: true
-              label: k3s-cluster
-            nodes:
-              show: true
-              cpu: true
-              memory: true
-              showLabel: true
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: k3s-cluster
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
 
-        - openmeteo:
-            label: Ramallah
-            latitude: 31.9038
-            longitude: 35.2034
-            units: metric
-            cache: 5
+    - openmeteo:
+        label: Ramallah
+        latitude: 31.9038
+        longitude: 35.2034
+        units: metric
+        cache: 5
 
-    settings.yaml: |
-        title: NASAT Dashboard
-        subtitle: "Homelab Playground Stack"
-        favicon: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/kubernetes.png"
-        theme: dark
-        color: slate
-        background:
-          image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-          blur: sm
-          brightness: 50
-          saturate: 75
-        layout:
-          header:
-            title: true
-            icon: true
-            colorIcon: true
-          cards:
-            columns: 2
-        providers:
-          longurl: false
+  settings.yaml: |
+    title: NASAT Dashboard
+    subtitle: "Homelab Playground Stack"
+    favicon: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/kubernetes.png"
+    theme: dark
+    color: slate
+    background:
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
+      blur: sm
+      brightness: 50
+      saturate: 75
+    layout:
+      header:
+        title: true
+        icon: true
+        colorIcon: true
+      cards:
+        columns: 2
+    providers:
+      longurl: false
 
-    kubernetes.yaml: |
-        mode: cluster
-        ingress: true
-        namespace: homepage
+  kubernetes.yaml: |
+    mode: cluster
+    ingress: true
+    namespace: homepage

@@ -3,19 +3,20 @@ preUpgradeChecker:
   upgradeVersionCheck: false
 
 defaultSettings:
-  defaultReplicaCount: 2
+  defaultReplicaCount: 1
   createDefaultDiskLabeledNodes: false
   defaultDataPath: /var/lib/longhorn
   replicaSoftAntiAffinity: true
   storageOverProvisioningPercentage: 100
   storageMinimalAvailablePercentage: 10
   replicaAutoBalance: "best-effort"
-  backupTarget: "s3://longhorn-backups@us-east-1/"
+  backupTarget: ""
   backupTargetCredentialSecret: longhorn-backup-target
+  kubeletRootDir: /var/lib/rancher/k3s/agent/kubelet
 
 persistence:
-  defaultClass: false
-  defaultClassReplicaCount: 2
+  defaultClass: true
+  defaultClassReplicaCount: 1
   defaultFsType: ext4
 
 csi:
