@@ -18,10 +18,26 @@ spec:
       labels:
         app: immich
         tier: application
+      annotations:
+        immich.nasat.local/machine-learning: "disabled"
     spec:
       nodeSelector:
         node-role.kubernetes.io/worker: worker
       terminationGracePeriodSeconds: 30
+      initContainers:
+        - name: initialize-storage
+          image: alpine:3.20
+          command:
+            - /bin/sh
+            - -c
+            - |
+              for directory in thumbs upload backups library profile encoded-video; do
+                mkdir -p "/data/${directory}"
+                touch "/data/${directory}/.immich"
+              done
+          volumeMounts:
+            - name: immich-data
+              mountPath: /data
       containers:
         - name: immich
           image: ghcr.io/immich-app/immich-server:v3.1.0
@@ -51,11 +67,11 @@ spec:
               mountPath: /data
           resources:
             requests:
-              cpu: 250m
+              cpu: 500m
               memory: 512Mi
             limits:
-              cpu: 1000m
-              memory: 1Gi
+              cpu: 2000m
+              memory: 2Gi
           startupProbe:
             httpGet:
               path: /api/server/ping
