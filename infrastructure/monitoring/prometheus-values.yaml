@@ -5,7 +5,7 @@ global:
 
 prometheus:
   prometheusSpec:
-    scrapeInterval: "60s"
+    scrapeInterval: "30s"
     evaluationInterval: "60s"
     retention: "30d"
     retentionSize: "10GB"
@@ -26,6 +26,13 @@ prometheus:
               storage: 10Gi
     nodeSelector:
       node-role.kubernetes.io/worker: worker
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - prometheus.nasat.local
+    path: /
+    pathType: Prefix
 
 defaultRules:
   rules:
