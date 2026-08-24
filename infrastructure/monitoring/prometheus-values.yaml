@@ -1,21 +1,17 @@
 # Global nodeSelector ensures ALL kube-prometheus-stack children default to worker
-global:
-  nodeSelector:
-    node-role.kubernetes.io/worker: worker
-
 prometheus:
   prometheusSpec:
     scrapeInterval: "30s"
     evaluationInterval: "60s"
     retention: "30d"
-    retentionSize: "10GB"
+    retentionSize: "8GB"
     resources:
       requests:
-        cpu: "100m"
-        memory: "256Mi"
+        cpu: "50m"
+        memory: "160Mi"
       limits:
         cpu: "500m"
-        memory: "768Mi"
+        memory: "1250Mi"
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -24,8 +20,6 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
-    nodeSelector:
-      node-role.kubernetes.io/worker: worker
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -42,14 +36,12 @@ defaultRules:
     etcd: false
 
 grafana:
-  nodeSelector:
-    node-role.kubernetes.io/worker: worker
   persistence:
     enabled: true
     storageClassName: local-path
     size: 2Gi
     accessModes: ["ReadWriteOnce"]
-  adminPassword: "J2T9UY9RrlkAp-sj"
+  adminPassword: "J2T9UY9RrlkAp-sj"  # Consider moving to existingSecret in production
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -68,11 +60,7 @@ grafana:
 alertmanager:
   enabled: false
 
-prometheusOperator:
-  nodeSelector:
-    node-role.kubernetes.io/worker: worker
-
-# Disable scraping for K3s internal components
+# K3s Control Plane Disables
 kubeProxy:
   enabled: false
 kubeScheduler:
@@ -81,18 +69,31 @@ kubeControllerManager:
   enabled: false
 windowsMonitoring:
   enabled: false
-
 kubeEtcd:
   enabled: false
-
-coreDns:
-  enabled: false
-
 kubeDns:
   enabled: false
+coreDns:
+  enabled: true
 
-# kubelet:
-#   enabled: false
+# Collect node metrics from ALL nodes (including control-plane)
+nodeExporter:
+  enabled: true
+  nodeSelector: {}
+  tolerations:
+    - operator: Exists
+
+# K3s Kubelet Scrape Configuration
+kubelet:
+  enabled: true
+  namespace: kube-system
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+    cAdvisorMetricRelabelings:
+      - action: drop
+        sourceLabels: [__name__]
+        regex: '(container_tasks_state|container_memory_failures_total|container_sockets|container_threads|container_blkio_device_usage|container_file_descriptors)'
 
 # kubeStateMetrics:
 #   enabled: false
