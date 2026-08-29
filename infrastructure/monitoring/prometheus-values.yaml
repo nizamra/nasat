@@ -3,15 +3,21 @@ prometheus:
   prometheusSpec:
     scrapeInterval: "30s"
     evaluationInterval: "60s"
-    retention: "30d"
-    retentionSize: "8GB"
+    retention: "7d"
+    retentionSize: "6GB"
+    containers:
+      - name: prometheus
+        env:
+          - name: GOGC
+            value: "50"
     resources:
       requests:
         cpu: "50m"
-        memory: "160Mi"
+        memory: "256Mi"
       limits:
         cpu: "500m"
-        memory: "1250Mi"
+        memory: "850Mi"
+
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -76,7 +82,6 @@ kubeDns:
 coreDns:
   enabled: true
 
-# Collect node metrics from ALL nodes (including control-plane)
 nodeExporter:
   enabled: true
   nodeSelector: {}
@@ -90,10 +95,11 @@ kubelet:
   serviceMonitor:
     https: true
     insecureSkipVerify: true
+
     cAdvisorMetricRelabelings:
       - action: drop
         sourceLabels: [__name__]
-        regex: '(container_tasks_state|container_memory_failures_total|container_sockets|container_threads|container_blkio_device_usage|container_file_descriptors)'
+        regex: '(container_tasks_state|container_memory_failures_total|container_sockets|container_threads|container_blkio_device_usage|container_file_descriptors|container_cpu_load_average_10s|container_fs_reads_total|container_fs_writes_total|container_fs_inodes_total|container_spec_.*)'
 
 # kubeStateMetrics:
 #   enabled: false

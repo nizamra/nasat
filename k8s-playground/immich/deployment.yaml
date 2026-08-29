@@ -67,11 +67,11 @@ spec:
               mountPath: /data
           resources:
             requests:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 100m
+              memory: 400Mi
             limits:
-              cpu: 2000m
-              memory: 2Gi
+              cpu: 1300m
+              memory: 960Mi
           startupProbe:
             httpGet:
               path: /api/server/ping

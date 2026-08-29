@@ -18,6 +18,19 @@ data:
   UPLOAD_LOCATION: "/data"
   IMMICH_MACHINE_LEARNING_ENABLED: "false"
   IMMICH_SERVER_URL: "http://immich.nasat.local"
+
   # MACHINE_LEARNING_MODEL_TTL: "10d"
   # MACHINE_LEARNING_CACHE_FOLDER: "/cache"
   # MACHINE_LEARNING_WORKERS: "1"
+
+  # --- OPTIMIZATION SETTINGS ---
+  # Force Node.js garbage collection at 512MB heap limit (default ~1.4GB )
+  NODE_OPTIONS: "--max-old-space-size=512"
+
+  # Reduce background job concurrency to prevent memory spikes during media sync
+  IMMICH_THUMBNAIL_GENERATION_CONCURRENCY: "1"
+  IMMICH_METADATA_EXTRACTION_CONCURRENCY: "1"
+  IMMICH_VIDEO_TRANSCODING_CONCURRENCY: "1"
+
+  # Optimize database connection pool per instance
+  DB_POOL_SIZE: "10"
