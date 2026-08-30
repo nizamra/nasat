@@ -5,7 +5,7 @@ metadata:
   namespace: infisical
   annotations:
     argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   backoffLimit: 3
@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: db-migration
-          image: infisical/infisical:v0.164.1-postgres
+          image: infisical/infisical:v0.164.1
           command: ["npm", "run", "migration:latest"]
           env:
             - name: NODE_ENV
