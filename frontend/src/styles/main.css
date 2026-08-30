@@ -16,6 +16,21 @@ body {
   color: var(--text-main);
 }
 
+/* Night Global Background - Sophisticated dark theme with gradient and pattern */
+.night-global {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
+    linear-gradient(135deg, #090b14 0%, #131826 50%, #090b14 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
 * {
   box-sizing: border-box;
 }

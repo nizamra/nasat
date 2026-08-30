@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: pihole-config
   namespace: pihole
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   # Pi-hole core settings
   TZ: "UTC"

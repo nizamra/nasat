@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jspwiki-data
   namespace: jspwiki
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce

@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: gotify
   namespace: gotify
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     app: gotify
 spec:

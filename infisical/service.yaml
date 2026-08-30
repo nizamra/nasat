@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: infisical
+  namespace: infisical
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
+  type: ClusterIP
   selector:
-    app: postgres
+    app: infisical
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 8080
+      targetPort: 8080

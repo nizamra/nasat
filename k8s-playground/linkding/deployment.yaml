@@ -3,8 +3,10 @@ kind: Deployment
 metadata:
   name: linkding
   namespace: linkding
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: linkding
@@ -16,25 +18,32 @@ spec:
       nodeSelector:
         node-role.kubernetes.io/worker: worker
       containers:
-      - name: linkding
-        image: sissbruecker/linkding:1.45.0
-        ports:
-        - containerPort: 9090
-        env:
-        - name: LD_SUPERUSER_NAME
-          value: "admin"
-        - name: LD_SUPERUSER_PASSWORD
-          value: "J2T9UY9RrlkAp-sj"
-        - name: LD_DISABLE_BACKGROUND_TASKS
-          value: "False"
-        - name: LD_CSRF_TRUSTED_ORIGINS
-          value: "http://bookmarks.nasat.local"
-        - name: LD_DISABLE_URL_VALIDATION
-          value: "True"
-        volumeMounts:
-        - name: linkding-data
-          mountPath: /etc/linkding/data
+        - name: linkding
+          image: sissbruecker/linkding:1.45.0
+          ports:
+            - containerPort: 9090
+          env:
+            - name: LD_SUPERUSER_NAME
+              value: "admin"
+            - name: LD_SUPERUSER_PASSWORD
+              value: "J2T9UY9RrlkAp-sj"
+            - name: LD_DISABLE_BACKGROUND_TASKS
+              value: "False"
+            - name: LD_CSRF_TRUSTED_ORIGINS
+              value: "http://bookmarks.nasat.local"
+            - name: LD_DISABLE_URL_VALIDATION
+              value: "True"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: linkding-data
+              mountPath: /etc/linkding/data
       volumes:
-      - name: linkding-data
-        persistentVolumeClaim:
-          claimName: linkding-data
+        - name: linkding-data
+          persistentVolumeClaim:
+            claimName: linkding-data

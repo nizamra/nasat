@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: immich-config
   namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   TZ: "UTC"
   IMMICH_PORT: "2283"

@@ -5,6 +5,8 @@ metadata:
   namespace: immich
   labels:
     app: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   type: NodePort
   selector:

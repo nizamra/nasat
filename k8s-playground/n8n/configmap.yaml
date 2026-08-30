@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: n8n-config
   namespace: n8n
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   # n8n loads these as environment variables
   N8N_PROTOCOL: "http"

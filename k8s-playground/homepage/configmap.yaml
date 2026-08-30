@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: homepage-config
   namespace: homepage
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   bookmarks.yaml: |
     - Developer:
@@ -63,6 +65,13 @@ data:
             href: http://longhorn.nasat.local
             description: Distributed Block Storage
             icon: mdi-harddisk
+        - Infisical:
+            href: http://infisical.nasat.local
+            description: Secrets Management & Vault
+            icon: mdi-lock-open-outline
+            kubernetes:
+              - namespace: infisical
+                app: infisical
 
     # === MAIN APPLICATION ===
     - 🚀 NASAT Platform:
@@ -206,15 +215,16 @@ data:
 
   settings.yaml: |
     title: NASAT Dashboard
-    subtitle: "Homelab Playground Stack"
+    subtitle: "Homelab Playground Stack - Kubernetes Cluster Management"
     favicon: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/kubernetes.png"
     theme: dark
     color: slate
     background:
       image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-      blur: sm
-      brightness: 50
-      saturate: 75
+      blur: md
+      brightness: 40
+      saturate: 80
+      opacity: 0.9
     layout:
       header:
         title: true
@@ -222,8 +232,17 @@ data:
         colorIcon: true
       cards:
         columns: 2
+        style: row
+        animation: pulse
     providers:
       longurl: false
+    usebookmarks: true
+    bookmarks_limit: 6
+    quicklaunch:
+      searchDescriptions: true
+      hideInternetSearch: false
+      hideVisitURL: true
+    hideVersion: false
 
   kubernetes.yaml: |
     mode: cluster

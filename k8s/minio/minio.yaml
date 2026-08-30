@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: minio
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   revisionHistoryLimit: 3
   replicas: 1
@@ -19,11 +21,12 @@ spec:
         # Create bucket directory
         - name: create-bucket
           image: busybox:1.36
-          command: ['sh', '-c', 'mkdir -p /data/nasat-media /data/longhorn-backups']
+          command:
+            ["sh", "-c", "mkdir -p /data/nasat-media /data/longhorn-backups"]
           volumeMounts:
             - name: minio-data
               mountPath: /data
-      
+
       containers:
         - name: minio
           image: minio/minio
@@ -42,7 +45,7 @@ spec:
           volumeMounts:
             - name: minio-data
               mountPath: /data
-        
+
         # Sidecar to automatically set bucket policy and CORS
         - name: setup-bucket-policy
           image: minio/mc:latest
@@ -55,13 +58,13 @@ spec:
                 echo "Waiting for MinIO to start..."
                 sleep 2
               done
-              
+
               # Create bucket and set public download policy
               mc mb --ignore-existing local/nasat-media
               mc anonymous set download local/nasat-media
-              
+
               echo "MinIO bucket nasat-media is now public."
-              
+
               # Keep container running
               sleep infinity
           env:

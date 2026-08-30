@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: paperless-config
   namespace: paperless
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   PAPERLESS_URL: "http://paperless.nasat.local"
   PAPERLESS_ALLOWED_HOSTS: "paperless.nasat.local,localhost,127.0.0.1"

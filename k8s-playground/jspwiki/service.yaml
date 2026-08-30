@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: jspwiki
   namespace: jspwiki
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     app: jspwiki
 spec:

@@ -6,8 +6,10 @@ metadata:
   labels:
     app: trilium
     tier: application
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: trilium

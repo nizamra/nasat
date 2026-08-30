@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: jspwiki-config
   namespace: jspwiki
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   # Wiki.js configuration
   APP_URL: "http://jspwiki.nasat.local"

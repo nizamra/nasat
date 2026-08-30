@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: freshrss-config
   namespace: freshrss
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   # Base URL for FreshRSS
   FRESHRSS_BASE_URL: "https://freshrss.nasat.local"

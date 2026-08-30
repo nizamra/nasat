@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: jellyfin-config
   namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   JELLYFIN_PublishedServerUrl: "https://jellyfin.nasat.local"
   JELLYFIN_FFmpeg__ProtonVideoToolsEnabled: "false"

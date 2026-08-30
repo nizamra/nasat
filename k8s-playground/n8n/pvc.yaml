@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: n8n-data
   namespace: n8n
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce

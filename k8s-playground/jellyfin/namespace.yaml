@@ -5,3 +5,5 @@ metadata:
   labels:
     app: jellyfin
     environment: playground
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"

@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: pihole-config
   namespace: pihole
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -16,6 +18,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: pihole-dnsmasq
   namespace: pihole
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce

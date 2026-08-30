@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: freshrss
   namespace: freshrss
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     app: freshrss
 spec:

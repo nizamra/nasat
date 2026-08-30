@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infisical
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: infisical
+  source:
+    repoURL: https://github.com/nizamra/nasat
+    targetRevision: staging
+    path: infisical
+    directory:
+      recurse: true
+      exclude: 'secret.yaml'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

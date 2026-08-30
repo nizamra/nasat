@@ -1,4 +1,4 @@
-# NASAT - Social Media Platform
+# NASAT
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/nizamra/nasat/actions/workflows/build-docker-push-all.yaml/badge.svg)
@@ -6,152 +6,176 @@
 ![BK](https://github.com/nizamra/nasat/actions/workflows/build-docker-push-bk.yaml/badge.svg)
 ![Backend](https://img.shields.io/badge/backend-Django-darkgreen)
 ![Frontend](https://img.shields.io/badge/frontend-React-blue)
-![K8s](https://img.shields.io/badge/deployment-Kubernetes-blue)
-![Docker](https://img.shields.io/badge/docker-ready-blue)
-![ArgoCD](https://img.shields.io/badge/gitops-argocd-orange)
+![K8s](https://img.shields.io/badge/deployment-K3s-blue)
+![GitOps](https://img.shields.io/badge/gitops-argocd-orange)
 
-A full-stack social media application built with Django, React, and Kubernetes. NASAT is a proof-of-concept platform that enables users to create posts, upload images, follow other users, and build a social network.
+NASAT is two things at once:
 
-## Features
+1. **A full-stack social app** — Django + DRF backend, React/TypeScript frontend, Postgres, MinIO for media.
+2. **A self-hosted GitOps homelab platform** — a two-node K3s cluster run entirely through ArgoCD's app-of-apps pattern, hosting the app itself plus a monitoring stack, Longhorn storage, and a dozen self-hosted "playground" apps (photos, media, notes, automation, DNS, etc.).
 
-- **User Management**: Authentication using JWT tokens with secure login/refresh endpoints
-- **Posts**: Create and share text posts with optional image attachments
-- **Social Connections**: Follow/unfollow other users to build your social network
-- **Image Storage**: Images stored in MinIO object storage for scalable media management
-- **REST API**: Full RESTful API with Django REST Framework
-- **Responsive UI**: Modern React frontend with TypeScript and Vite
+If you only skimmed `master`, most of what's below is new here: the app-of-apps layout, Longhorn, Prometheus/Loki, and the entire `k8s-playground/` tree don't exist on `master` yet.
 
-## Project Structure
+## Repository layout
 
 ```
 nasat/
-├── backend/              # Django REST API
+├── backend/                    Django REST API
 │   ├── apps/
-│   │   ├── posts/       # Post creation and feed management
-│   │   ├── social/      # Follow relationships
-│   │   └── users/       # User authentication and profile
-│   ├── config/          # Django settings and routing
-│   ├── Dockerfile       # Backend containerization
-│   ├── manage.py        # Django management
-│   └── requirements.txt  # Python dependencies
-├── frontend/            # React + TypeScript frontend
-│   ├── src/
-│   │   ├── components/  # Reusable React components
-│   │   ├── pages/       # Page-level components
-│   │   └── styles/      # CSS styling
-│   ├── Dockerfile       # Frontend containerization
-│   ├── vite.config.ts   # Vite build configuration
-│   ├── tsconfig.json    # TypeScript configuration
-│   └── package.json     # Node dependencies
-├── argocd/              # ArgoCD deployment configuration
-│   ├── app-of-apps.yaml      # Helm apps orchestration
-│   ├── argocd.yaml           # ArgoCD setup
-│   ├── argocd-staging.yaml   # Staging environment
-│   └── *.yaml                # Application stacks (monitoring, storage, etc.)
-├── k8s/                 # Kubernetes manifests for core services
-│   ├── backend/        # Backend deployment manifests
-│   ├── frontend/       # Frontend deployment manifests
-│   ├── ingress/        # Ingress & Traefik configuration
-│   ├── minio/          # MinIO object storage setup
-│   └── postgres/       # PostgreSQL database setup
-├── infrastructure/      # Infrastructure and monitoring configurations
-│   └── monitoring/     # Prometheus & Loki stack with dashboards
-├── k8s-playground/     # Playground applications (see k8s-playground/README.md)
-│   └── [Various applications in separate namespaces]
-└── README.md           # This file
+│   │   ├── posts/               Posts, feed
+│   │   ├── social/               Follow relationships
+│   │   └── users/                 Auth, profiles, relations (family/partner/social ties)
+│   ├── config/                    Settings, urls, wsgi
+│   └── requirements.txt
+├── frontend/                    React + TypeScript (Vite)
+│   └── src/
+│       ├── components/            Cards, sidebar, relations modal, etc.
+│       └── pages/                 Profile, Explore, AddUser, EditUser
+├── k8s/                          Manifests for the NASAT app itself
+│   ├── backend/  frontend/          Deployments + Services
+│   ├── ingress/                      Traefik ingress + MinIO ingress
+│   ├── minio/  postgres/             Object storage + database
+├── argocd/                       ArgoCD Application definitions (the "app-of-apps" tree)
+│   ├── app-of-apps.yaml              Root application — watches this folder
+│   ├── argocd.yaml                    → nasat (production, tracks `master`)
+│   ├── argocd-staging.yaml            → nasat-staging (tracks `staging`)
+│   ├── playground.yaml                → playground (tracks `k8s-playground/`)
+│   ├── longhorn.yaml                  → Longhorn storage
+│   ├── prometheus-stack.yaml          → kube-prometheus-stack
+│   ├── loki-stack.yaml                → Loki logging
+│   └── argocd-self.yaml               → ArgoCD manages its own install
+├── infrastructure/
+│   ├── argocd/                        Raw ArgoCD install manifest + ingress + kustomization
+│   ├── longhorn/                       Helm values + storage classes + backup/recurring-job resources
+│   └── monitoring/                     Prometheus + Loki Helm values, Grafana dashboards
+├── k8s-playground/               12 self-hosted apps, one folder each (see table below)
+├── .github/workflows/             CI: build/test/push images, auto-bump image tags in git
+├── RELATIONS_GUIDE.md            Design notes for the user-relations feature
+├── CODE_OF_CONDUCT.md, LICENSE
+└── README.md
 ```
 
-## Technology Stack
+## The application
 
-### Backend
-- **Framework**: Django with Django REST Framework
-- **Authentication**: JWT (JSON Web Tokens) with simplejwt
-- **Database**: PostgreSQL (configured in K8s)
-- **Object Storage**: MinIO (S3-compatible)
-- **Image Processing**: Pillow
-- **Server**: Gunicorn
-- **Filtering**: django-filter
+| Layer | Stack |
+|---|---|
+| Backend | Django + Django REST Framework, JWT auth (simplejwt), Gunicorn |
+| Database | PostgreSQL |
+| Media storage | MinIO (S3-compatible) |
+| Frontend | React 18 + TypeScript + Vite |
+| Core features | Posts with images, follow/unfollow, and a **relations** system — bidirectional family/partner/social relationship types (mother↔son, wife↔husband, friend↔friend, etc.), surfaced on the profile page and in Explore |
 
-### Frontend
-- **Framework**: React 18
-- **Language**: TypeScript
-- **Build Tool**: Vite
-- **Runtime**: Node.js
+Local dev, API endpoints, and environment variables are unchanged from the standard Django/React workflow — see [Getting started](#getting-started) below.
 
-### Infrastructure
-- **Container Orchestration**: Kubernetes (K3S)
-- **Container Registry**: Docker
-- **GitOps**: ArgoCD
-- **Storage**: MinIO, PostgreSQL
+## Deployment model: one app-of-apps, three environments
 
-## Getting Started
+Everything in the cluster is owned by a single root ArgoCD `Application` (`argocd/app-of-apps.yaml`), which recursively watches the `argocd/` folder. Every file it finds there becomes its own child `Application`:
+
+```mermaid
+graph TD
+    AoA["app-of-apps<br/>(watches argocd/)"] --> Nasat["nasat<br/>namespace: nasat · tracks master"]
+    AoA --> NasatStg["nasat-staging<br/>namespace: nasat-staging · tracks staging"]
+    AoA --> Play["playground<br/>namespace: playground · tracks staging"]
+    AoA --> LH["longhorn"]
+    AoA --> Prom["prometheus-stack"]
+    AoA --> Loki["loki-stack"]
+    AoA --> Self["argocd (self-managed)"]
+```
+
+- **`nasat`** and **`nasat-staging`** are two live, separate copies of the app — deliberately, so `staging` can be validated before promoting to `master`.
+- **`playground`, `longhorn`, `prometheus-stack`, `loki-stack`** are infrastructure — there is intentionally only **one** copy of each. They are not meant to be duplicated the way the app is; there's no useful concept of a "staging Jellyfin."
+- Sync is automated (`prune: true`, `selfHeal: true`) everywhere, so the cluster is expected to converge to whatever's in git without manual `kubectl apply`.
+
+## Cluster topology (2 nodes)
+
+The cluster has one control-plane node and one node labeled `node-role.kubernetes.io/worker: worker`. Every workload manifest in this repo — the app, all 12 playground apps, monitoring, and Longhorn — carries a `nodeSelector` pinning it to the worker node:
+
+```mermaid
+graph LR
+    subgraph CP["Control-plane node"]
+        K3S["k3s server (API server, scheduler, datastore)"]
+        ArgoCDPods["ArgoCD components"]
+    end
+    subgraph WK["Worker node (labeled: worker)"]
+        App["nasat backend + frontend"]
+        PG["12× k8s-playground apps"]
+        Mon["Prometheus · Grafana · Loki"]
+        Storage["Longhorn"]
+    end
+```
+
+This is deliberate: it keeps heavy or spiky workloads (Jellyfin transcoding, Immich's ML jobs, Paperless OCR) from starving the node that runs the control plane. The tradeoff is that the worker node carries the entire application load — see [Resource budget](#resource-budget) before enabling everything at once.
+
+## Infrastructure layer
+
+- **ArgoCD** manages itself (`argocd-self.yaml` → `infrastructure/argocd/`), installed from the standard non-HA `install.yaml` (application controller, repo server, API server, redis, dex, notifications, applicationset — 6 Deployments + 1 StatefulSet).
+- **Longhorn** provides the default `StorageClass`. Given a 2-node cluster, `defaultReplicaCount` is set to `1`, and the `longhorn-standard`/`longhorn-critical` classes use `numberOfReplicas: 2` (not the usual 3) so volumes can actually satisfy their replica count.
+- **Monitoring**: `kube-prometheus-stack` (Prometheus + Grafana, 7-day retention, alerting disabled) and `loki-stack` (single-binary mode), both scraping the K3s kubelet/cAdvisor. Dashboards are pre-provisioned via Grafana's sidecar (`infrastructure/monitoring/dashboards-configmaps/`).
+
+## k8s-playground: self-hosted apps
+
+Twelve independent apps, each with its own namespace, PVC, Service, and Traefik `Ingress` under `*.nasat.local`:
+
+| App | What it is | Image | Host |
+|---|---|---|---|
+| **Immich** | Self-hosted photo/video library with ML search | `immich-app/immich-server` + bundled Postgres/Redis | immich.nasat.local |
+| **Jellyfin** | Media server (movies/TV) | `jellyfin/jellyfin` | jellyfin.nasat.local |
+| **Paperless-ngx** | Document management + OCR | `paperlessngx/paperless-ngx` + Postgres + Redis | paperless.nasat.local |
+| **n8n** | Workflow automation (Zapier-style) | `n8nio/n8n` | n8n.nasat.local |
+| **Pi-hole** | Network-wide ad/DNS blocking | `pihole/pihole` | pihole.nasat.local |
+| **Trilium** | Hierarchical note-taking | `triliumnext/trilium` | trilium.nasat.local |
+| **Wiki** *(namespace: `jspwiki`)* | Team wiki — currently running Wiki.js, not JSPWiki, despite the folder name | `ghcr.io/requarks/wiki` | jspwiki.nasat.local |
+| **FreshRSS** | RSS/feed aggregator | `freshrss/freshrss` | freshrss.nasat.local |
+| **Gotify** | Self-hosted push notifications | `gotify/server` | gotify.nasat.local |
+| **Uptime Kuma** | Uptime/status monitoring | `louislam/uptime-kuma` | uptime.nasat.local |
+| **Linkding** | Bookmark manager | `sissbruecker/linkding` | bookmarks.nasat.local |
+| **Homepage** | Dashboard linking to everything above | `gethomepage/homepage` | homepage.nasat.local |
+
+### Resource budget
+
+Nothing here has infinite headroom — these numbers are the sum of what's actually declared in each `deployment.yaml`:
+
+| | Requested | Limit (burst ceiling) |
+|---|---|---|
+| All 12 playground apps | ~1.75 CPU / ~4.1 Gi | ~10.6 CPU / ~13 Gi |
+| Prometheus + Grafana | 50m / 256Mi | 500m / 850Mi |
+| Loki | 100m / 256Mi | 500m / 512Mi |
+
+All of this lands on the single worker node (see topology above). Before turning on everything at once, check the worker node's real capacity with `kubectl top nodes` — Immich (ML) and Jellyfin (transcoding) are the apps most likely to actually hit their limits.
+
+## CI/CD
+
+Three GitHub Actions workflows, all triggered on push to `master` or `staging` (path-filtered so backend/frontend changes don't rebuild each other):
+
+- `build-docker-push-bk.yaml` / `build-docker-push-fr.yaml` — install deps, run a smoke test (container must not crash on startup), build and push the Docker image to Docker Hub tagged `:<branch>` and `:<commit-sha>`, then commit the new SHA tag back into `k8s/backend/Backend.yaml` / `k8s/frontend/Frontend.yaml` (`[skip ci]`) so ArgoCD's self-heal picks it up.
+- `build-docker-push-all.yaml` — manual `workflow_dispatch` to run both pipelines for a chosen branch on demand.
+
+## Getting started
 
 ### Prerequisites
-- Docker & Docker Compose (for local development)
-- Python 3.8+ (for backend development)
-- Node.js 16+ (for frontend development)
-- kubectl (for Kubernetes deployment)
+- Docker & Docker Compose, Python 3.12, Node.js 20, `kubectl`
 
-### Local Development
-
-#### Backend Setup
-
-1. Navigate to the backend directory:
+### Backend
 ```bash
 cd backend
-```
-
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-```
-
-4. Run migrations:
-```bash
 python manage.py migrate
-```
-
-5. Start the development server:
-```bash
 python manage.py runserver
 ```
 
-The API will be available at `http://localhost:8000`
-
-#### Frontend Setup
-
-1. Navigate to the frontend directory:
+### Frontend
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Start the development server:
-```bash
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:5173` (or the port shown in terminal)
-
-### Docker Setup
-
-Build and run with Docker Compose:
-
+### Cluster
 ```bash
-docker-compose up --build
+# Bootstrap: install ArgoCD, then hand control to the app-of-apps
+kubectl apply -f infrastructure/argocd/install.yaml
 ```
-
-This will start both the backend and frontend services.
 
 ## API Endpoints
 
@@ -180,153 +204,29 @@ This will start both the backend and frontend services.
 - Docker images pushed to registry
 
 ### Deploy with ArgoCD
-
-1. Apply the ArgoCD configuration:
-```bash
-kubectl apply -f argocd/argocd.yaml
-```
-
-2. Deploy the application stack using app-of-apps pattern:
+Deploy the application stack using app-of-apps pattern:
 ```bash
 kubectl apply -f argocd/app-of-apps.yaml
 ```
-
-Or manually deploy core services:
-```bash
-kubectl apply -f k8s/postgres/postgres.yaml
-kubectl apply -f k8s/minio/minio.yaml
-kubectl apply -f k8s/backend/Backend.yaml
-kubectl apply -f k8s/frontend/Frontend.yaml
-kubectl apply -f k8s/ingress/ingress.yaml
+# Everything else (nasat, nasat-staging, playground, monitoring, longhorn) is
+# reconciled automatically from here — do not kubectl apply the individual
+# app manifests directly, or you'll fight ArgoCD's self-heal.
 ```
 
-3. Deploy monitoring stack (optional):
-```bash
-kubectl apply -f argocd/prometheus-stack.yaml
-kubectl apply -f argocd/loki-stack.yaml
-```
 
-### Access the Application
 
-Once deployed, access the application through the ingress URL configured in `k8s/ingress/ingress.yaml`
-
-## Configuration
-
-### Backend Configuration
-
-Edit `backend/config/settings.py` to configure:
-- `SECRET_KEY`: Django secret key (use environment variable in production)
-- `DEBUG`: Set to `False` in production
-- `ALLOWED_HOSTS`: Add your domain
-- `DATABASES`: Configure PostgreSQL connection
-- `AWS_STORAGE_BUCKET_NAME`: MinIO bucket for image storage
-
-### Frontend Configuration
-
-Edit `frontend/vite.config.ts` for:
-- API endpoint configuration
-- Build output settings
-
-## Environment Variables
-
-### Backend
-- `SECRET_KEY`: Django secret key
-- `DEBUG`: Debug mode (True/False)
-- `DATABASE_URL`: PostgreSQL connection string
-- `AWS_ACCESS_KEY_ID`: MinIO access key
-- `AWS_SECRET_ACCESS_KEY`: MinIO secret key
-- `AWS_STORAGE_BUCKET_NAME`: MinIO bucket name
-
-### Frontend
-- `VITE_API_URL`: Backend API URL
-
-## Development Workflow
-
-1. Create a feature branch
-2. Make changes to backend and/or frontend
-3. Test locally
-4. Build Docker images
-5. Push to registry
-6. Update Kubernetes manifests
-7. Deploy with ArgoCD or kubectl apply
-
-## Common Tasks
-
-### Create a New Post
-```bash
-curl -X POST http://localhost:8000/api/posts/ \
-  -H "Authorization: Bearer <JWT_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "Hello, NASAT!",
-    "image": "path/to/image.jpg"
-  }'
-```
-
-### Follow a User
-```bash
-curl -X POST http://localhost:8000/api/social/follow/ \
-  -H "Authorization: Bearer <JWT_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{"following_id": 2}'
-```
-
-### Infrastructure & Monitoring
-
-#### Prometheus & Loki Stack
-
-The infrastructure includes comprehensive monitoring and logging:
-
-- **Prometheus**: Metrics collection and alerting
-- **Loki**: Log aggregation
-- **Dashboards**: Pre-configured Grafana dashboards in `infrastructure/monitoring/dashboards/`
-
-Deploy the monitoring stack:
-```bash
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add grafana https://grafana.github.io/helm-charts
-helm install prometheus prometheus-community/kube-prometheus-stack -f infrastructure/monitoring/prometheus-values.yaml
-helm install loki grafana/loki-stack -f infrastructure/monitoring/loki-values.yaml
-```
-
-Or use ArgoCD:
-```bash
-kubectl apply -f argocd/prometheus-stack.yaml
-kubectl apply -f argocd/loki-stack.yaml
-```
-
-## Troubleshooting
-
-### Database Connection Issues
-- Ensure PostgreSQL is running in Kubernetes
-- Check database credentials in settings.py
-- Verify network policies allow pod communication
-
-### MinIO Access Issues
-- Verify MinIO pod is running: `kubectl get pods -n nasat`
-- Check MinIO credentials match in settings.py
-- Ensure bucket exists in MinIO
-
-### Frontend API Errors
-- Check CORS settings in Django backend
-- Verify API_URL matches your backend deployment
-- Check browser console for detailed errors
 
 ## Contributing
 
-1. Follow PEP 8 for Python code
-2. Use TypeScript strict mode for frontend code
-3. Write meaningful commit messages
-4. Test locally before pushing
+PEP 8 for Python, TypeScript strict mode for the frontend, meaningful commit messages, test locally before pushing.
 
 ## License
 
-This project is licensed under the MIT License.
-
+MIT — see `LICENSE`.
 ## Support
 
 For issues or questions, please create an issue in the repository or contact the development team.
 
 ---
 
-**Last Updated**: May 13, 2026
+**Last Updated**: Aug 30, 2026

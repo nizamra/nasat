@@ -5,3 +5,5 @@ metadata:
   labels:
     app: paperless-ngx
     environment: playground
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"

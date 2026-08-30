@@ -5,6 +5,8 @@ metadata:
   namespace: jellyfin
   labels:
     app: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   type: ClusterIP
   selector:

@@ -3,6 +3,8 @@ kind: Middleware
 metadata:
   name: minio-stripprefix
   namespace: nasat-staging
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   stripPrefix:
     prefixes:
@@ -14,6 +16,8 @@ kind: Middleware
 metadata:
   name: minio-cors
   namespace: nasat-staging
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   headers:
     customResponseHeaders:

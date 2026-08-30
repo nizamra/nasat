@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: uptime-kuma
   namespace: uptime-kuma
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     app: uptime-kuma
 spec:

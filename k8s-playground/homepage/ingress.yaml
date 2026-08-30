@@ -4,6 +4,7 @@ metadata:
   name: homepage-ingress
   namespace: homepage
   annotations:
+    argocd.argoproj.io/sync-wave: "2"
     kubernetes.io/ingress.class: "traefik"
     traefik.ingress.kubernetes.io/router.entrypoints: "web"
 spec:

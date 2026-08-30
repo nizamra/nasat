@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: immich-data
   namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -16,6 +18,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: immich-db-data
   namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce

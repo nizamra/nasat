@@ -4,6 +4,8 @@ metadata:
   name: homepage
   labels:
     app.kubernetes.io/name: homepage
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 rules:
   - apiGroups:
       - ""

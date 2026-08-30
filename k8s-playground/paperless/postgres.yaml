@@ -5,9 +5,11 @@ metadata:
   namespace: paperless
   labels:
     app: postgres
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   serviceName: postgres
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: postgres

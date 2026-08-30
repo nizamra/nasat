@@ -5,3 +5,5 @@ metadata:
   labels:
     app: n8n
     environment: playground
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"

@@ -2,14 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
-  namespace: paperless
-  labels:
-    app: redis
-    tier: application
+  namespace: infisical
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app: redis
+    tier: infisical
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: redis
@@ -17,17 +17,19 @@ spec:
     metadata:
       labels:
         app: redis
-        tier: application
+        tier: infisical
     spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
       containers:
         - name: redis
           image: redis:7
           imagePullPolicy: IfNotPresent
+          command: ["redis-server", "--appendonly", "yes"]
           ports:
             - containerPort: 6379
               name: redis
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
           resources:
             requests:
               cpu: 50m
@@ -35,12 +37,33 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data
+  namespace: infisical
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: paperless
+  namespace: infisical
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
   labels:
     app: redis
 spec:

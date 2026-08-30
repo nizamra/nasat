@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: linkding-data
   namespace: linkding
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   accessModes:
     - ReadWriteOnce
