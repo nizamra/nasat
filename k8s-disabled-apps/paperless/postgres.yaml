@@ -9,7 +9,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
 spec:
   serviceName: postgres
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: postgres

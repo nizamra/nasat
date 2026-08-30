@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: trilium
-  namespace: trilium
+  name: jspwiki
+  namespace: jspwiki
   labels:
-    app: trilium
+    app: jspwiki
     tier: application
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
-      app: trilium
+      app: jspwiki
   strategy:
     type: Recreate # Use Recreate since we use ReadWriteOnce PVC
   template:
     metadata:
       labels:
-        app: trilium
+        app: jspwiki
         tier: application
       annotations:
         prometheus.io/scrape: "false"
@@ -31,8 +31,8 @@ spec:
       terminationGracePeriodSeconds: 30
 
       containers:
-        - name: trilium
-          image: triliumnext/trilium:v0.103.0
+        - name: wiki
+          image: ghcr.io/requarks/wiki:2.5.314
           imagePullPolicy: IfNotPresent
 
           # Security context
@@ -42,17 +42,17 @@ spec:
 
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 3000
               protocol: TCP
 
           # Load environment from ConfigMap
           envFrom:
             - configMapRef:
-                name: trilium-config
+                name: jspwiki-config
 
           # Volume mounts
           volumeMounts:
-            - name: trilium-data
+            - name: jspwiki-data
               mountPath: /data
             - name: tmp
               mountPath: /tmp
@@ -61,25 +61,25 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 384Mi
             limits:
               cpu: 500m
-              memory: 1Gi
+              memory: 768Mi
 
-          # Startup probe: give TriliumNext time to initialize (up to 2 minutes)
+          # Startup probe: give Wiki.js time to initialize (up to 3 minutes)
           startupProbe:
             httpGet:
-              path: /
+              path: /graphql
               port: http
-            failureThreshold: 12
+            failureThreshold: 18
             periodSeconds: 10
 
           # Liveness probe: restart if unhealthy
           livenessProbe:
             httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 30
+              path: /graphql
+              port: http
+            initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
@@ -87,17 +87,17 @@ spec:
           # Readiness probe: don't accept traffic until ready
           readinessProbe:
             httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 10
+              path: /graphql
+              port: http
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 3
-            failureThreshold: 3
+            failureThreshold: 2
 
       # Volumes
       volumes:
-        - name: trilium-data
+        - name: jspwiki-data
           persistentVolumeClaim:
-            claimName: trilium-data
+            claimName: jspwiki-data
         - name: tmp
           emptyDir: {}
