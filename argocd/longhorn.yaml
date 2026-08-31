@@ -6,18 +6,9 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://charts.longhorn.io
-      chart: longhorn
-      targetRevision: 1.12.1
-      helm:
-        valueFiles:
-          - $values/infrastructure/longhorn/longhorn-values.yaml
-    - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
-      ref: values
-    - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
-      path: infrastructure/longhorn/resources
+    repoURL: https://github.com/nizamra/nasat
+    targetRevision: staging
+    path: infrastructure/longhorn
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system

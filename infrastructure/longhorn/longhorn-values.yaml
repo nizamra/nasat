@@ -21,6 +21,9 @@ persistence:
 
 csi:
   kubeletRootDir: /var/lib/rancher/k3s/agent/kubelet
+  pluginDir: /var/lib/rancher/k3s/agent/kubelet/plugins
+  registrarDir: /var/lib/rancher/k3s/agent/kubelet/plugins_registry
+
 
 ingress:
   enabled: true

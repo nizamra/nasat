@@ -54,3 +54,16 @@ patches:
         name: argocd-cmd-params-cm
       data:
         server.insecure: "true"
+
+  # 5. Enable Kustomize's Helm chart inflator (needed for the Longhorn preStop patch)
+  - target:
+      version: v1
+      kind: ConfigMap
+      name: argocd-cm
+    patch: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: argocd-cm
+      data:
+        kustomize.buildOptions: "--enable-helm"
