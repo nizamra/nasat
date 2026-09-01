@@ -30,6 +30,8 @@ spec:
               value: "http://infisical.nasat.local"
             - name: REDIS_URL
               value: "redis://redis.infisical.svc.cluster.local:6379"
+            - name: PORT
+              value: "8080"
             - name: ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
@@ -45,22 +47,34 @@ spec:
                 secretKeyRef:
                   name: infisical-secrets
                   key: DB_CONNECTION_URI
+
+          # Startup probe allows up to 150 seconds (30 * 5s) for full initialization
+          startupProbe:
+            httpGet:
+              path: /api/status
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 40
+            initialDelaySeconds: 10
+
           livenessProbe:
             httpGet:
               path: /api/status
               port: 8080
-            initialDelaySeconds: 20
             periodSeconds: 15
+            failureThreshold: 3
+
           readinessProbe:
             httpGet:
               path: /api/status
               port: 8080
-            initialDelaySeconds: 10
             periodSeconds: 10
+            failureThreshold: 3
+
           resources:
             requests:
               cpu: 200m
-              memory: 256Mi
+              memory: 1Gi
             limits:
               cpu: 1000m
-              memory: 512Mi
+              memory: 2Gi
