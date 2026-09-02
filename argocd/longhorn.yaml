@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   sources:
-    repoURL: https://github.com/nizamra/nasat
-    targetRevision: staging
-    path: infrastructure/longhorn
+    - repoURL: https://github.com/nizamra/nasat
+      targetRevision: staging
+      path: infrastructure/longhorn
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system

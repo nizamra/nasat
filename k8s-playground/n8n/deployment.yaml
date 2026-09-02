@@ -14,7 +14,7 @@ spec:
     matchLabels:
       app: n8n
   strategy:
-    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+    type: Recreate
   template:
     metadata:
       labels:
@@ -25,54 +25,65 @@ spec:
         prometheus.io/port: "5678"
         prometheus.io/path: "/metrics"
     spec:
-      # Ensure pods run on worker nodes only
       nodeSelector:
         node-role.kubernetes.io/worker: worker
 
-      # Pod disruption budget for graceful shutdowns
       terminationGracePeriodSeconds: 30
-
-      # Service account for potential cloud credentials
       serviceAccountName: n8n
+
+      initContainers:
+        - name: fix-data-permissions
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Setting permissions for /home/node/.n8n"
+              mkdir -p /home/node/.n8n
+              chown -R 1000:1000 /home/node/.n8n
+              chmod -R 775 /home/node/.n8n
+              echo "Permissions set. Listing directory:"
+              ls -la /home/node/.n8n
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: n8n-data
+              mountPath: /home/node/.n8n
 
       containers:
         - name: n8n
           image: n8nio/n8n:1.123.55
           imagePullPolicy: IfNotPresent
 
-          # Security context - run as non-root where possible
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
+            runAsUser: 1000
+            runAsGroup: 1000
 
           ports:
             - name: http
               containerPort: 5678
               protocol: TCP
 
-          # Load environment from ConfigMap and Secrets
           envFrom:
             - configMapRef:
                 name: n8n-config
             - secretRef:
                 name: n8n-secrets
 
-          # Additional environment variables
           env:
             - name: NODE_ENV
               value: "production"
             - name: GENERIC_TIMEZONE
               value: "UTC"
 
-          # Volume mounts
           volumeMounts:
             - name: n8n-data
               mountPath: /home/node/.n8n
             - name: tmp
               mountPath: /tmp
 
-          # Resource requests and limits
-          # n8n is relatively lightweight but can spike during executions
           resources:
             requests:
               cpu: 100m
@@ -81,7 +92,6 @@ spec:
               cpu: 1000m
               memory: 1Gi
 
-          # Startup probe: give n8n time to initialize (up to 5 minutes)
           startupProbe:
             httpGet:
               path: /healthz
@@ -89,7 +99,6 @@ spec:
             failureThreshold: 30
             periodSeconds: 10
 
-          # Liveness probe: restart if unhealthy
           livenessProbe:
             httpGet:
               path: /healthz
@@ -99,7 +108,6 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
 
-          # Readiness probe: don't accept traffic until ready
           readinessProbe:
             httpGet:
               path: /healthz
@@ -109,7 +117,6 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 2
 
-      # Volumes
       volumes:
         - name: n8n-data
           persistentVolumeClaim:
