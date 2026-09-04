@@ -34,12 +34,12 @@ spec:
             - -c
             - |
               for directory in thumbs upload backups library profile encoded-video; do
-                mkdir -p "/data/${directory}"
-                touch "/data/${directory}/.immich"
+                mkdir -p "/external_media/${directory}"
+                touch "/external_media/${directory}/.immich"
               done
           volumeMounts:
             - name: immich-data
-              mountPath: /data
+              mountPath: /external_media
       containers:
         - name: immich
           image: ghcr.io/immich-app/immich-server:v3.1.0
@@ -64,16 +64,20 @@ spec:
                 secretKeyRef:
                   name: immich-secrets
                   key: JWT_SECRET
+            - name: IMMICH_MEDIA_LOCATION
+              value: /external_media
+            - name: IMMICH_STORAGE_LOCATION
+              value: /external_media
           volumeMounts:
             - name: immich-data
-              mountPath: /data
+              mountPath: /external_media
           resources:
             requests:
               cpu: 100m
               memory: 400Mi
             limits:
               cpu: 1300m
-              memory: 2Gi
+              memory: 4Gi
           startupProbe:
             httpGet:
               path: /api/server/ping
@@ -152,7 +156,7 @@ spec:
               memory: 512Mi
             limits:
               cpu: 800m
-              memory: 1Gi
+              memory: 4Gi
           livenessProbe:
             exec:
               command:
