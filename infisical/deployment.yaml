@@ -19,11 +19,13 @@ spec:
     spec:
       containers:
         - name: infisical
-          image: infisical/infisical:v0.164.1
+          image: infisical/infisical:v0.165.6
           ports:
             - containerPort: 8080
               name: http
           env:
+            - name: AUTO_MIGRATION_ENABLED
+              value: "false"
             - name: NODE_ENV
               value: "production"
             - name: SITE_URL
@@ -48,14 +50,15 @@ spec:
                   name: infisical-secrets
                   key: DB_CONNECTION_URI
 
-          # Startup probe allows up to 150 seconds (30 * 5s) for full initialization
           startupProbe:
             httpGet:
               path: /api/status
               port: 8080
+              scheme: HTTP
             periodSeconds: 5
-            failureThreshold: 40
-            initialDelaySeconds: 10
+            failureThreshold: 120
+            initialDelaySeconds: 25
+            timeoutSeconds: 5
 
           livenessProbe:
             httpGet:
