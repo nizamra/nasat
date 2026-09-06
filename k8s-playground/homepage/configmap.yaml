@@ -221,10 +221,13 @@ data:
     color: slate
     background:
       image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-      blur: md
-      brightness: 40
-      saturate: 80
-      opacity: 0.9
+      blur: sm
+      brightness: 50
+      saturate: 75
+      # blur: md
+      # brightness: 40
+      # saturate: 80
+      # opacity: 0.9
     layout:
       header:
         title: true

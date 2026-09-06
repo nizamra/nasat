@@ -53,7 +53,7 @@ spec:
           # Additional environment variables
           env:
             - name: TZ
-              value: "UTC"
+              value: "Asia/Jerusalem"
 
           # Volume mounts
           volumeMounts:

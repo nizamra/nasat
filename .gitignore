@@ -58,3 +58,8 @@ infisical/secret.local.yaml
 
 # --- personal ---
 .meta/
+
+# --- Terraform ---
+.terraform/
+*.tfvars
+*.tfstate

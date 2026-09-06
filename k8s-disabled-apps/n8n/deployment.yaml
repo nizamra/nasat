@@ -76,7 +76,7 @@ spec:
             - name: NODE_ENV
               value: "production"
             - name: GENERIC_TIMEZONE
-              value: "UTC"
+              value: "Asia/Jerusalem"
 
           volumeMounts:
             - name: n8n-data

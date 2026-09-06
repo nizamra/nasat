@@ -42,7 +42,7 @@ spec:
 
           env:
             - name: TZ
-              value: "UTC"
+              value: "Asia/Jerusalem"
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: "homepage.nasat.local,localhost,127.0.0.1,homepage.homepage.svc.cluster.local"
             - name: HOMEPAGE_VAR_TITLE

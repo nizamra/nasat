@@ -24,8 +24,18 @@ spec:
             - containerPort: 8080
               name: http
           env:
-            - name: AUTO_MIGRATION_ENABLED
+            - name: ALLOW_INTERNAL_IP_CONNECTIONS
+              value: "true"
+            - name: TELEMETRY_ENABLED
               value: "false"
+            - name: CHECK_UPDATES
+              value: "false"
+            - name: CACHE_ENABLED
+              value: "true"
+            - name: STARTUP_MIGRATION_TIMEOUT
+              value: "30"
+            - name: AUTO_MIGRATION_ENABLED
+              value: "true"
             - name: NODE_ENV
               value: "production"
             - name: SITE_URL
@@ -76,8 +86,8 @@ spec:
 
           resources:
             requests:
-              cpu: 200m
-              memory: 1Gi
+              cpu: 400m
+              memory: 1200Mi
             limits:
-              cpu: 1000m
-              memory: 2Gi
+              cpu: 1200m
+              memory: 2400Mi

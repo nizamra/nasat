@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 data:
-  TZ: "UTC"
+  TZ: "Asia/Jerusalem"
   IMMICH_PORT: "2283"
   HOST: "0.0.0.0"
   IMMICH_HOST: "0.0.0.0"

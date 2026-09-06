@@ -12,4 +12,4 @@ data:
   # Database type - using SQLite for simplicity
   FRESHRSS_DB_TYPE: "sqlite"
   # Language and timezone
-  TZ: "UTC"
+  TZ: "Asia/Jerusalem"

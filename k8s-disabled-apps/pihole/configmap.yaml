@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "-1"
 data:
   # Pi-hole core settings
-  TZ: "UTC"
+  TZ: "Asia/Jerusalem"
   PIHOLE_DOMAIN: "pihole.nasat.local"
   WEBPASSWORD: "J2T9UY9RrlkAp-sj"
   DNSMASQ_LISTENING: "all"
