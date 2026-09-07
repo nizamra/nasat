@@ -1,0 +1,10 @@
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: immich-infisical-identity
+#   namespace: immich
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "-2"
+# type: Opaque
+# stringData:
+#   identityId: "eb583593-a5a0-4333-8c58-4f1bad1de38e"

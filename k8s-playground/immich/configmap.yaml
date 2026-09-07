@@ -16,8 +16,7 @@ data:
   DB_DATABASE_NAME: "immich"
   REDIS_HOSTNAME: "immich-redis"
   REDIS_PORT: "6379"
-  IMMICH_MEDIA_LOCATION: "/data"
-  UPLOAD_LOCATION: "/data"
+  IMMICH_MEDIA_LOCATION: "/external_media"
   IMMICH_MACHINE_LEARNING_ENABLED: "false"
   IMMICH_SERVER_URL: "http://immich.nasat.local"
 

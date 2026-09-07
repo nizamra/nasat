@@ -56,3 +56,24 @@ resource "infisical_project_identity" "gotify" {
     { role_slug = "viewer" }
   ]
 }
+
+# --- Kubernetes Secrets ---
+resource "kubernetes_secret_v1" "gotify_identity" {
+  metadata {
+    name      = "gotify-infisical-identity"
+    namespace = "gotify"
+  }
+  data = {
+    identityId = infisical_identity.gotify.id
+  }
+}
+
+resource "kubernetes_secret_v1" "immich_identity" {
+  metadata {
+    name      = "immich-infisical-identity"
+    namespace = "immich"
+  }
+  data = {
+    identityId = infisical_identity.immich.id
+  }
+}
