@@ -13,10 +13,10 @@ spec:
         valueFiles:
           - $values/infrastructure/monitoring/prometheus-values.yaml
     - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
+      targetRevision: master
       ref: values
     - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
+      targetRevision: master
       path: infrastructure/monitoring/dashboards-configmaps
   destination:
     server: https://kubernetes.default.svc

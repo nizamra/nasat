@@ -7,7 +7,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
+      targetRevision: master
       path: infrastructure/longhorn
   destination:
     server: https://kubernetes.default.svc

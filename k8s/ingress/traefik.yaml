@@ -2,7 +2,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: minio-stripprefix
-  namespace: nasat-staging
+  namespace: nasat
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
@@ -15,7 +15,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: minio-cors
-  namespace: nasat-staging
+  namespace: nasat
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:

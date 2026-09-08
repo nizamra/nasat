@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/nizamra/nasat
-    targetRevision: staging
+    targetRevision: master
     path: infrastructure/argocd
   destination:
     server: https://kubernetes.default.svc

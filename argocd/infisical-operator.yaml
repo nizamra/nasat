@@ -15,10 +15,10 @@ spec:
         valueFiles:
           - $values/infrastructure/infisical-operator/values.yaml
     - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
+      targetRevision: master
       ref: values
     - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
+      targetRevision: master
       path: infrastructure/infisical-operator/manifests
       directory:
         recurse: true

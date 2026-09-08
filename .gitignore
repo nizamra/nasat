@@ -63,3 +63,4 @@ infisical/secret.local.yaml
 .terraform/
 *.tfvars
 *.tfstate
+*.tfstate*

@@ -12,7 +12,7 @@ spec:
     namespace: infisical
   source:
     repoURL: https://github.com/nizamra/nasat
-    targetRevision: staging
+    targetRevision: master
     path: infisical
     directory:
       recurse: true

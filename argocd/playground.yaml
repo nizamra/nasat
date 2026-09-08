@@ -10,7 +10,7 @@ spec:
     namespace: playground
   source:
     repoURL: https://github.com/nizamra/nasat
-    targetRevision: staging
+    targetRevision: master
     path: k8s-playground
     directory:
       recurse: true

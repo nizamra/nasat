@@ -13,7 +13,7 @@ spec:
         valueFiles:
           - $values/infrastructure/monitoring/loki-values.yaml
     - repoURL: https://github.com/nizamra/nasat
-      targetRevision: staging
+      targetRevision: master
       ref: values
   destination:
     server: https://kubernetes.default.svc

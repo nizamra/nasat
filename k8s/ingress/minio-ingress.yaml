@@ -4,10 +4,10 @@ metadata:
   name: minio-ingress
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-    traefik.ingress.kubernetes.io/router.middlewares: nasat-staging-minio-stripprefix@kubernetescrd, nasat-staging-minio-cors@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: nasat-minio-stripprefix@kubernetescrd, nasat-minio-cors@kubernetescrd
 spec:
   rules:
-    - host: staging.nasat.local
+    - host: nasat.local
       http:
         paths:
           - path: /media
