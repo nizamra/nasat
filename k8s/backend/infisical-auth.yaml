@@ -2,7 +2,7 @@ apiVersion: secrets.infisical.com/v1beta1
 kind: InfisicalAuth
 metadata:
   name: backend-auth
-  namespace: nasat-staging
+  namespace: nasat
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
 spec:
@@ -13,8 +13,8 @@ spec:
   kubernetes:
     identityIdRef:
       name: backend-infisical-identity
-      namespace: nasat-staging
+      namespace: nasat
       key: identityId
     serviceAccountRef:
       name: backend-infisical-reader
-      namespace: nasat-staging
+      namespace: nasat

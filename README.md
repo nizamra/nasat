@@ -109,7 +109,7 @@ This is deliberate: it keeps heavy or spiky workloads (Jellyfin transcoding, Imm
 ## Infrastructure layer
 
 - **ArgoCD** manages itself (`argocd-self.yaml` → `infrastructure/argocd/`), installed from the standard non-HA `install.yaml` (application controller, repo server, API server, redis, dex, notifications, applicationset — 6 Deployments + 1 StatefulSet).
-- **Longhorn** provides the default `StorageClass`. Given a 2-node cluster, `defaultReplicaCount` is set to `1`, and the `longhorn-standard`/`longhorn-critical` classes use `numberOfReplicas: 2` (not the usual 3) so volumes can actually satisfy their replica count.
+- **Longhorn** provides the default `StorageClass`. Given a 2-node cluster, `defaultReplicaCount` is set to `1`, and the `longhorn-standard`/`longhorn-critical` classes use `numberOfReplicas: 1` (not the usual 3) so volumes can actually satisfy their replica count.
 - **Monitoring**: `kube-prometheus-stack` (Prometheus + Grafana, 7-day retention, alerting disabled) and `loki-stack` (single-binary mode), both scraping the K3s kubelet/cAdvisor. Dashboards are pre-provisioned via Grafana's sidecar (`infrastructure/monitoring/dashboards-configmaps/`).
 
 ## k8s-playground: self-hosted apps

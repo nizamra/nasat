@@ -77,3 +77,44 @@ resource "kubernetes_secret_v1" "immich_identity" {
     identityId = infisical_identity.immich.id
   }
 }
+
+
+# --- Kubernetes Secrets Backend PROD (nasat) ---
+resource "infisical_project" "backend" {
+  name = "Nasat Backend"
+  slug = "nasat-backend"
+}
+
+resource "infisical_identity" "backend_prod" {
+  name   = "backend-operator-prod"
+  role   = "member"
+  org_id = var.organization_id
+}
+
+resource "infisical_identity_kubernetes_auth" "backend_prod" {
+  identity_id                   = infisical_identity.backend_prod.id
+  kubernetes_host               = var.k8s_api_host
+  kubernetes_ca_certificate     = var.k8s_ca_certificate
+  token_reviewer_jwt            = var.token_reviewer_jwt
+  allowed_namespaces            = ["nasat"]
+  allowed_service_account_names = ["backend-infisical-reader"]
+  token_reviewer_mode           = "api"
+}
+
+resource "infisical_project_identity" "backend_prod" {
+  project_id  = infisical_project.backend.id
+  identity_id = infisical_identity.backend_prod.id
+  roles = [
+    { role_slug = "viewer" }
+  ]
+}
+
+resource "kubernetes_secret_v1" "backend_prod_identity" {
+  metadata {
+    name      = "backend-infisical-identity"
+    namespace = "nasat"
+  }
+  data = {
+    identityId = infisical_identity.backend_prod.id
+  }
+}
