@@ -1,0 +1,20 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalAuth
+metadata:
+  name: gotify-auth
+  namespace: gotify
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  infisicalConnectionRef:
+    name: infisical-connection
+    namespace: infisical
+  method: kubernetes
+  kubernetes:
+    identityIdRef:
+      name: gotify-infisical-identity
+      namespace: gotify
+      key: identityId
+    serviceAccountRef:
+      name: gotify-infisical-reader
+      namespace: gotify

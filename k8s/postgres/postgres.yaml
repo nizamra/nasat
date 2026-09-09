@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   serviceName: postgres
   replicas: 1
@@ -18,11 +20,20 @@ spec:
           image: postgres:16
           env:
             - name: POSTGRES_DB
-              value: nasat
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: POSTGRES_DB
             - name: POSTGRES_USER
-              value: nasat
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: nasat
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: POSTGRES_PASSWORD
           ports:
             - containerPort: 5432
           volumeMounts:

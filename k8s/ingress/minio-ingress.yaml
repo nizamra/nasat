@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    traefik.ingress.kubernetes.io/router.middlewares: nasat-minio-stripprefix@kubernetescrd, nasat-minio-cors@kubernetescrd
+spec:
+  rules:
+    - host: nasat.local
+      http:
+        paths:
+          - path: /media
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000

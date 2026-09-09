@@ -2,8 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
-  replicas: 2
+  revisionHistoryLimit: 3
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -12,11 +15,29 @@ spec:
       labels:
         app: frontend
     spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+      imagePullSecrets:
+        - name: dockerhub-cred
       containers:
         - name: frontend
-          image: nizamra/nasat-frontend:976be4a2a124d776a1a8c2401d97dd51b1d78785
+          image: nizamra/nasat-frontend:d731415c413132ebf7088015b2a6143d72be74d0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
-      imagePullSecrets:
-        - name: dockerhub-cred
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3

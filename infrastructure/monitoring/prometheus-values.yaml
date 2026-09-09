@@ -1,0 +1,105 @@
+# Global nodeSelector ensures ALL kube-prometheus-stack children default to worker
+prometheus:
+  prometheusSpec:
+    scrapeInterval: "30s"
+    evaluationInterval: "60s"
+    retention: "7d"
+    retentionSize: "6GB"
+    containers:
+      - name: prometheus
+        env:
+          - name: GOGC
+            value: "50"
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "850Mi"
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - prometheus.nasat.local
+    path: /
+    pathType: Prefix
+
+defaultRules:
+  rules:
+    kubeScheduler: false
+    kubeControllerManager: false
+    kubeProxy: false
+    etcd: false
+
+grafana:
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 2Gi
+    accessModes: ["ReadWriteOnce"]
+  adminPassword: "J2T9UY9RrlkAp-sj"  # Consider moving to existingSecret in production
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - grafana.nasat.local
+    path: /
+    pathType: Prefix
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+
+# Disable Alerting
+alertmanager:
+  enabled: false
+
+# K3s Control Plane Disables
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+windowsMonitoring:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeDns:
+  enabled: false
+coreDns:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+  nodeSelector: {}
+  tolerations:
+    - operator: Exists
+
+# K3s Kubelet Scrape Configuration
+kubelet:
+  enabled: true
+  namespace: kube-system
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+
+    cAdvisorMetricRelabelings:
+      - action: drop
+        sourceLabels: [__name__]
+        regex: '(container_tasks_state|container_memory_failures_total|container_sockets|container_threads|container_blkio_device_usage|container_file_descriptors|container_cpu_load_average_10s|container_fs_reads_total|container_fs_writes_total|container_fs_inodes_total|container_spec_.*)'
+
+# kubeStateMetrics:
+#   enabled: false

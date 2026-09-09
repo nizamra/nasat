@@ -1,0 +1,17 @@
+bootstrap_client_id     = "580e5684-26a3-4452-945d-2219f8b32f85"
+bootstrap_client_secret = "c85c22b629222f30142582563eecd51530f6e7d4b1415b9623ef2f"
+k8s_api_host            = "https://kubernetes.default.svc"
+token_reviewer_jwt      = "eyJhbGciOiJSubjNkUUFVV046VU41STFFRnVlcmcyQNiazQifQ.eyJhdWQisiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiLCJrM3MiXSwiZXhwIjoxODIwMzE0NDY0LCJpYXQiOjE3ODg3Nzg0NjQsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiZWJlMzBmZDMtZjYyYS00YmU2LWE4OTctZmU0YzgxNmY3ZjQ1Iiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJpbmZpc2ljYWwiLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiaW5maXNpY2FsLXRva2VuLXJldmlld2VyIiwidWlkIjoiNGJkYTI2MTAtZGU0YS00NzMxLTkzOTUtMGZhN2NkNTZmNGQ4In19LCJuYmYiOjE3ODg3Nzg0NjQsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDppbmZpc2ljYWw6aW5maXNpY2FsLXRva2VuLXJldmlld2VyIn0.XCHIngyOCG6x_6MAggbhTr8nC4GdAAkYyB88nf1-SnUuSKi7FwEmM_eX8bJ3DIXT_ULe1Bl7-_wjdhuWR7zHGEqzhcDxNj0rlWS6IP7CPxYg1hYeXf2ZM88ifF34wl9lZsY1PSPUBGX058TMOsP9nnyVVVm43ynqL5lQuOgxYKC3hiSCCPDd1Mq2I2cbXdnoG7I164w70V71eMLXmjRX2564oqXvHSVPnhcCQ_n2hdSkS4nxkMnX1wpSudQ3uoHFRLzbBSs7f7q1Rl3082RZECJUMm3LLopr-x5QI50VXZm1tQyNaSugXVblWFWR-7gS-2gVavXy17GgpF3DJKgePA"
+# How to get the token_reviewer_jwt: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#service-account-tokens
+# kubectl create token infisical-token-reviewer -n infisical --duration=8760h
+k8s_ca_certificate = <<-EOT
+-----BEGIN CERTIFICATE-----
+dmVyLWNhQDE3Nzc0NjA1OTgwHhcNMjYwNDI5MTAwMzE4WhcNMzYwNDI2MTAwMzE4
+WjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3Nzc0NjA1OTgwWTATBgcqhkjO
+Q0TY7ZRIUeqzStfyq8Pv8c19qMk4jWU+xh8XDJ8N6hnIo0IwQDAOBgNVHQ8BAf8E
+udLc6wUwCgYIKoZIzj0EAwIDSAAwRQIgBMrevz50SpFEBqeE+B3LFDUzJdKHEM3f
+-----END CERTIFICATE-----
+EOT
+# How to get the k8s_ca_certificate: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#service-account-tokens
+# kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 -d
+organization_id = "42a4723d-d91a-493f-b719-5aede674c949"

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infisical-ingress
+  namespace: infisical
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    traefik.ingress.kubernetes.io/router.entrypoints: "web"
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  rules:
+    - host: infisical.nasat.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: infisical
+                port:
+                  number: 8080

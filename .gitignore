@@ -48,6 +48,7 @@ secrets/*.yaml
 !secrets/template.yaml
 kubeconfig
 .kube/
+infisical/secret.local.yaml
 
 # --- IDEs ---
 .vscode/
@@ -57,3 +58,9 @@ kubeconfig
 
 # --- personal ---
 .meta/
+
+# --- Terraform ---
+.terraform/
+*.tfvars
+*.tfstate
+*.tfstate*

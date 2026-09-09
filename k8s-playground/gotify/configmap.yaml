@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gotify-config
+  namespace: gotify
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+data:
+  TZ: "Asia/Jerusalem"
+  GOTIFY_PORT: "80"
+  GOTIFY_DEFAULTLANGUAGE: "en"
+  # SSL disabled since we use ingress for TLS termination
+  GOTIFY_SECURITY_ADMINEMAIL: "admin@nasat.local"

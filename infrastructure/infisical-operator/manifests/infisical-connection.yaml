@@ -1,0 +1,7 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalConnection
+metadata:
+  name: infisical-connection
+  namespace: infisical
+spec:
+  address: "http://infisical.infisical.svc.cluster.local:8080"

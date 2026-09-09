@@ -1,0 +1,9 @@
+# apiVersion: secrets.infisical.com/v1beta1
+# kind: InfisicalConnection
+# metadata:
+#   name: immich-connection
+#   namespace: immich
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "-2"
+# spec:
+#   address: "http://infisical.infisical.svc.cluster.local:8080"

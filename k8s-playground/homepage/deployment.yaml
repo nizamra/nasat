@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+    tier: application
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+        tier: application
+    spec:
+      serviceAccountName: homepage
+
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      terminationGracePeriodSeconds: 10
+
+      containers:
+        - name: homepage
+          image: gethomepage/homepage:v1.13.1
+          imagePullPolicy: IfNotPresent
+
+          securityContext:
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+
+          env:
+            - name: TZ
+              value: "Asia/Jerusalem"
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: "homepage.nasat.local,localhost,127.0.0.1,homepage.homepage.svc.cluster.local"
+            - name: HOMEPAGE_VAR_TITLE
+              value: "NASAT Dashboard"
+            - name: HOMEPAGE_VAR_SUBTITLE
+              value: "Homelab Playground Stack"
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+
+          volumeMounts:
+            - name: homepage-config
+              mountPath: /app/config/bookmarks.yaml
+              subPath: bookmarks.yaml
+
+            - name: homepage-config
+              mountPath: /app/config/services.yaml
+              subPath: services.yaml
+
+            - name: homepage-config
+              mountPath: /app/config/widgets.yaml
+              subPath: widgets.yaml
+
+            - name: homepage-config
+              mountPath: /app/config/settings.yaml
+              subPath: settings.yaml
+
+            - name: homepage-config
+              mountPath: /app/config/kubernetes.yaml
+              subPath: kubernetes.yaml
+
+            - name: config-logs
+              mountPath: /app/config/logs
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+
+          # Startup probe with Host Header fix
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: homepage.nasat.local
+            initialDelaySeconds: 10
+            failureThreshold: 30
+            periodSeconds: 5
+
+          # Liveness probe with Host Header fix
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: homepage.nasat.local
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+
+          # Readiness probe with Host Header fix
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: homepage.nasat.local
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 5
+
+      volumes:
+        - name: homepage-config
+          configMap:
+            name: homepage-config
+        - name: config-logs
+          emptyDir: {}
