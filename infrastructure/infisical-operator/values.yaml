@@ -6,4 +6,6 @@ scopedNamespaces:
   - infisical 
   - immich
   - gotify
+  - nasat
+  - nasat-staging
 installCRDs: true
