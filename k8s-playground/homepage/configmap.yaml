@@ -40,13 +40,6 @@ data:
             kubernetes:
               - namespace: argocd
                 app.kubernetes.io/name: argocd-server
-        - Pi-hole:
-            href: http://pihole.nasat.local/admin
-            description: DNS & Ad Blocking
-            icon: si-pihole
-            kubernetes:
-              - namespace: pihole
-                app: pihole
         - Grafana:
             href: http://grafana.nasat.local
             description: Metrics & Monitoring Dashboards
@@ -54,13 +47,6 @@ data:
             kubernetes:
               - namespace: monitoring
                 app.kubernetes.io/name: grafana
-        - Uptime Kuma:
-            href: http://uptime.nasat.local
-            description: Uptime Monitoring
-            icon: mdi-monitor-dashboard
-            kubernetes:
-              - namespace: uptime-kuma
-                app: uptime-kuma
         - Longhorn:
             href: http://longhorn.nasat.local
             description: Distributed Block Storage
@@ -72,95 +58,19 @@ data:
             kubernetes:
               - namespace: infisical
                 app: infisical
+        - Longhorn:
+            href: http://longhorn.nasat.local
+            description: Distributed Block Storage
+            icon: mdi-harddisk
 
-    # === MAIN APPLICATION ===
-    - 🚀 NASAT Platform:
-        - Nasat:
-            href: http://staging.nasat.local/explore
-            description: Main Application UI
-            icon: mdi-web
+    - 🚀 Playground Apps:
+        - Homepage:
+            href: http://homepage.nasat.local
+            description: Local dashboard and landing page
+            icon: mdi-home
             kubernetes:
-              - namespace: default
-                app: frontend
-        - Backend API:
-            href: http://staging.nasat.local/api
-            description: REST API Server
-            icon: mdi-api
-            kubernetes:
-              - namespace: default
-                app: backend
-
-    # === STORAGE & DATA ===
-    - 💾 Storage & Data:
-        - MinIO:
-            href: http://staging.nasat.local/media
-            description: Object Storage
-            icon: minio
-            kubernetes:
-              - namespace: default
-                app: minio
-        - PostgreSQL:
-            href: http://staging.nasat.local
-            description: Primary Database
-            icon: postgresql
-            kubernetes:
-              - namespace: default
-                app: postgres
-
-    # === PRODUCTIVITY & TOOLS ===
-    - 📚 Knowledge Base:
-        - JSPWiki:
-            href: http://jspwiki.nasat.local
-            description: Wiki & Knowledge Base
-            icon: mdi-notebook
-            kubernetes:
-              - namespace: jspwiki
-                app: jspwiki
-        - TriliumNext:
-            href: http://trilium.nasat.local
-            description: Hierarchical Note-Taking & Knowledge Management
-            icon: mdi-notebook-multiple
-            kubernetes:
-              - namespace: trilium
-                app: trilium
-        - Linkding:
-            href: http://bookmarks.nasat.local
-            description: Bookmark Manager
-            icon: linkding
-            kubernetes:
-              - namespace: linkding
-                app: linkding
-        - FreshRSS:
-            href: http://freshrss.nasat.local
-            description: RSS Feed Reader
-            icon: freshrss
-            kubernetes:
-              - namespace: freshrss
-                app: freshrss
-        - Paperless-ngx:
-            href: http://paperless.nasat.local
-            description: Document Management System
-            icon: mdi-file-document-multiple-outline
-            kubernetes:
-              - namespace: paperless
-                app: paperless-ngx
-
-    # === AUTOMATION & STREAMING ===
-    - ⚙️ Automation & Media:
-        - n8n:
-            href: http://n8n.nasat.local
-            description: Workflow Automation
-            icon: n8n
-            kubernetes:
-              - namespace: n8n
-                app: n8n
-        - Jellyfin:
-            href: http://jellyfin.nasat.local
-            description: Media Server (Movies, Music, TV)
-            icon: jellyfin
-            kubernetes:
-              - namespace: jellyfin
-                app: jellyfin
+              - namespace: homepage
+                app: homepage
         - Immich:
             href: http://immich.nasat.local
             description: Photo & Video Backup Library
@@ -175,6 +85,16 @@ data:
             kubernetes:
               - namespace: gotify
                 app: gotify
+
+    - 📌 Useful Links:
+        - GitHub:
+            href: https://github.com/nizamra/nasat
+            description: Project repository
+            icon: github
+        - NASAT Docs:
+            href: https://github.com/nizamra/nasat
+            description: Project documentation and source
+            icon: mdi-text-box-multiple
 
   widgets.yaml: |
     - search:
