@@ -5,6 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: default
+  ignoreDifferences:
+    - group: storage.k8s.io
+      kind: StorageClass
+      name: longhorn-critical
+      jsonPointers:
+        - /parameters
+    - group: storage.k8s.io
+      kind: StorageClass
+      name: longhorn-standard
+      jsonPointers:
+        - /parameters
   sources:
     - repoURL: https://github.com/nizamra/nasat
       targetRevision: master

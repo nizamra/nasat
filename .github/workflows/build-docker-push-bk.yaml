@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-      - staging   # Added staging branch
+      - staging
     paths:
-      - 'backend/**' # Trigger on changes to any files in the backend directory
+      - 'backend/**'
       - '.github/workflows/build-docker-push-bk.yaml'
-      - '!backend/**/*.md'  # Exclude markdown files from triggering the workflow
+      - '!backend/**/*.md'
   workflow_dispatch:
   workflow_call:
     inputs:
