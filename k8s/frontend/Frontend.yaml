@@ -21,7 +21,7 @@ spec:
         - name: dockerhub-cred
       containers:
         - name: frontend
-          image: nizamra/nasat-frontend:d731415c413132ebf7088015b2a6143d72be74d0
+          image: nizamra/nasat-frontend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
