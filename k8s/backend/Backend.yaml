@@ -19,6 +19,15 @@ spec:
         node-role.kubernetes.io/worker: worker
       imagePullSecrets:
         - name: dockerhub-cred
+      initContainers:
+        - name: migrate
+          image: nizamra/nasat-backend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
+          command: ["python", "manage.py", "migrate", "--noinput", "--fake-initial"]
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secrets
       containers:
         - name: backend
           image: nizamra/nasat-backend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
