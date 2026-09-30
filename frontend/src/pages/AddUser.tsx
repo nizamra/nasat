@@ -1,38 +1,48 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { RELATION_TYPES, IMPLIED_SEX, type Sex } from "../constants/relations";
 
 type SocialLink = {
   platform: string;
   url: string;
 };
 
+type RelatedPerson = {
+  first_name: string;
+  last_name: string;
+  sex: Sex;
+  relation_type: string;
+};
+
 type UserFormData = {
   username: string;
   email: string;
-  password: string;
   first_name: string;
   last_name: string;
+  sex: Sex;
   title: string;
   bio: string;
   location: string;
   birth_date: string;
   avatar: File | null;
   social_links: SocialLink[];
+  relations: RelatedPerson[];
 };
 
 export default function AddUser() {
   const [formData, setFormData] = useState<UserFormData>({
     username: "",
     email: "",
-    password: "",
     first_name: "",
     last_name: "",
+    sex: "",
     title: "",
     bio: "",
     location: "",
     birth_date: "",
     avatar: null,
     social_links: [],
+    relations: [],
   });
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -40,10 +50,17 @@ export default function AddUser() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [newSocialLink, setNewSocialLink] = useState<SocialLink>({ platform: "instagram", url: "" });
+  const [newRelation, setNewRelation] = useState<RelatedPerson>({
+    first_name: "",
+    last_name: "",
+    sex: "",
+    relation_type: "mother",
+  });
+  const [relationError, setRelationError] = useState("");
   const navigate = useNavigate();
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -85,6 +102,44 @@ export default function AddUser() {
     }));
   };
 
+  const impliedSex = IMPLIED_SEX[newRelation.relation_type] || "";
+
+  const handleRelationTypeChange = (relation_type: string) => {
+    setNewRelation(prev => ({
+      ...prev,
+      relation_type,
+      // keep sex in sync when the relation implies it (mother -> female)
+      sex: IMPLIED_SEX[relation_type] || prev.sex,
+    }));
+  };
+
+  const handleAddRelation = () => {
+    if (!newRelation.first_name.trim()) {
+      setRelationError("Name is required.");
+      return;
+    }
+    if (!newRelation.sex) {
+      setRelationError("Please choose a sex.");
+      return;
+    }
+    setRelationError("");
+    setFormData(prev => ({
+      ...prev,
+      relations: [
+        ...prev.relations,
+        { ...newRelation, first_name: newRelation.first_name.trim(), last_name: newRelation.last_name.trim() },
+      ],
+    }));
+    setNewRelation({ first_name: "", last_name: "", sex: "", relation_type: "mother" });
+  };
+
+  const handleRemoveRelation = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      relations: prev.relations.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -95,15 +150,19 @@ export default function AddUser() {
       const submitData = new FormData();
       submitData.append("username", formData.username);
       submitData.append("email", formData.email);
-      submitData.append("password", formData.password);
       submitData.append("first_name", formData.first_name);
       submitData.append("last_name", formData.last_name);
+      submitData.append("sex", formData.sex);
       submitData.append("title", formData.title);
       submitData.append("bio", formData.bio);
       submitData.append("location", formData.location);
       submitData.append("birth_date", formData.birth_date);
       if (formData.avatar) {
         submitData.append("avatar", formData.avatar);
+      }
+      // Related people are created by the backend in the same transaction
+      if (formData.relations.length > 0) {
+        submitData.append("relations", JSON.stringify(formData.relations));
       }
 
       const response = await fetch("/api/users/", {
@@ -113,8 +172,11 @@ export default function AddUser() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        const fieldErrors = Object.entries(errorData)
+          .map(([k, v]) => `${k}: ${typeof v === "string" ? v : JSON.stringify(v)}`)
+          .join("; ");
         throw new Error(
-          errorData.detail || errorData.message || "Failed to create user"
+          errorData.detail || errorData.message || fieldErrors || "Failed to create user"
         );
       }
 
@@ -233,7 +295,22 @@ export default function AddUser() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="username">Username *</label>
+            <label htmlFor="sex">Sex</label>
+            <select
+              id="sex"
+              name="sex"
+              value={formData.sex}
+              onChange={handleInputChange}
+              className="input-field"
+            >
+              <option value="">-- Select --</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
             <input
               type="text"
               id="username"
@@ -241,13 +318,12 @@ export default function AddUser() {
               value={formData.username}
               onChange={handleInputChange}
               className="input-field"
-              placeholder="johndoe"
-              required
+              placeholder="Leave empty to generate automatically"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email *</label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
@@ -256,21 +332,6 @@ export default function AddUser() {
               onChange={handleInputChange}
               className="input-field"
               placeholder="john@example.com"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="input-field"
-              placeholder="••••••••"
-              required
             />
           </div>
         </div>
@@ -400,6 +461,116 @@ export default function AddUser() {
                     <button
                       type="button"
                       onClick={() => handleRemoveSocialLink(index)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#ef4444',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        padding: '0 8px',
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Relations */}
+        <div className="form-section">
+          <h3>Relations</h3>
+          <p className="text-muted" style={{ marginBottom: '12px' }}>
+            Add family members or contacts. Each one is created as a simple profile
+            (name and sex) linked to this user.
+          </p>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="rel-first-name">First Name *</label>
+              <input
+                type="text"
+                id="rel-first-name"
+                value={newRelation.first_name}
+                onChange={(e) => setNewRelation(prev => ({ ...prev, first_name: e.target.value }))}
+                className="input-field"
+                placeholder="Jane"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="rel-last-name">Last Name</label>
+              <input
+                type="text"
+                id="rel-last-name"
+                value={newRelation.last_name}
+                onChange={(e) => setNewRelation(prev => ({ ...prev, last_name: e.target.value }))}
+                className="input-field"
+                placeholder="Doe"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="rel-type">Relation to this user</label>
+              <select
+                id="rel-type"
+                value={newRelation.relation_type}
+                onChange={(e) => handleRelationTypeChange(e.target.value)}
+                className="input-field"
+              >
+                {RELATION_TYPES.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="rel-sex">Sex *</label>
+              <select
+                id="rel-sex"
+                value={newRelation.sex}
+                onChange={(e) => setNewRelation(prev => ({ ...prev, sex: e.target.value as Sex }))}
+                className="input-field"
+                disabled={!!impliedSex}
+              >
+                <option value="">-- Select --</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+          </div>
+          {relationError && (
+            <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '8px' }}>{relationError}</p>
+          )}
+          <button type="button" className="btn btn-primary" onClick={handleAddRelation}>
+            Add Relation
+          </button>
+
+          {formData.relations.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <h4 style={{ marginBottom: '12px', color: 'var(--text-muted)' }}>Added Relations:</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {formData.relations.map((rel, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px',
+                      background: 'var(--bg-input)',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                    }}
+                  >
+                    <span style={{ fontSize: '14px' }}>
+                      <strong>{`${rel.first_name} ${rel.last_name}`.trim()}</strong>
+                      {" · "}{rel.sex}{" · "}
+                      {RELATION_TYPES.find(t => t.value === rel.relation_type)?.label}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveRelation(index)}
                       style={{
                         background: 'transparent',
                         border: 'none',

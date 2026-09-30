@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,7 +22,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 3rd Party
     'rest_framework',
-    'rest_framework_simplejwt',
     'storages',
     'django_filters',
     # Apps
@@ -70,21 +68,16 @@ USE_TZ = True
 
 # --- Your Custom Configs ---
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # No API logins: requests are always anonymous. (An empty list also avoids
+    # DRF's default SessionAuthentication, which would enforce CSRF whenever the
+    # browser happens to hold a Django admin session.)
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': (
         # Changed to AllowAny so public endpoints work
         'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 # MinIO/S3 Storage
@@ -116,6 +109,9 @@ STORAGES = {
 
 # Tell Django to use your custom user model instead of the default one
 AUTH_USER_MODEL = 'users.User'
+
+# Keep integer (not bigint) primary keys, matching the existing tables
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Update DATABASES to point to your K3s Postgres StatefulSet
 DATABASES = {
