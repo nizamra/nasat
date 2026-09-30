@@ -21,7 +21,7 @@ spec:
         - name: dockerhub-cred
       containers:
         - name: backend
-          image: nizamra/nasat-backend:6c68a16061e1bc8ce5a5ed808228b8ee8c393cce
+          image: nizamra/nasat-backend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
           ports:
             - containerPort: 8000
           envFrom:
