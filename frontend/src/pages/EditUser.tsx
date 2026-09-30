@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import EditRelations, { EditableRelation } from "../components/EditRelations";
 
 type SocialLink = {
   platform: string;
@@ -9,6 +10,7 @@ type SocialLink = {
 type UserFormData = {
   first_name: string;
   last_name: string;
+  sex: string;
   title: string;
   bio: string;
   location: string;
@@ -22,6 +24,7 @@ export default function EditUser() {
   const [formData, setFormData] = useState<UserFormData>({
     first_name: "",
     last_name: "",
+    sex: "",
     title: "",
     bio: "",
     location: "",
@@ -36,6 +39,7 @@ export default function EditUser() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [newSocialLink, setNewSocialLink] = useState<SocialLink>({ platform: "instagram", url: "" });
+  const [relations, setRelations] = useState<EditableRelation[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +53,7 @@ export default function EditUser() {
         setFormData({
           first_name: data.first_name || "",
           last_name: data.last_name || "",
+          sex: data.sex || "",
           title: data.title || "",
           bio: data.bio || "",
           location: data.location || "",
@@ -56,6 +61,7 @@ export default function EditUser() {
           avatar: null,
           social_links: data.social_links || [],
         });
+        setRelations(data.relations_from || []);
         if (data.avatar) {
           setAvatarPreview(data.avatar);
         }
@@ -70,7 +76,7 @@ export default function EditUser() {
   }, [username]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -122,6 +128,7 @@ export default function EditUser() {
       const submitData = new FormData();
       submitData.append("first_name", formData.first_name);
       submitData.append("last_name", formData.last_name);
+      submitData.append("sex", formData.sex);
       submitData.append("title", formData.title);
       submitData.append("bio", formData.bio);
       submitData.append("location", formData.location);
@@ -274,6 +281,21 @@ export default function EditUser() {
                 placeholder="Doe"
               />
             </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="sex">Sex</label>
+            <select
+              id="sex"
+              name="sex"
+              value={formData.sex}
+              onChange={handleInputChange}
+              className="input-field"
+            >
+              <option value="">-- Select --</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
           </div>
         </div>
 
@@ -439,6 +461,8 @@ export default function EditUser() {
           </button>
         </div>
       </form>
+
+      <EditRelations relations={relations} />
     </div>
   );
 }
