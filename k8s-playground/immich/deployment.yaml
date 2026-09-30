@@ -9,6 +9,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
+  revisionHistoryLimit: 2
   replicas: 1
   selector:
     matchLabels:
@@ -115,6 +116,7 @@ metadata:
     app: immich-db
     tier: database
 spec:
+  revisionHistoryLimit: 2
   replicas: 1
   selector:
     matchLabels:
@@ -191,6 +193,7 @@ metadata:
     app: immich-redis
     tier: cache
 spec:
+  revisionHistoryLimit: 2
   replicas: 1
   selector:
     matchLabels:
