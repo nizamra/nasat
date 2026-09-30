@@ -159,11 +159,61 @@ class BirthdaySerializer(RelationUserSerializer):
 class RelationSerializer(serializers.ModelSerializer):
     to_user = RelationUserSerializer(read_only=True)
     to_user_id = serializers.IntegerField(write_only=True, required=False)
+    # Optional edits to the related person, applied together with the relation
+    first_name = serializers.CharField(
+        write_only=True, required=False, max_length=150)
+    last_name = serializers.CharField(
+        write_only=True, required=False, allow_blank=True, max_length=150)
+    sex = serializers.ChoiceField(
+        choices=User.SEX_CHOICES, write_only=True, required=False,
+        allow_blank=True)
 
     class Meta:
         model = Relation
-        fields = ['id', 'to_user', 'to_user_id', 'relation_type', 'created_at']
+        fields = ['id', 'to_user', 'to_user_id', 'relation_type', 'created_at',
+                  'first_name', 'last_name', 'sex']
         read_only_fields = ['created_at']
+
+    def validate(self, attrs):
+        if self.instance is None:
+            return attrs
+        current_type = self.instance.relation_type
+        new_type = attrs.get('relation_type', current_type)
+
+        if new_type != current_type and Relation.objects.filter(
+            from_user=self.instance.from_user,
+            to_user=self.instance.to_user,
+            relation_type=new_type,
+        ).exists():
+            raise serializers.ValidationError("This relation already exists.")
+
+        # Only check sex/type consistency when one of them is being changed
+        if 'relation_type' in attrs or 'sex' in attrs:
+            sex = attrs.get('sex', self.instance.to_user.sex)
+            implied = Relation.IMPLIED_SEX.get(new_type)
+            if implied:
+                if sex and sex != implied:
+                    raise serializers.ValidationError(
+                        f"'{new_type}' implies sex '{implied}', got '{sex}'.")
+                attrs['sex'] = implied
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        person = {k: validated_data[k]
+                  for k in ('first_name', 'last_name', 'sex')
+                  if k in validated_data}
+        new_type = validated_data.get('relation_type', instance.relation_type)
+
+        if new_type != instance.relation_type:
+            instance.delete_reverse()  # old reverse; save() creates the new one
+        if person:
+            for field, value in person.items():
+                setattr(instance.to_user, field, value)
+            instance.to_user.save(update_fields=list(person))
+        instance.relation_type = new_type
+        instance.save()
+        return instance
 
 
 class UserSerializer(serializers.ModelSerializer):

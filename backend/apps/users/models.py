@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
@@ -151,6 +151,26 @@ class Relation(models.Model):
         if pair and from_user_sex in ('male', 'female'):
             return pair[0] if from_user_sex == 'male' else pair[1]
         return cls.REVERSE_RELATIONS.get(relation_type)
+
+    def delete_reverse(self):
+        """Delete the automatically created reverse row(s) of this relation."""
+        pair = self.SEX_AWARE_REVERSE.get(self.relation_type)
+        if pair:
+            candidates = set(pair)
+        else:
+            legacy = self.REVERSE_RELATIONS.get(self.relation_type)
+            candidates = {legacy} if legacy else set()
+        Relation.objects.filter(
+            from_user_id=self.to_user_id,
+            to_user_id=self.from_user_id,
+            relation_type__in=candidates,
+        ).delete()
+
+    def delete(self, *args, **kwargs):
+        # Save() creates the reverse row, so deleting must remove it too
+        with transaction.atomic():
+            self.delete_reverse()
+            return super().delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         # Prevent circular relationships

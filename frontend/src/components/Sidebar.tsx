@@ -54,11 +54,6 @@ export default function Sidebar() {
           );
         })}
       </ul>
-
-      {/* Logout is usually a button/action, not a Link */}
-      <div className="menu-item" style={{ marginTop: 'auto' }} onClick={() => console.log("Logout")}>
-        <span className="menu-icon">🚪</span> Log out
-      </div>
     </div>
   );
 }

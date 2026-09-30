@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets, permissions, status
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -161,9 +161,3 @@ class SocialLinkViewSet(viewsets.ModelViewSet):
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-    permission_classes = []

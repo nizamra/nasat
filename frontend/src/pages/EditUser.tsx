@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import EditRelations, { EditableRelation } from "../components/EditRelations";
 
 type SocialLink = {
   platform: string;
@@ -38,6 +39,7 @@ export default function EditUser() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [newSocialLink, setNewSocialLink] = useState<SocialLink>({ platform: "instagram", url: "" });
+  const [relations, setRelations] = useState<EditableRelation[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function EditUser() {
           avatar: null,
           social_links: data.social_links || [],
         });
+        setRelations(data.relations_from || []);
         if (data.avatar) {
           setAvatarPreview(data.avatar);
         }
@@ -458,6 +461,8 @@ export default function EditUser() {
           </button>
         </div>
       </form>
+
+      <EditRelations relations={relations} />
     </div>
   );
 }

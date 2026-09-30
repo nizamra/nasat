@@ -5,7 +5,7 @@ type AddRelationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (relationData: RelationData) => void;
-  fromUserId: number;
+  people: { id: number; name: string }[];
   toUsername: string;
   toUserName: string;
 };
@@ -20,25 +20,27 @@ export default function AddRelationModal({
   isOpen,
   onClose,
   onSubmit,
-  fromUserId,
+  people,
   toUsername,
   toUserName,
 }: AddRelationModalProps) {
   const [selectedRelationType, setSelectedRelationType] = useState("");
+  const [selectedPersonId, setSelectedPersonId] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRelationType) return;
+    if (!selectedRelationType || !selectedPersonId) return;
 
     setLoading(true);
     try {
       onSubmit({
-        from_user_id: fromUserId,
+        from_user_id: Number(selectedPersonId),
         to_user_username: toUsername,
         relation_type: selectedRelationType,
       });
       setSelectedRelationType("");
+      setSelectedPersonId("");
       onClose();
     } finally {
       setLoading(false);
@@ -57,12 +59,28 @@ export default function AddRelationModal({
 
         <div className="modal-body">
           <p className="text-muted">
-            Adding <strong>{toUserName}</strong> as a relation
+            Connect <strong>{toUserName}</strong> to another profile
           </p>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="relation-type">Select Relation Type</label>
+              <label htmlFor="relation-person">Whose relation is {toUserName}?</label>
+              <select
+                id="relation-person"
+                className="input-field"
+                value={selectedPersonId}
+                onChange={(e) => setSelectedPersonId(e.target.value)}
+                required
+              >
+                <option value="">-- Choose a profile --</option>
+                {people.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="relation-type">{toUserName} is their...</label>
               <select
                 id="relation-type"
                 className="input-field"
@@ -91,7 +109,7 @@ export default function AddRelationModal({
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={loading || !selectedRelationType}
+                disabled={loading || !selectedRelationType || !selectedPersonId}
               >
                 {loading ? "Adding..." : "Add Relation"}
               </button>

@@ -2,12 +2,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    """Adds User.sex and the nephew/niece relation types.
-
-    NOTE: the repo has no migrations for the User / SocialLink models, so this
-    only contains the new changes. See the hand-off notes before applying it to
-    a database whose users_user table was created some other way.
-    """
+    """Adds User.sex and the nephew/niece relation types."""
 
     dependencies = [
         ('users', '0001_create_relation'),

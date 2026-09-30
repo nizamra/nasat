@@ -24,7 +24,7 @@ nasat/
 │   ├── apps/
 │   │   ├── posts/               Posts, feed
 │   │   ├── social/               Legacy family-relation model
-│   │   └── users/                 Auth, profiles, relations (family/partner/social ties)
+│   │   └── users/                 Profiles, relations (family/partner/social ties)
 │   ├── config/                    Settings, urls, wsgi
 │   └── requirements.txt
 ├── frontend/                    React + TypeScript (Vite)
@@ -59,7 +59,7 @@ nasat/
 
 | Layer | Stack |
 |---|---|
-| Backend | Django + Django REST Framework, JWT auth (simplejwt), Gunicorn |
+| Backend | Django + Django REST Framework, Gunicorn |
 | Database | PostgreSQL |
 | Media storage | MinIO (S3-compatible) |
 | Frontend | React 18 + TypeScript + Vite |
@@ -178,10 +178,6 @@ kubectl apply -f infrastructure/argocd/install.yaml
 ```
 
 ## API Endpoints
-
-### Authentication
-- `POST /api/auth/login/` - Obtain JWT token
-- `POST /api/auth/refresh/` - Refresh JWT token
 
 ### Users
 - `GET/POST /api/users/` - List/create users
