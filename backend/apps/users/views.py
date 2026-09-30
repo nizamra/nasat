@@ -2,7 +2,7 @@ from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .serializers import RegisterSerializer, UserSerializer, RelationSerializer, SocialLinkSerializer
+from .serializers import RegisterSerializer, UserSerializer, RelationSerializer, SocialLinkSerializer, BirthdaySerializer
 from .models import User, Relation, SocialLink
 from django.db.models import Q
 
@@ -42,6 +42,17 @@ class UserViewSet(viewsets.ModelViewSet):
             is_verified=True).order_by('-date_joined')
         serializer = self.get_serializer(verified_users, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def birthdays(self, request):
+        """All profiles with a birth date, soonest upcoming birthday first.
+
+        Not paginated, so the Events schedule always sees every profile.
+        """
+        users = sorted(
+            User.objects.exclude(birth_date__isnull=True),
+            key=lambda u: (u.next_birthday, u.username))
+        return Response(BirthdaySerializer(users, many=True).data)
 
 
 class RelationViewSet(viewsets.ModelViewSet):

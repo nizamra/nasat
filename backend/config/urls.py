@@ -2,8 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from apps.users.views import RegisterView, RelationViewSet, SocialLinkViewSet
-from apps.social.views import FollowToggleView
-from apps.posts.views import CreatePostView, FeedView
+from apps.posts.views import CreatePostView
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from apps.users.views import UserViewSet
@@ -24,8 +23,6 @@ urlpatterns = [
     path('api/auth/login/', TokenObtainPairView.as_view()),
     path('api/auth/refresh/', TokenRefreshView.as_view()),
 
-    # Social & Posts
-    path('api/follow/<int:user_id>/', FollowToggleView.as_view()),
+    # Posts
     path('api/posts/', CreatePostView.as_view()),
-    path('api/feed/', FeedView.as_view()),
 ]

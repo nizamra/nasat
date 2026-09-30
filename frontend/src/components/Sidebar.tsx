@@ -3,12 +3,8 @@ import {
   FaHome,
   FaCompass,
   FaBell,
-  FaWhatsapp,
-  FaBookmark,
-  FaUsers,
   FaCalendar,
   FaUser,
-  FaCog,
   FaUserPlus
 } from 'react-icons/fa';
 
@@ -30,17 +26,13 @@ export default function Sidebar() {
     { name: "Explore", icon: FaCompass, path: "/explore" },
     { name: "Add User", icon: FaUserPlus, path: "/add-user" },
     { name: "Notifications", icon: FaBell, path: "/notifications", badge: 3 },
-    { name: "Messages", icon: FaWhatsapp, path: "/messages", badge: 2 },
-    { name: "Bookmarks", icon: FaBookmark, path: "/bookmarks" },
-    { name: "Groups", icon: FaUsers, path: "/groups" },
     { name: "Events", icon: FaCalendar, path: "/events" },
     { name: "Profile", icon: FaUser, path: "/profile/me" },
-    { name: "Settings", icon: FaCog, path: "/settings" },
   ];
 
   return (
     <div className="sidebar">
-      <h2><span className="sidebar-logo">🌀</span> Nexus</h2>
+      <h2><span className="sidebar-logo">🌀</span> Nsat </h2>
 
       <ul className="menu-list">
         {menuItems.map((item) => {

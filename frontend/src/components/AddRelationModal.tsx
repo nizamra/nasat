@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RELATION_TYPES } from "../constants/relations";
 
 type AddRelationModalProps = {
   isOpen: boolean;
@@ -14,29 +15,6 @@ export type RelationData = {
   to_user_username: string;
   relation_type: string;
 };
-
-const RELATION_TYPES = [
-  { value: "mother", label: "Mother" },
-  { value: "father", label: "Father" },
-  { value: "sister", label: "Sister" },
-  { value: "brother", label: "Brother" },
-  { value: "daughter", label: "Daughter" },
-  { value: "son", label: "Son" },
-  { value: "wife", label: "Wife" },
-  { value: "husband", label: "Husband" },
-  { value: "fiancee", label: "Fiancée" },
-  { value: "fiance", label: "Fiancé" },
-  { value: "grandmother", label: "Grandmother" },
-  { value: "grandfather", label: "Grandfather" },
-  { value: "granddaughter", label: "Granddaughter" },
-  { value: "grandson", label: "Grandson" },
-  { value: "aunt", label: "Aunt" },
-  { value: "uncle", label: "Uncle" },
-  { value: "cousin", label: "Cousin" },
-  { value: "friend", label: "Friend" },
-  { value: "colleague", label: "Colleague" },
-  { value: "other", label: "Other" },
-];
 
 export default function AddRelationModal({
   isOpen,
