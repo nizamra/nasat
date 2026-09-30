@@ -12,6 +12,22 @@ type User = {
   is_verified: boolean;
 };
 
+// /api/users/ is paginated; follow `next` so every profile is loaded
+const fetchAllUsers = async (): Promise<User[]> => {
+  const all: User[] = [];
+  let url: string | null = "/api/users/";
+  while (url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to load users");
+    const data = await res.json();
+    if (Array.isArray(data)) return data;
+    all.push(...(data.results || []));
+    // `next` is absolute; keep path + query so the request stays same-origin
+    url = data.next ? new URL(data.next).pathname + new URL(data.next).search : null;
+  }
+  return all;
+};
+
 export default function Explore() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,22 +35,11 @@ export default function Explore() {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get current user info (optional - for checking if logged in)
-    fetch("/api/users/")
-      .then(res => res.json())
-      .then(data => {
-        console.log("API Response:", data); // Debug log
-        const usersList = Array.isArray(data) ? data : data.results || [];
-
-        if (!Array.isArray(usersList)) {
-          console.error("Users is not an array:", usersList);
-          return;
-        }
-
+    fetchAllUsers()
+      .then(usersList => {
         // Sort by verified status (verified first) and date_joined
         const sorted = usersList.sort((a: User, b: User) => {
           if (b.is_verified !== a.is_verified) {
@@ -91,30 +96,7 @@ export default function Explore() {
     return `/media/${avatarPath}`;
   };
 
-  const handleAddRelation = async (user: User) => {
-    // Try to get current user from localStorage or API
-    const storedUser = localStorage.getItem('current_user');
-    let currentUserId = storedUser ? JSON.parse(storedUser).id : null;
-
-    if (!currentUserId) {
-      // Try to fetch current user from API
-      try {
-        const response = await fetch("/api/users/");
-        const data = await response.json();
-        if (data && data.length > 0) {
-          currentUserId = data[0].id; // Get first user as placeholder
-        }
-      } catch (err) {
-        console.error("Could not determine current user:", err);
-      }
-    }
-
-    if (!currentUserId) {
-      alert("Please login first or provide your user ID");
-      return;
-    }
-
-    setCurrentUser({ id: currentUserId });
+  const handleAddRelation = (user: User) => {
     setSelectedUser(user);
     setShowModal(true);
   };
@@ -246,7 +228,9 @@ export default function Explore() {
             setSelectedUser(null);
           }}
           onSubmit={handleSubmitRelation}
-          fromUserId={currentUser?.id}
+          people={users
+            .filter(u => u.id !== selectedUser.id)
+            .map(u => ({ id: u.id, name: `${getFullName(u)} (@${u.username})` }))}
           toUsername={selectedUser.username}
           toUserName={getFullName(selectedUser)}
         />

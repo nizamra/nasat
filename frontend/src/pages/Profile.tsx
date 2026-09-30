@@ -58,7 +58,6 @@ export default function Profile() {
         <div className="tab">Photos</div>
         <div className="tab">Videos</div>
         <div className="tab">Friends</div>
-        <div className="tab">Groups</div>
         <div className="tab">Likes</div>
       </div>
 

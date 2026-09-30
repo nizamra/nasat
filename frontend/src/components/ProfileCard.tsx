@@ -60,8 +60,6 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
         </div>
         <div className="flex-row" style={{ marginTop: '24px', gap: '32px' }}>
           <div><h3 style={{ margin: 0 }}>156</h3><span className="text-muted">Posts</span></div>
-          <div><h3 style={{ margin: 0 }}>8.2K</h3><span className="text-muted">Followers</span></div>
-          <div><h3 style={{ margin: 0 }}>512</h3><span className="text-muted">Following</span></div>
         </div>
       </div>
     </div>

@@ -23,8 +23,8 @@ nasat/
 ├── backend/                    Django REST API
 │   ├── apps/
 │   │   ├── posts/               Posts, feed
-│   │   ├── social/               Follow relationships
-│   │   └── users/                 Auth, profiles, relations (family/partner/social ties)
+│   │   ├── social/               Legacy family-relation model
+│   │   └── users/                 Profiles, relations (family/partner/social ties)
 │   ├── config/                    Settings, urls, wsgi
 │   └── requirements.txt
 ├── frontend/                    React + TypeScript (Vite)
@@ -59,11 +59,11 @@ nasat/
 
 | Layer | Stack |
 |---|---|
-| Backend | Django + Django REST Framework, JWT auth (simplejwt), Gunicorn |
+| Backend | Django + Django REST Framework, Gunicorn |
 | Database | PostgreSQL |
 | Media storage | MinIO (S3-compatible) |
 | Frontend | React 18 + TypeScript + Vite |
-| Core features | Posts with images, follow/unfollow, and a **relations** system — bidirectional family/partner/social relationship types (mother↔son, wife↔husband, friend↔friend, etc.), surfaced on the profile page and in Explore |
+| Core features | Posts with images, a birthdays schedule (Events), and a **relations** system — bidirectional family/partner/social relationship types (mother↔son, wife↔husband, friend↔friend, etc.), surfaced on the profile page and in Explore |
 
 Local dev, API endpoints, and environment variables are unchanged from the standard Django/React workflow — see [Getting started](#getting-started) below.
 
@@ -179,10 +179,6 @@ kubectl apply -f infrastructure/argocd/install.yaml
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/auth/login/` - Obtain JWT token
-- `POST /api/auth/refresh/` - Refresh JWT token
-
 ### Users
 - `GET/POST /api/users/` - List/create users
 - `GET/PUT /api/users/{id}/` - Retrieve/update user profile
@@ -191,10 +187,8 @@ kubectl apply -f infrastructure/argocd/install.yaml
 - `GET/POST /api/posts/` - List/create posts
 - `GET/DELETE /api/posts/{id}/` - Retrieve/delete post
 
-### Social
-- `POST /api/social/follow/` - Follow a user
-- `DELETE /api/social/follow/{id}/` - Unfollow a user
-- `GET /api/social/followers/` - Get followers
+### Events
+- `GET /api/users/birthdays/` - All profiles with a birth date, soonest upcoming birthday first
 
 ## Kubernetes Deployment
 

@@ -1,25 +1,24 @@
 import React from 'react';
-import { FaMapMarkerAlt, FaEnvelope, FaCalendarAlt, FaBirthdayCake } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEnvelope, FaBirthdayCake, FaVenusMars } from 'react-icons/fa';
 // # TODO: test LocateFixed instead of MapPin
 
 interface UserData {
   location?: string;
   email?: string;
-  date_joined?: string;
   birth_date?: string;
+  age?: number | null;
+  sex?: string;
 }
 
 export default function AboutCard({ user }: { user?: UserData }) {
   if (!user) return null;
 
-  // Safely format dates if they exist
-  const joinedDate = user.date_joined 
-    ? new Date(user.date_joined).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
-    : null;
-    
-  const birthDate = user.birth_date 
+  const birthDate = user.birth_date
     ? new Date(user.birth_date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
     : null;
+
+  const hasAge = typeof user.age === 'number';
+  const sexLabel = user.sex ? user.sex.charAt(0).toUpperCase() + user.sex.slice(1) : null;
 
   return (
     <div className="card">
@@ -40,17 +39,19 @@ export default function AboutCard({ user }: { user?: UserData }) {
           </div>
         )}
 
-        {joinedDate && (
+        {sexLabel && (
           <div className="flex-row" style={{ gap: '12px' }}>
-            <FaCalendarAlt size={20} className="text-muted" />
-            <span className="text-muted">Joined {joinedDate}</span>
+            <FaVenusMars size={20} className="text-muted" />
+            <span className="text-muted">{sexLabel}</span>
           </div>
         )}
 
-        {birthDate && (
+        {hasAge && (
           <div className="flex-row" style={{ gap: '12px' }}>
             <FaBirthdayCake size={20} className="text-muted" />
-            <span className="text-muted">Born {birthDate}</span>
+            <span className="text-muted" title={birthDate ? `Born ${birthDate}` : undefined}>
+              {user.age} years old
+            </span>
           </div>
         )}
 
