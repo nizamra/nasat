@@ -1,0 +1,79 @@
+---
+- name: Base setup for all nodes
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Make hostname resolvable (avoids sudo warnings)
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1'
+        line: "127.0.1.1 {{ inventory_hostname }}"
+
+    - name: Set timezone
+      community.general.timezone:
+        name: Asia/Jerusalem
+
+    - name: Update all packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        autoremove: true
+        lock_timeout: 120
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        name: [vim, curl, ufw]
+        state: present
+        lock_timeout: 120
+
+    - name: Use vim as default editor
+      community.general.alternatives:
+        name: editor
+        path: /usr/bin/vim
+
+    - name: Don't suspend when lid closes
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/logind.conf
+        regexp: '^#?{{ item }}='
+        line: "{{ item }}=ignore"
+      loop:
+        - HandleLidSwitch
+        - HandleLidSwitchExternalPower
+        - HandleLidSwitchDocked
+      when: laptop_server
+      notify: Restart logind
+
+    - name: Blank console after 30s
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet consoleblank=30"'
+      when: laptop_server
+      register: grub_cmdline
+      notify: Update grub
+
+    - name: Apply pending handlers now (before any reboot)
+      ansible.builtin.meta: flush_handlers
+
+    - name: Check if a reboot is needed
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Reboot if needed
+      ansible.builtin.reboot:
+      when: reboot_required.stat.exists or (grub_cmdline.changed | default(false))
+
+  handlers:
+    - name: Restart logind
+      ansible.builtin.systemd:
+        name: systemd-logind
+        state: restarted
+
+    - name: Update grub
+      ansible.builtin.command: update-grub
