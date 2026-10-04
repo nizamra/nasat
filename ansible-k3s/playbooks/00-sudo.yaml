@@ -1,3 +1,6 @@
+# become: true requires sudo, but passwordless sudo is what this playbook creates.
+# First run needs:
+# ansible-playbook playbooks/00-sudo.yaml --ask-become-pass
 ---
 - name: Allow passwordless sudo for the Ansible user
   hosts: all

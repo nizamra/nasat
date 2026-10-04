@@ -1,0 +1,46 @@
+---
+- name: Install K3s server on the master
+  hosts: k3s_master
+  become: true
+
+  tasks:
+    - name: Check whether K3s is already installed
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+
+    - name: Download the K3s install script
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: /tmp/k3s-install.sh
+        mode: "0700"
+      when: not k3s_binary.stat.exists
+
+    - name: Install K3s (server)
+      ansible.builtin.command: sh /tmp/k3s-install.sh
+      environment:
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+        INSTALL_K3S_EXEC: "server --write-kubeconfig-mode 644"
+      when: not k3s_binary.stat.exists
+
+    - name: Wait until the API server answers readyz
+      ansible.builtin.command: k3s kubectl get --raw=/readyz
+      register: readyz
+      until: readyz.stdout == "ok"
+      retries: 30
+      delay: 5
+      changed_when: false
+
+    - name: Fetch kubeconfig to the control node
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ playbook_dir }}/../kubeconfig/k3s-master.yaml"
+        flat: true
+
+    - name: Point kubeconfig at the master IP instead of localhost
+      ansible.builtin.replace:
+        path: "{{ playbook_dir }}/../kubeconfig/k3s-master.yaml"
+        regexp: 'https://127\.0\.0\.1:6443'
+        replace: "https://{{ ansible_host }}:6443"
+      delegate_to: localhost
+      become: false

@@ -1,0 +1,10 @@
+---
+- import_playbook: 00-sudo.yaml
+- import_playbook: 01-base.yaml
+- import_playbook: 02-firewall.yaml
+- import_playbook: 03-ssh-hardening.yaml
+- import_playbook: 04-k3s-prereq.yaml
+- import_playbook: 05-k3s-master.yaml
+- import_playbook: 06-k3s-worker.yaml
+- import_playbook: 07-tailscale.yaml
+- import_playbook: 08-k3s-tailscale.yaml

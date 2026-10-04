@@ -1,1 +1,2 @@
 laptop_server: true
+k3s_version: v1.35.4+k3s1

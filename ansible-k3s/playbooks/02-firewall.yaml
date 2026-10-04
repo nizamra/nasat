@@ -1,0 +1,76 @@
+---
+- name: Configure firewall (UFW) for K3s
+  hosts: all
+  become: true
+  serial: 1          # one server at a time; stops if the first one fails
+
+  vars:
+    lan_cidr: 192.168.10.0/24
+    open_ports:
+      - { port: "22",    proto: tcp, comment: "SSH" }
+      - { port: "8472",  proto: udp, comment: "Flannel VXLAN" }
+      - { port: "10250", proto: tcp, comment: "Kubelet API" }
+      - { port: "80",    proto: tcp, comment: "HTTP (Traefik)" }
+      - { port: "443",   proto: tcp, comment: "HTTPS (Traefik)" }
+      - { port: "53",    proto: tcp, comment: "Pi-hole DNS" }
+      - { port: "53",    proto: udp, comment: "Pi-hole DNS" }
+      - { port: "67",    proto: udp, comment: "Pi-hole DHCP" }
+      - { port: "123",   proto: udp, comment: "NTP" }
+
+  tasks:
+    - name: Open service ports
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
+        comment: "{{ item.comment }}"
+      loop: "{{ open_ports }}"
+      loop_control:
+        label: "{{ item.port }}/{{ item.proto }} {{ item.comment }}"
+
+    - name: Open Kubernetes API (master only, LAN only)
+      community.general.ufw:
+        rule: allow
+        port: "6443"
+        proto: tcp
+        from_ip: "{{ lan_cidr }}"
+        comment: "K3s API server"
+      when: inventory_hostname in groups['k3s_master']
+
+    - name: Allow pod network
+      community.general.ufw:
+        rule: allow
+        from_ip: 10.42.0.0/16
+        comment: "K3s pods"
+
+    - name: Allow service network
+      community.general.ufw:
+        rule: allow
+        from_ip: 10.43.0.0/16
+        comment: "K3s services"
+
+    - name: Allow all traffic from the other cluster node
+      community.general.ufw:
+        rule: allow
+        from_ip: "{{ hostvars[item].ansible_host }}"
+        comment: "Cluster node {{ item }}"
+      loop: "{{ groups['all'] | difference([inventory_hostname]) }}"
+
+    - name: Default - deny incoming
+      community.general.ufw:
+        default: deny
+        direction: incoming
+
+    - name: Default - allow outgoing
+      community.general.ufw:
+        default: allow
+        direction: outgoing
+
+    - name: Default - allow routed (pod traffic passing through the node)
+      community.general.ufw:
+        default: allow
+        direction: routed
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled

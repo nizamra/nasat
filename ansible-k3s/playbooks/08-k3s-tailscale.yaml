@@ -1,0 +1,82 @@
+---
+- name: Make the K3s API reachable over Tailscale
+  hosts: k3s_master
+  become: true
+
+  tasks:
+    - name: Get this node's Tailscale IPv4 address
+      ansible.builtin.command: tailscale ip -4
+      register: ts_ip_raw
+      changed_when: false
+
+    - name: Get this node's Tailscale status
+      ansible.builtin.command: tailscale status --json
+      register: ts_raw
+      changed_when: false
+
+    - name: Work out the Tailscale address and MagicDNS name
+      ansible.builtin.set_fact:
+        ts_ip: "{{ ts_ip_raw.stdout | trim }}"
+        ts_dns: "{{ ((ts_raw.stdout | from_json).Self.DNSName | default('')).rstrip('.') }}"
+
+    - name: Build the list of certificate names
+      ansible.builtin.set_fact:
+        tls_sans: "{{ [ts_ip, 'k3s-' ~ inventory_hostname, ts_dns] | select | list }}"
+
+    - name: Add the Tailscale names to the API certificate
+      ansible.builtin.copy:
+        dest: /etc/rancher/k3s/config.yaml
+        owner: root
+        group: root
+        mode: "0600"
+        content: "# Managed by Ansible (08-k3s-tailscale.yaml)\n{{ {'tls-san': tls_sans} | to_nice_yaml }}"
+      notify: Restart k3s
+
+    - name: Restart K3s now if the config changed
+      ansible.builtin.meta: flush_handlers
+
+    - name: Wait until the API server answers again
+      ansible.builtin.command: k3s kubectl get --raw=/readyz
+      register: readyz
+      until: readyz.stdout == "ok"
+      retries: 30
+      delay: 5
+      changed_when: false
+
+    - name: Read the names the API certificate lists (retry until the new cert is served)
+      ansible.builtin.shell: >-
+        echo | openssl s_client -connect 127.0.0.1:6443 2>/dev/null
+        | openssl x509 -noout -ext subjectAltName
+      register: san_out
+      until: ts_ip in san_out.stdout
+      retries: 12
+      delay: 5
+      changed_when: false
+      failed_when: false
+
+    - name: Stop if the certificate does not include the Tailscale IP
+      ansible.builtin.assert:
+        that: ts_ip in san_out.stdout
+        fail_msg: >-
+          The certificate was not regenerated. Delete the k3s-serving secret
+          and dynamic-cert.json, restart k3s, and re-run this playbook.
+
+    - name: Fetch the kubeconfig
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ playbook_dir }}/../kubeconfig/k3s-tailscale.yaml"
+        flat: true
+
+    - name: Point the kubeconfig at the Tailscale address
+      ansible.builtin.replace:
+        path: "{{ playbook_dir }}/../kubeconfig/k3s-tailscale.yaml"
+        regexp: 'https://127\.0\.0\.1:6443'
+        replace: "https://{{ ts_ip }}:6443"
+      delegate_to: localhost
+      become: false
+
+  handlers:
+    - name: Restart k3s
+      ansible.builtin.systemd:
+        name: k3s
+        state: restarted

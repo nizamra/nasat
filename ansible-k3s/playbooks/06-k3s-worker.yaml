@@ -1,0 +1,59 @@
+---
+- name: Join the worker to the cluster
+  hosts: k3s_worker
+  become: true
+
+  tasks:
+    - name: Read the join token from the master (no manual copying)
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      register: k3s_token_b64
+      no_log: true
+
+    - name: Decode the token and resolve the master IP
+      ansible.builtin.set_fact:
+        k3s_token: "{{ k3s_token_b64.content | b64decode | trim }}"
+        k3s_master_ip: "{{ hostvars[groups['k3s_master'][0]].ansible_host }}"
+      no_log: true
+
+    - name: Check whether K3s is already installed
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+
+    - name: Download the K3s install script
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: /tmp/k3s-install.sh
+        mode: "0700"
+      when: not k3s_binary.stat.exists
+
+    - name: Install K3s (agent) and join the cluster
+      ansible.builtin.command: sh /tmp/k3s-install.sh
+      environment:
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+        K3S_URL: "https://{{ k3s_master_ip }}:6443"
+        K3S_TOKEN: "{{ k3s_token }}"
+      no_log: true
+      when: not k3s_binary.stat.exists
+
+    - name: Wait for the worker to report Ready
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl get node {{ inventory_hostname }}
+          -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      register: node_ready
+      until: node_ready.stdout == "True"
+      retries: 24
+      delay: 10
+      changed_when: false
+
+    - name: Label the node as worker (your manifests select on this)
+      ansible.builtin.command: >-
+        k3s kubectl label node {{ inventory_hostname }}
+        node-role.kubernetes.io/worker=worker --overwrite
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      register: label_result
+      changed_when: "'not labeled' not in label_result.stdout"

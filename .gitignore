@@ -64,3 +64,8 @@ infisical/secret.local.yaml
 *.tfvars
 *.tfstate
 *.tfstate*
+
+# --- Ansible ---
+ansible-k3s/kubeconfig/
+*.retry
+

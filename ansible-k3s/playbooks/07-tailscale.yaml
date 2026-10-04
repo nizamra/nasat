@@ -1,0 +1,80 @@
+---
+- name: Install Tailscale and join the tailnet
+  hosts: all
+  become: true
+
+  vars_prompt:
+    - name: tailscale_authkey
+      prompt: "Tailscale auth key (press Enter if the nodes are already joined)"
+      private: true
+      default: ""
+
+  tasks:
+    - name: Add the Tailscale signing key
+      ansible.builtin.get_url:
+        url: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_facts['distribution_release'] }}.noarmor.gpg"
+        dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+        mode: "0644"
+
+    - name: Install python3-debian (the deb822_repository module needs it on the server)
+      ansible.builtin.apt:
+        name: python3-debian
+        state: present
+        lock_timeout: 120
+
+    - name: Add the Tailscale apt repository
+      ansible.builtin.deb822_repository:
+        name: tailscale
+        types: deb
+        uris: https://pkgs.tailscale.com/stable/ubuntu
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: main
+        signed_by: /usr/share/keyrings/tailscale-archive-keyring.gpg
+        state: present
+
+    - name: Install Tailscale
+      ansible.builtin.apt:
+        name: tailscale
+        state: present
+        update_cache: true
+        lock_timeout: 120
+
+    - name: Enable and start the tailscaled service
+      ansible.builtin.systemd:
+        name: tailscaled
+        enabled: true
+        state: started
+
+    - name: Allow traffic that arrives over the tailnet
+      community.general.ufw:
+        rule: allow
+        direction: in
+        interface: tailscale0
+        comment: "Tailscale"
+
+    - name: Read the current Tailscale state
+      ansible.builtin.command: tailscale status --json
+      register: ts_status
+      changed_when: false
+      failed_when: false
+
+    - name: Work out whether this node is already joined
+      ansible.builtin.set_fact:
+        ts_running: >-
+          {{ (ts_status.stdout | from_json).BackendState == 'Running'
+             if ts_status.rc == 0 and ts_status.stdout | length > 0
+             else false }}
+
+    - name: Stop with a clear message if there is nothing to join with
+      ansible.builtin.assert:
+        that: ts_running or (tailscale_authkey | length > 0)
+        fail_msg: "This node is not joined yet. Re-run and paste an auth key at the prompt."
+
+    - name: Join the tailnet
+      ansible.builtin.command: >-
+        tailscale up
+        --auth-key={{ tailscale_authkey }}
+        --hostname={{ inventory_hostname }}
+        --accept-dns=false
+      when: not ts_running
+      no_log: true
