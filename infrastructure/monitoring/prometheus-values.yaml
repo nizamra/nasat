@@ -1,7 +1,6 @@
-# Global nodeSelector ensures ALL kube-prometheus-stack children default to worker
 prometheus:
   prometheusSpec:
-    scrapeInterval: "30s"
+    scrapeInterval: "40s"
     evaluationInterval: "60s"
     retention: "7d"
     retentionSize: "6GB"
@@ -35,8 +34,20 @@ prometheus:
     path: /
     pathType: Prefix
 
+kubeApiServer: { enabled: false }
 defaultRules:
   rules:
+    alertmanager: false
+    general: false
+    kubeApiserverSlos: false
+    kubeApiserverBurnrate: false
+    kubernetesApps: false
+    kubernetesResources: false
+    kubernetesStorage: false
+    kubernetesSystem: false
+    network: false
+    prometheus: false
+    prometheusOperator: false
     kubeScheduler: false
     kubeControllerManager: false
     kubeProxy: false
@@ -48,7 +59,7 @@ grafana:
     storageClassName: local-path
     size: 2Gi
     accessModes: ["ReadWriteOnce"]
-  adminPassword: "J2T9UY9RrlkAp-sj"  # Consider moving to existingSecret in production
+  adminPassword: "J2T9UY9RrlkAp-sj"
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -62,6 +73,13 @@ grafana:
       label: grafana_dashboard
       labelValue: "1"
       searchNamespace: ALL
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
 
 # Disable Alerting
 alertmanager:
@@ -88,6 +106,13 @@ nodeExporter:
   nodeSelector: {}
   tolerations:
     - operator: Exists
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
 
 # K3s Kubelet Scrape Configuration
 kubelet:

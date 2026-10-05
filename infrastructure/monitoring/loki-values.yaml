@@ -85,6 +85,10 @@ gateway:
       memory: 64Mi
 
 # # Caches that appear as StatefulSets in the 7.x chart
+chunksCache:  { enabled: false }
+resultsCache: { enabled: false }
+lokiCanary:   { enabled: false }
+test:         { enabled: false }
 # chunksCache:
 #   nodeSelector:
 #     node-role.kubernetes.io/worker: worker

@@ -8,3 +8,4 @@
 - import_playbook: 06-k3s-worker.yaml
 - import_playbook: 07-tailscale.yaml
 - import_playbook: 08-k3s-tailscale.yaml
+- import_playbook: 09-argocd-bootstrap.yaml

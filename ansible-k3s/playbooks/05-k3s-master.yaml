@@ -44,3 +44,11 @@
         replace: "https://{{ ansible_host }}:6443"
       delegate_to: localhost
       become: false
+
+    - name: Label the node as master
+      ansible.builtin.command: >-
+        k3s kubectl label node {{ inventory_hostname }}
+        node-role.kubernetes.io/master=master --overwrite
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      register: label_result
+      changed_when: "'not labeled' not in label_result.stdout"

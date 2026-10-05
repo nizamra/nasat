@@ -86,6 +86,18 @@ graph TD
 - **`playground`, `longhorn`, `prometheus-stack`, `loki-stack`** are infrastructure — there is intentionally only **one** copy of each. They are not meant to be duplicated the way the app is; there's no useful concept of a "staging Jellyfin."
 - Sync is automated (`prune: true`, `selfHeal: true`) everywhere, so the cluster is expected to converge to whatever's in git without manual `kubectl apply`.
 
+### Feature flags: parts that are switched off until you want them
+
+Some apps are heavy or not needed on day one. They stay in git but are excluded from what ArgoCD deploys. Each flag is an `exclude:` list with a `# FLAG:` comment. To turn something on, delete its entry and push; ArgoCD deploys it on the next sync.
+
+| Feature | Flag lives in | Currently | To enable |
+|---|---|---|---|
+| Loki + its Grafana dashboard | `argocd/app-of-apps.yaml` → `directory.exclude` | **off** | remove `loki-stack.yaml` from the list |
+| Gotify | `argocd/playground.yaml` → `directory.exclude` | **off** | remove `gotify/*` from the list |
+| Immich | `argocd/playground.yaml` → `directory.exclude` | **off** | remove `immich/*` from the list |
+
+Switching an app that is already running **off** again makes ArgoCD prune it (`prune: true`), including its PersistentVolumeClaims and the data in them. Back up first.
+
 ## Cluster topology (2 nodes)
 
 The cluster has one control-plane node and one node labeled `node-role.kubernetes.io/worker: worker`. Every workload manifest in this repo — the app, all 12 playground apps, monitoring, and Longhorn — carries a `nodeSelector` pinning it to the worker node:
@@ -173,8 +185,15 @@ npm run dev
 
 ### Cluster
 ```bash
-# Bootstrap: install ArgoCD, then hand control to the app-of-apps
-kubectl apply -f infrastructure/argocd/install.yaml
+# Bootstrap: install ArgoCD *with the repo's kustomize patches*, then hand control
+# to the app-of-apps. Easiest: `ansible-playbook playbooks/09-argocd-bootstrap.yaml`
+# from ansible-k3s/. The manual equivalent is:
+kubectl create namespace argocd
+kubectl apply -k infrastructure/argocd --server-side --force-conflicts   # --server-side: the ApplicationSet CRD is too big for client-side apply
+# Infisical can't start without its "secret zero" (see infisical/secret.yaml.example):
+kubectl create namespace infisical
+kubectl apply -f infisical/secret.local.yaml                             # your gitignored copy with real values
+kubectl apply -f argocd/app-of-apps.yaml
 ```
 
 ## API Endpoints

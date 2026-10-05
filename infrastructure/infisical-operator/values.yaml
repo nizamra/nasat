@@ -4,7 +4,7 @@
 scopedRBAC: true
 scopedNamespaces:
   - infisical 
-  - immich
+  # - immich
   - gotify
   - nasat
   - nasat-staging

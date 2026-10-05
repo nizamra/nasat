@@ -9,6 +9,8 @@ spec:
     repoURL: https://github.com/nizamra/nasat
     targetRevision: master
     path: argocd
+    directory:
+      exclude: '{loki-stack.yaml}'
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

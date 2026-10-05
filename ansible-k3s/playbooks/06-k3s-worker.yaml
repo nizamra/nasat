@@ -50,7 +50,7 @@
       delay: 10
       changed_when: false
 
-    - name: Label the node as worker (your manifests select on this)
+    - name: Label the node as worker
       ansible.builtin.command: >-
         k3s kubectl label node {{ inventory_hostname }}
         node-role.kubernetes.io/worker=worker --overwrite

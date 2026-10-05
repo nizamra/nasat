@@ -8,7 +8,7 @@ resources:
   - argocd-ingress.yaml
 
 patches:
-  # 1. Pin ALL Argo CD Deployments to worker-node
+  # 1. Pin ALL Argo CD Deployments to master-node
   - target:
       group: apps
       version: v1
@@ -18,9 +18,9 @@ patches:
       - op: add
         path: /spec/template/spec/nodeSelector
         value:
-          node-role.kubernetes.io/worker: worker
+          node-role.kubernetes.io/master: master
 
-  # 2. Pin the Application Controller StatefulSet to worker-node
+  # 2. Pin the Application Controller StatefulSet to master-node
   - target:
       group: apps
       version: v1
@@ -30,7 +30,7 @@ patches:
       - op: add
         path: /spec/template/spec/nodeSelector
         value:
-          node-role.kubernetes.io/worker: worker
+          node-role.kubernetes.io/master: master
 
   # 3. Preserve the NodePort change
   - target:

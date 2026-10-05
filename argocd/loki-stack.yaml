@@ -15,6 +15,9 @@ spec:
     - repoURL: https://github.com/nizamra/nasat
       targetRevision: master
       ref: values
+    - repoURL: https://github.com/nizamra/nasat
+      targetRevision: master
+      path: infrastructure/monitoring/loki-dashboards
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
