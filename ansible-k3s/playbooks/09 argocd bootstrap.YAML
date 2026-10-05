@@ -1,0 +1,198 @@
+---
+# 09 - Bootstrap ArgoCD and hand the cluster over to GitOps (branch: master)
+#
+# Runs on the master node only. It:
+#   1. checks that the nodes are Ready and the worker label exists
+#      (the repo pins every ArgoCD component to that label)
+#   2. clones the repo's master branch onto the master node
+#   3. creates the "secret zero" Infisical needs before it can start
+#      (only if it does not exist yet)
+#   4. installs ArgoCD WITH the repo's kustomize patches, using server-side apply
+#   5. applies argocd/app-of-apps.yaml and waits until the root app is Synced
+#
+# After this, git is the source of truth: push to master and ArgoCD applies it.
+# Safe to re-run: ArgoCD is not reinstalled once it exists.
+#
+# Use another branch for a test:  ansible-playbook playbooks/09-argocd-bootstrap.yaml -e argocd_branch=staging
+- name: Bootstrap ArgoCD from the master branch
+  hosts: k3s_master
+  become: true
+
+  vars:
+    repo_url: https://github.com/nizamra/nasat.git
+    repo_branch: "{{ argocd_branch | default('master') }}"
+    repo_dir: /opt/nasat-bootstrap
+    create_infisical_secret: true
+    # Local copy of the generated Infisical secret. This folder is gitignored.
+    infisical_backup: "{{ playbook_dir }}/../kubeconfig/infisical-secrets.yaml"
+
+  tasks:
+    # ---------------------------------------------------------------- 1. preflight
+    - name: Wait until every node is Ready
+      ansible.builtin.command: k3s kubectl wait --for=condition=Ready node --all --timeout=120s
+      changed_when: false
+
+    - name: Find nodes that carry the worker label
+      ansible.builtin.command: k3s kubectl get nodes -l node-role.kubernetes.io/worker=worker -o name
+      register: worker_nodes
+      changed_when: false
+
+    - name: Stop if no node has the worker label
+      ansible.builtin.assert:
+        that: worker_nodes.stdout | length > 0
+        fail_msg: >-
+          No node is labelled node-role.kubernetes.io/worker=worker. ArgoCD is pinned to that
+          label, so its pods would stay Pending. Run playbooks/06-k3s-worker.yaml first.
+
+    # ---------------------------------------------------------------- 2. repo
+    - name: Install git
+      ansible.builtin.apt:
+        name: git
+        state: present
+        update_cache: true
+        lock_timeout: 120
+
+    - name: Clone the branch onto the master node
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_dir }}"
+        version: "{{ repo_branch }}"
+        depth: 1
+        force: true
+      register: repo_checkout
+
+    - name: Show which commit is being deployed
+      ansible.builtin.debug:
+        msg: "Deploying {{ repo_url }} branch {{ repo_branch }} at commit {{ repo_checkout.after }}"
+
+    # ---------------------------------------------------------------- 3. Infisical secret zero
+    - name: Check whether the Infisical secret already exists
+      ansible.builtin.command: k3s kubectl -n infisical get secret infisical-secrets
+      register: infisical_secret
+      failed_when: false
+      changed_when: false
+
+    - name: Generate and store the Infisical secret (values never touch disk on the node)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        k3s kubectl create namespace infisical --dry-run=client -o yaml | k3s kubectl apply -f -
+        ENC=$(openssl rand -hex 16)
+        AUTH=$(openssl rand -base64 32)
+        PG=$(openssl rand -hex 24)
+        k3s kubectl apply -f - <<EOF
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: infisical-secrets
+          namespace: infisical
+        type: Opaque
+        stringData:
+          ENCRYPTION_KEY: "$ENC"
+          AUTH_SECRET: "$AUTH"
+          POSTGRES_PASSWORD: "$PG"
+          DB_CONNECTION_URI: "postgres://infisical:${PG}@postgres.infisical.svc.cluster.local:5432/infisical"
+        EOF
+      args:
+        executable: /bin/bash
+      register: infisical_created
+      changed_when: true
+      when: create_infisical_secret | bool and infisical_secret.rc != 0
+
+    - name: Read the new secret back so a copy can be kept on your PC
+      ansible.builtin.command: k3s kubectl -n infisical get secret infisical-secrets -o yaml
+      register: infisical_secret_yaml
+      changed_when: false
+      no_log: true
+      when: infisical_created is changed
+
+    - name: Save the copy next to the kubeconfig (gitignored folder)
+      ansible.builtin.copy:
+        content: "{{ infisical_secret_yaml.stdout }}\n"
+        dest: "{{ infisical_backup }}"
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+      no_log: true
+      when: infisical_created is changed
+
+    # ---------------------------------------------------------------- 4. ArgoCD
+    - name: Check whether ArgoCD is already installed
+      ansible.builtin.command: k3s kubectl -n argocd get deployment argocd-server
+      register: argocd_present
+      failed_when: false
+      changed_when: false
+
+    - name: Create the argocd namespace
+      ansible.builtin.shell: |
+        set -o pipefail
+        k3s kubectl create namespace argocd --dry-run=client -o yaml | k3s kubectl apply -f -
+      args:
+        executable: /bin/bash
+      register: argocd_ns
+      changed_when: "'created' in argocd_ns.stdout"
+
+    # Plain "kubectl apply -f install.yaml" would skip the patches in kustomization.yaml
+    # (worker nodeSelector, insecure UI behind Traefik, kustomize --enable-helm for Longhorn).
+    # --server-side is required: the ApplicationSet CRD is ~370 KB, far over the
+    # 256 KB annotation limit that client-side apply uses.
+    - name: Install ArgoCD with the repo's kustomize patches
+      ansible.builtin.command: >-
+        k3s kubectl apply -k {{ repo_dir }}/infrastructure/argocd
+        --server-side --force-conflicts
+      when: argocd_present.rc != 0
+      changed_when: true
+
+    - name: Wait for the ArgoCD CRDs to be established
+      ansible.builtin.command: >-
+        k3s kubectl wait --for=condition=Established
+        crd/applications.argoproj.io crd/applicationsets.argoproj.io crd/appprojects.argoproj.io
+        --timeout=120s
+      changed_when: false
+
+    - name: Wait for the ArgoCD Deployments (image pulls on the worker can take a few minutes)
+      ansible.builtin.command: >-
+        k3s kubectl -n argocd wait --for=condition=Available deployment --all --timeout=900s
+      changed_when: false
+
+    - name: Wait for the ArgoCD application controller
+      ansible.builtin.command: >-
+        k3s kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=900s
+      changed_when: false
+
+    # ---------------------------------------------------------------- 5. app-of-apps
+    - name: Apply the root application (app-of-apps)
+      ansible.builtin.command: k3s kubectl apply -f {{ repo_dir }}/argocd/app-of-apps.yaml
+      register: root_apply
+      changed_when: "'unchanged' not in root_apply.stdout"
+
+    - name: Wait until the root application is Synced
+      ansible.builtin.command: >-
+        k3s kubectl -n argocd get application app-of-apps -o jsonpath='{.status.sync.status}'
+      register: root_sync
+      until: root_sync.stdout == "Synced"
+      retries: 60
+      delay: 10
+      changed_when: false
+      failed_when: false
+
+    - name: Stop with a hint if the root application never synced
+      ansible.builtin.assert:
+        that: root_sync.stdout == "Synced"
+        fail_msg: >-
+          app-of-apps is "{{ root_sync.stdout | default('unknown') }}" after 10 minutes. ArgoCD applies the
+          child apps in sync-wave order (infisical first) and waits for each wave to be Healthy.
+          Look at: k3s kubectl -n argocd get applications  and  k3s kubectl -n infisical get pods
+
+    - name: List the applications ArgoCD created
+      ansible.builtin.command: k3s kubectl -n argocd get applications
+      register: apps
+      changed_when: false
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg:
+          - "{{ apps.stdout_lines }}"
+          - "Turned off by flags (see README, Feature flags): Loki + dashboard, Gotify, Immich."
+          - "UI: add '{{ ansible_host }} argo.nasat.local' to your hosts file, then open http://argo.nasat.local"
+          - "Admin password: ansible master -b -m shell -a \"k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d\""
+          - "A copy of the generated Infisical secret (if one was created) is in kubeconfig/infisical-secrets.yaml. Keep it private."

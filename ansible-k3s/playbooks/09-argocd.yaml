@@ -1,0 +1,49 @@
+---
+- name: Deploy ArgoCD via argocd-self Application
+  hosts: k3s_master
+  become: true
+
+  vars:
+    repo_url: "https://github.com/nizamra/nasat"
+    branch: "master"
+    manifest_path: "argocd/argocd-self.yaml"
+    local_manifest: "/tmp/argocd-self.yaml"
+
+  tasks:
+    - name: Download argocd-self.yaml from the repo
+      ansible.builtin.get_url:
+        url: "{{ repo_url }}/raw/{{ branch }}/{{ manifest_path }}"
+        dest: "{{ local_manifest }}"
+        mode: "0644"
+
+    - name: Apply argocd-self Application (installs ArgoCD)
+      ansible.builtin.command:
+        cmd: "kubectl apply -f {{ local_manifest }}"
+      register: apply_result
+      changed_when: "'created' in apply_result.stdout or 'configured' in apply_result.stdout"
+
+    - name: Wait for ArgoCD server to be ready
+      ansible.builtin.command:
+        cmd: "kubectl -n argocd rollout status deployment/argocd-server --timeout=300s"
+      changed_when: false
+
+    - name: Get ArgoCD initial admin password
+      ansible.builtin.command:
+        cmd: "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}'"
+      register: argocd_password
+      changed_when: false
+
+    - name: Show ArgoCD admin password
+      ansible.builtin.debug:
+        msg: "ArgoCD admin password: {{ argocd_password.stdout | b64decode }}"
+
+    - name: apply app of apps
+      ansible.builtin.command:
+        cmd: "kubectl apply -f argocd/kustomization.yaml"
+      register: apply_result
+      changed_when: "'created' in apply_result.stdout or 'configured' in apply_result.stdout"
+
+    - name: Wait for ArgoCD applications to be synced
+      ansible.builtin.command:
+        cmd: "kubectl -n argocd wait --for=condition=Synced --timeout=300s application --all"
+      changed_when: false

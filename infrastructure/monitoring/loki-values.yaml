@@ -36,7 +36,7 @@ loki:
           period: 24h
 
   limits_config:
-    retention_period: 720h
+    retention_period: 168h
     ingestion_rate_mb: 16
     ingestion_burst_size_mb: 32
 
@@ -59,7 +59,7 @@ singleBinary:
   persistence:
     enabled: true
     storageClass: local-path
-    size: 10Gi
+    size: 5Gi
   resources:
     requests:
       cpu: 100m
