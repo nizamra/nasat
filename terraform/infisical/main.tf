@@ -1,8 +1,27 @@
-# --- Backend STAGING (nasat-staging) ---
+locals {
+  backend_envs = toset(["staging", "prod"])
+}
+
 resource "infisical_project" "backend" {
   name = "Nasat Backend"
   slug = "nasat-backend"
 }
+resource "random_password" "backend_postgres" {
+  for_each = local.backend_envs
+  length   = 32
+  special  = false
+}
+
+resource "infisical_secret" "backend_postgres" {
+  for_each     = local.backend_envs
+  name         = "POSTGRES_PASSWORD"
+  value        = random_password.backend_postgres[each.key].result
+  env_slug     = each.key
+  workspace_id = infisical_project.backend.id
+  folder_path  = "/"
+}
+
+
 
 resource "infisical_identity" "backend" {
   name   = "backend-operator"
@@ -39,7 +58,6 @@ resource "kubernetes_secret_v1" "backend_identity" {
 }
 
 
-# --- Kubernetes Secrets Backend PROD (nasat) ---
 resource "infisical_identity" "backend_prod" {
   name   = "backend-operator-prod"
   role   = "member"
@@ -72,24 +90,4 @@ resource "kubernetes_secret_v1" "backend_prod_identity" {
   data = {
     identityId = infisical_identity.backend_prod.id
   }
-}
-
-# --- Kubernetes Secret ---
-locals {
-  backend_envs = toset(["staging", "prod"])
-}
-
-resource "random_password" "backend_postgres" {
-  for_each = local.backend_envs
-  length   = 32
-  special  = false
-}
-
-resource "infisical_secret" "backend_postgres" {
-  for_each     = local.backend_envs
-  name         = "POSTGRES_PASSWORD"
-  value        = random_password.backend_postgres[each.key].result
-  env_slug     = each.key
-  workspace_id = infisical_project.backend.id
-  folder_path  = "/"
 }

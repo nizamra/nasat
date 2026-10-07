@@ -8,19 +8,23 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "3.2.1"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path = var.kubeconfig_path
 }
 
+# No credentials in the code. The provider logs in with environment variables that
+# playbook 10 sets for the run:
+#   INFISICAL_AUTH_METHOD=token      INFISICAL_TOKEN=<root token from `infisical bootstrap`>
+# or, when kubeconfig/infisical-universal.json exists:
+#   INFISICAL_AUTH_METHOD=universal  INFISICAL_UNIVERSAL_AUTH_CLIENT_ID / _CLIENT_SECRET
+# For a manual run, export the same variables yourself.
 provider "infisical" {
-  host = "http://infisical.nasat.local"
-  auth = {
-    universal = {
-      client_id     = var.bootstrap_client_id
-      client_secret = var.bootstrap_client_secret
-    }
-  }
+  host = var.infisical_host
 }

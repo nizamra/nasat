@@ -1,16 +1,20 @@
-variable "bootstrap_client_id" {
-  type      = string
-  sensitive = true
+# All values below are written to terraform.tfvars by ansible-k3s/playbooks/10-infisical-bootstrap.yaml.
+variable "infisical_host" {
+  type        = string
+  description = "URL of the Infisical instance as reachable from this PC."
+  default     = "http://infisical.nasat.local"
 }
 
-variable "bootstrap_client_secret" {
-  type      = string
-  sensitive = true
+variable "kubeconfig_path" {
+  type        = string
+  description = "Kubeconfig used by the kubernetes provider."
+  default     = "~/.kube/config"
 }
 
 variable "k8s_api_host" {
-  type    = string
-  default = "https://kubernetes.default.svc"
+  type        = string
+  description = "API server address as Infisical (running inside the cluster) reaches it, for TokenReview."
+  default     = "https://kubernetes.default.svc"
 }
 
 variable "k8s_ca_certificate" {

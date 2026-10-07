@@ -1,0 +1,449 @@
+---
+- name: Bootstrap Infisical and apply its Terraform
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    infisical_host: infisical.nasat.local
+    infisical_url: "http://{{ infisical_host }}"
+    master_name: "{{ groups['k3s_master'][0] }}"
+    master_ip: "{{ hostvars[groups['k3s_master'][0]].ansible_host }}"
+    secrets_file: "{{ playbook_dir }}/../kubeconfig/secrets.yml"
+    bootstrap_file: "{{ playbook_dir }}/../kubeconfig/infisical-bootstrap.json"
+    universal_file: "{{ playbook_dir }}/../kubeconfig/infisical-universal.json"
+    lan_kubeconfig: "{{ playbook_dir }}/../kubeconfig/k3s-lan.yaml"
+    tf_dir: "{{ playbook_dir }}/../../terraform/infisical"
+    app_namespaces: [nasat, nasat-staging]
+
+  tasks:
+    # ------------------------------------------------------------ 1. tools on the control host
+    - name: Check whether the Infisical CLI is installed
+      ansible.builtin.command: which infisical
+      register: infisical_cli
+      failed_when: false
+      changed_when: false
+
+    - name: Add the Infisical apt repository
+      ansible.builtin.shell: curl -1sLf 'https://artifacts-cli.infisical.com/setup.deb.sh' | bash
+      args:
+        executable: /bin/bash
+      become: true
+      when: infisical_cli.rc != 0
+
+    - name: Install the Infisical CLI
+      ansible.builtin.apt:
+        name: infisical
+        state: present
+        update_cache: true
+        lock_timeout: 120
+      become: true
+      when: infisical_cli.rc != 0
+
+      register: terraform_version
+      failed_when: false
+      changed_when: false
+
+    - name: Install Terraform 1.14.2
+      when:
+        - terraform_version.rc != 0
+          or "'Terraform v1.14.2' not in terraform_version.stdout"
+      block:
+
+        - name: Download Terraform 1.14.2
+          ansible.builtin.get_url:
+            url: "https://releases.hashicorp.com/terraform/1.14.2/terraform_1.14.2_linux_amd64.zip"
+            dest: "/tmp/terraform_1.14.2_linux_amd64.zip"
+            mode: "0644"
+
+        - name: Install unzip
+          ansible.builtin.apt:
+            name: unzip
+            state: present
+            update_cache: true
+            lock_timeout: 120
+          become: true
+
+        - name: Remove existing Terraform binary
+          ansible.builtin.file:
+            path: /usr/local/bin/terraform
+            state: absent
+          become: true
+
+        - name: Extract Terraform
+          ansible.builtin.unarchive:
+            src: "/tmp/terraform_1.14.2_linux_amd64.zip"
+            dest: "/usr/local/bin"
+            remote_src: true
+          become: true
+
+        - name: Set Terraform binary permissions
+          ansible.builtin.file:
+            path: /usr/local/bin/terraform
+            mode: "0755"
+          become: true
+
+        - name: Remove Terraform archive
+          ansible.builtin.file:
+            path: "/tmp/terraform_1.14.2_linux_amd64.zip"
+            state: absent
+
+
+    - name: Verify Terraform 1.14.2
+      ansible.builtin.command: terraform version
+      register: terraform_final
+      changed_when: false
+      failed_when:
+        - terraform_final.rc != 0
+        - "'Terraform v1.14.2' not in terraform_final.stdout"
+
+    - name: Point {{ infisical_host }} at the master node (WSL /etc/hosts)
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '\s{{ infisical_host | regex_escape }}\s*$'
+        line: "{{ master_ip }} {{ infisical_host }}"
+      become: true
+
+    - name: Make sure the private folders exist
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/../kubeconfig"
+        state: directory
+        mode: "0700"
+
+
+
+    # ------------------------------------------------------------ optional secrets file
+
+    - name: Look for the optional secrets file
+      ansible.builtin.stat:
+        path: "{{ secrets_file }}"
+      register: secrets_stat
+
+    - name: Load the optional secrets file
+      ansible.builtin.include_vars:
+        file: "{{ secrets_file }}"
+      when: secrets_stat.stat.exists
+      no_log: true
+
+
+
+    # ------------------------------------------------------------ 2. cluster side (on the master)
+
+    - name: Cluster side - values only the master can read
+      delegate_to: "{{ master_name }}"
+      become: true
+      block:
+        - name: Wait for the Infisical operator CRDs (ArgoCD installs them)
+          ansible.builtin.command: >-
+            k3s kubectl get crd infisicalstaticsecrets.secrets.infisical.com
+            infisicalauths.secrets.infisical.com
+          register: crd
+          until: crd.rc == 0
+          retries: 60
+          delay: 10
+          changed_when: false
+
+        - name: Wait for the Infisical Deployments to be Available
+          ansible.builtin.command: >-
+            k3s kubectl -n infisical wait --for=condition=Available deployment --all --timeout=60s
+          register: inf_ready
+          until: inf_ready.rc == 0
+          retries: 60
+          delay: 10
+          changed_when: false
+
+        - name: Make sure the app namespaces exist (ArgoCD's CreateNamespace is a no-op after this)
+          ansible.builtin.shell: |
+            set -o pipefail
+            k3s kubectl create namespace {{ item }} --dry-run=client -o yaml | k3s kubectl apply -f -
+          args:
+            executable: /bin/bash
+          loop: "{{ app_namespaces }}"
+          register: ns
+          changed_when: "'created' in ns.stdout"
+
+        - name: Wait for the token-reviewer ServiceAccount (from infrastructure/infisical-operator/manifests)
+          ansible.builtin.command: k3s kubectl -n infisical get serviceaccount infisical-token-reviewer
+          register: sa
+          until: sa.rc == 0
+          retries: 60
+          delay: 10
+          changed_when: false
+
+        - name: Ask the cluster for a long-lived token for the token reviewer
+          ansible.builtin.command: k3s kubectl apply -f -
+          args:
+            stdin: |
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: infisical-token-reviewer-token
+                namespace: infisical
+                annotations:
+                  kubernetes.io/service-account.name: infisical-token-reviewer
+              type: kubernetes.io/service-account-token
+          register: reviewer_secret
+          changed_when: "'unchanged' not in reviewer_secret.stdout"
+
+        - name: Read the reviewer token
+          ansible.builtin.command:
+            argv: [k3s, kubectl, -n, infisical, get, secret, infisical-token-reviewer-token,
+                   -o, "jsonpath={.data.token}"]
+          register: reviewer_token_b64
+          until: reviewer_token_b64.stdout | length > 0
+          retries: 12
+          delay: 5
+          changed_when: false
+          no_log: true
+
+        - name: Read the cluster CA certificate
+          ansible.builtin.command:
+            argv: [k3s, kubectl, -n, infisical, get, secret, infisical-token-reviewer-token,
+                   -o, 'jsonpath={.data.ca\.crt}']
+          register: reviewer_ca_b64
+          changed_when: false
+          no_log: true
+
+        - name: Read the admin kubeconfig (Terraform's kubernetes provider needs it)
+          ansible.builtin.slurp:
+            src: /etc/rancher/k3s/k3s.yaml
+          register: k3s_yaml
+          no_log: true
+
+        - name: Create the Docker Hub pull secret in each app namespace
+          ansible.builtin.command: k3s kubectl apply -f -
+          args:
+            stdin: |
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: dockerhub-cred
+                namespace: {{ item }}
+              type: kubernetes.io/dockerconfigjson
+              stringData:
+                .dockerconfigjson: '{{ {"auths": {"https://index.docker.io/v1/": {"username": dockerhub_username, "password": dockerhub_token, "auth": (dockerhub_username ~ ":" ~ dockerhub_token) | b64encode}}} | to_json }}'
+          loop: "{{ app_namespaces }}"
+          register: dh
+          changed_when: "'unchanged' not in dh.stdout"
+          no_log: true
+          when: dockerhub_username is defined and dockerhub_token is defined
+
+    - name: Warn when the Docker Hub secret was not created from secrets.yml
+      ansible.builtin.debug:
+        msg: >-
+          dockerhub_username / dockerhub_token are not set, so no dockerhub-cred Secret was created.
+          Backend.yaml and Frontend.yaml reference it (imagePullSecrets). Unless it already exists in
+          nasat and nasat-staging, their pods will stay in ImagePullBackOff.
+      when: dockerhub_username is not defined or dockerhub_token is not defined
+
+    - name: Save a kubeconfig that reaches the master over the LAN
+      ansible.builtin.copy:
+        content: "{{ k3s_yaml.content | b64decode | replace('127.0.0.1', master_ip) }}"
+        dest: "{{ lan_kubeconfig }}"
+        mode: "0600"
+      no_log: true
+
+
+
+    # ------------------------------------------------------------ 3. Infisical itself
+
+    - name: Wait until the Infisical API answers
+      ansible.builtin.uri:
+        url: "{{ infisical_url }}/api/status"
+        status_code: 200
+      register: inf_status
+      until: inf_status.status == 200
+      retries: 60
+      delay: 10
+
+    - name: Has Infisical been bootstrapped by this playbook before?
+      ansible.builtin.stat:
+        path: "{{ bootstrap_file }}"
+      register: bootstrap_stat
+
+    - name: Ask for the admin e-mail (first run only)
+      ansible.builtin.pause:
+        prompt: "Infisical admin e-mail"
+      register: ask_email
+      when: not bootstrap_stat.stat.exists and infisical_admin_email is not defined
+
+    - name: Ask for the admin password (first run only, not shown)
+      ansible.builtin.pause:
+        prompt: "Infisical admin password (min. 8 characters)"
+        echo: false
+      register: ask_password
+      when: not bootstrap_stat.stat.exists and infisical_admin_password is not defined
+
+    - name: Remember the admin answers
+      ansible.builtin.set_fact:
+        admin_email: "{{ infisical_admin_email | default(ask_email.user_input | default('')) }}"
+        admin_password: "{{ infisical_admin_password | default(ask_password.user_input | default('')) }}"
+        admin_org: "{{ infisical_org_name | default('Nasat') }}"
+      no_log: true
+      when: not bootstrap_stat.stat.exists
+
+    - name: Look for a Universal Auth identity file
+      ansible.builtin.stat:
+        path: "{{ universal_file }}"
+      register: universal_stat
+
+    - name: Create the admin user, organization and root identity (once per Infisical instance)
+      ansible.builtin.command: infisical bootstrap --domain {{ infisical_url }}
+      environment:
+        INFISICAL_ADMIN_EMAIL: "{{ admin_email }}"
+        INFISICAL_ADMIN_PASSWORD: "{{ admin_password }}"
+        INFISICAL_ADMIN_ORGANIZATION: "{{ admin_org }}"
+      register: bootstrap_out
+      changed_when: true
+      no_log: true
+      when: not bootstrap_stat.stat.exists and not universal_stat.stat.exists
+
+    - name: Check that the bootstrap really produced a token
+      ansible.builtin.assert:
+        that:
+          - (bootstrap_out.stdout | default('')) is search('"token"')
+        fail_msg: >-
+          infisical bootstrap printed no credentials. It exits 0 even on failure. Its message was:
+          {{ (bootstrap_out.stderr | default('')) | trim }}
+          If it says the instance is already bootstrapped, either wipe the Infisical database
+          (delete its PVC and let ArgoCD recreate it) and run this playbook again, or create a
+          Universal Auth machine identity in the UI and save kubeconfig/infisical-universal.json
+          (see the header of this playbook).
+        quiet: true
+      when: bootstrap_out is not skipped
+
+    - name: Keep the bootstrap result (contains a root token - never commit it)
+      ansible.builtin.copy:
+        content: "{{ bootstrap_out.stdout | regex_search('(?s)\\{.*\\}') }}\n"
+        dest: "{{ bootstrap_file }}"
+        mode: "0600"
+      no_log: true
+      when: bootstrap_out is not skipped
+
+
+
+    # ------------------------------------------------------------ 4. Terraform
+
+    - name: Re-check which credential files exist now
+      ansible.builtin.stat:
+        path: "{{ bootstrap_file }}"
+      register: bootstrap_stat
+
+    - name: Stop if there is nothing to authenticate Terraform with
+      ansible.builtin.assert:
+        that: bootstrap_stat.stat.exists or universal_stat.stat.exists
+        fail_msg: >-
+          Infisical is already bootstrapped but kubeconfig/infisical-bootstrap.json is missing, so the
+          root token is gone. Create a Universal Auth machine identity in the UI and save
+          kubeconfig/infisical-universal.json (see the header of this playbook), or wipe the
+          Infisical database and run this playbook again.
+
+    - name: Load the saved credentials
+      ansible.builtin.set_fact:
+        bootstrap_json: "{{ lookup('file', bootstrap_file) | from_json if bootstrap_stat.stat.exists else {} }}"
+        universal_json: "{{ lookup('file', universal_file) | from_json if universal_stat.stat.exists else {} }}"
+      no_log: true
+
+    - name: Choose how Terraform logs in to Infisical
+      ansible.builtin.set_fact:
+        tf_env: >-
+          {{ {'INFISICAL_AUTH_METHOD': 'universal',
+              'INFISICAL_UNIVERSAL_AUTH_CLIENT_ID': universal_json.client_id,
+              'INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET': universal_json.client_secret}
+             if universal_stat.stat.exists else
+             {'INFISICAL_AUTH_METHOD': 'token',
+              'INFISICAL_TOKEN': bootstrap_json.identity.credentials.token} }}
+        org_id: "{{ universal_json.organization_id if universal_stat.stat.exists else bootstrap_json.organization.id }}"
+      no_log: true
+
+    - name: Write terraform.tfvars (same variable names as terraform.tfvars.example)
+      ansible.builtin.copy:
+        dest: "{{ tf_dir }}/terraform.tfvars"
+        mode: "0600"
+        content: |
+          # Generated by ansible-k3s/playbooks/10-infisical-bootstrap.yaml - do not edit, do not commit.
+          infisical_host     = "{{ infisical_url }}"
+          kubeconfig_path    = "{{ lan_kubeconfig | realpath }}"
+          k8s_api_host       = "https://kubernetes.default.svc"
+          organization_id    = "{{ org_id }}"
+          token_reviewer_jwt = "{{ reviewer_token_b64.stdout | b64decode }}"
+          k8s_ca_certificate = <<-EOT
+          {{ reviewer_ca_b64.stdout | b64decode | trim }}
+          EOT
+      no_log: true
+
+    - name: terraform init
+      ansible.builtin.command: terraform init -input=false
+      args:
+        chdir: "{{ tf_dir }}"
+      register: tf_init
+      changed_when: "'Terraform has been successfully initialized' in tf_init.stdout and 'Installing' in tf_init.stdout"
+
+    - name: terraform apply (project, identities, generated passwords)
+      block:
+        - name: Apply
+          ansible.builtin.command: terraform apply -input=false -auto-approve -no-color
+          args:
+            chdir: "{{ tf_dir }}"
+          environment: "{{ tf_env }}"
+          register: tf_apply
+          changed_when: "'0 added, 0 changed, 0 destroyed' not in tf_apply.stdout"
+      rescue:
+        - name: Explain the most likely causes
+          ansible.builtin.fail:
+            msg: >-
+              terraform apply failed (details above). Usual causes: the bootstrap token expired
+              (401 - use kubeconfig/infisical-universal.json, see the header), the operator CRDs are
+              missing, the Kubernetes provider cannot reach the cluster (check kubeconfig/k3s-lan.yaml), or the nasat / nasat-staging
+              namespaces do not exist.
+
+
+
+    # ------------------------------------------------------------ 5. let the apps catch up
+
+    - name: Ask ArgoCD to refresh every application
+      ansible.builtin.shell: |
+        set -o pipefail
+        for a in $(k3s kubectl -n argocd get applications -o name); do
+          k3s kubectl -n argocd annotate "$a" argocd.argoproj.io/refresh=hard --overwrite
+        done
+      args:
+        executable: /bin/bash
+      delegate_to: "{{ master_name }}"
+      become: true
+      changed_when: false
+
+    - name: Wait for the Secret that Infisical syncs into the nasat namespace
+      ansible.builtin.command: k3s kubectl -n nasat get secret backend-secrets
+      delegate_to: "{{ master_name }}"
+      become: true
+      register: backend_secret
+      until: backend_secret.rc == 0
+      retries: 30
+      delay: 10
+      changed_when: false
+
+    - name: Wait for the nasat Deployments (image pulls can take a few minutes)
+      ansible.builtin.command: >-
+        k3s kubectl -n nasat wait --for=condition=Available deployment --all --timeout=600s
+      delegate_to: "{{ master_name }}"
+      become: true
+      register: nasat_ready
+      failed_when: false
+      changed_when: false
+
+    - name: Current state of the app namespaces
+      ansible.builtin.command: k3s kubectl get pods -n {{ item }}
+      delegate_to: "{{ master_name }}"
+      become: true
+      loop: "{{ app_namespaces }}"
+      register: pods
+      changed_when: false
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg:
+          - "Infisical UI: {{ infisical_url }}  (admin: the e-mail you chose; add '{{ master_ip }} {{ infisical_host }}' to the Windows hosts file for your browser)"
+          - "nasat Deployments Available: {{ 'yes' if nasat_ready.rc == 0 else 'NOT YET - see the pod lists below' }}"
+          - "{{ pods.results | map(attribute='stdout_lines') | list }}"
+          - "Private files: kubeconfig/infisical-bootstrap.json (root token), terraform/infisical/terraform.tfvars and terraform.tfstate (generated passwords). All gitignored - back them up somewhere safe."
