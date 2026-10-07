@@ -17,8 +17,6 @@ spec:
     spec:
       # nodeSelector:
       #   node-role.kubernetes.io/worker: worker
-      imagePullSecrets:
-        - name: dockerhub-cred
       containers:
         - name: frontend
           image: nizamra/nasat-frontend:270af6c97a34f7eda48dc06b8632bc72d5904f70

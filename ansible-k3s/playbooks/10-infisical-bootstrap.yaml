@@ -9,7 +9,7 @@
     infisical_url: "http://{{ infisical_host }}"
     master_name: "{{ groups['k3s_master'][0] }}"
     master_ip: "{{ hostvars[groups['k3s_master'][0]].ansible_host }}"
-    secrets_file: "{{ playbook_dir }}/../kubeconfig/secrets.yml"
+    secrets_file: "{{ playbook_dir }}/../kubeconfig/secrets.yaml"
     bootstrap_file: "{{ playbook_dir }}/../kubeconfig/infisical-bootstrap.json"
     universal_file: "{{ playbook_dir }}/../kubeconfig/infisical-universal.json"
     lan_kubeconfig: "{{ playbook_dir }}/../kubeconfig/k3s-lan.yaml"
@@ -40,20 +40,20 @@
       become: true
       when: infisical_cli.rc != 0
 
+    - name: Check which Terraform version is installed
+      ansible.builtin.command: terraform version
       register: terraform_version
       failed_when: false
       changed_when: false
 
-    - name: Install Terraform 1.14.2
-      when:
-        - terraform_version.rc != 0
-          or "'Terraform v1.14.2' not in terraform_version.stdout"
+    - name: Install Terraform 1.16.5
+      when: terraform_version.rc != 0 or 'Terraform v1.16.5' not in terraform_version.stdout
       block:
 
-        - name: Download Terraform 1.14.2
+        - name: Download Terraform 1.16.5
           ansible.builtin.get_url:
-            url: "https://releases.hashicorp.com/terraform/1.14.2/terraform_1.14.2_linux_amd64.zip"
-            dest: "/tmp/terraform_1.14.2_linux_amd64.zip"
+            url: "https://releases.hashicorp.com/terraform/1.16.5/terraform_1.16.5_linux_amd64.zip"
+            dest: "/tmp/terraform_1.16.5_linux_amd64.zip"
             mode: "0644"
 
         - name: Install unzip
@@ -72,7 +72,7 @@
 
         - name: Extract Terraform
           ansible.builtin.unarchive:
-            src: "/tmp/terraform_1.14.2_linux_amd64.zip"
+            src: "/tmp/terraform_1.16.5_linux_amd64.zip"
             dest: "/usr/local/bin"
             remote_src: true
           become: true
@@ -85,17 +85,15 @@
 
         - name: Remove Terraform archive
           ansible.builtin.file:
-            path: "/tmp/terraform_1.14.2_linux_amd64.zip"
+            path: "/tmp/terraform_1.16.5_linux_amd64.zip"
             state: absent
 
 
-    - name: Verify Terraform 1.14.2
+    - name: Verify Terraform 1.16.5
       ansible.builtin.command: terraform version
       register: terraform_final
       changed_when: false
-      failed_when:
-        - terraform_final.rc != 0
-        - "'Terraform v1.14.2' not in terraform_final.stdout"
+      failed_when: terraform_final.rc != 0 or 'Terraform v1.16.5' not in terraform_final.stdout
 
     - name: Point {{ infisical_host }} at the master node (WSL /etc/hosts)
       ansible.builtin.lineinfile:
@@ -209,32 +207,6 @@
             src: /etc/rancher/k3s/k3s.yaml
           register: k3s_yaml
           no_log: true
-
-        - name: Create the Docker Hub pull secret in each app namespace
-          ansible.builtin.command: k3s kubectl apply -f -
-          args:
-            stdin: |
-              apiVersion: v1
-              kind: Secret
-              metadata:
-                name: dockerhub-cred
-                namespace: {{ item }}
-              type: kubernetes.io/dockerconfigjson
-              stringData:
-                .dockerconfigjson: '{{ {"auths": {"https://index.docker.io/v1/": {"username": dockerhub_username, "password": dockerhub_token, "auth": (dockerhub_username ~ ":" ~ dockerhub_token) | b64encode}}} | to_json }}'
-          loop: "{{ app_namespaces }}"
-          register: dh
-          changed_when: "'unchanged' not in dh.stdout"
-          no_log: true
-          when: dockerhub_username is defined and dockerhub_token is defined
-
-    - name: Warn when the Docker Hub secret was not created from secrets.yml
-      ansible.builtin.debug:
-        msg: >-
-          dockerhub_username / dockerhub_token are not set, so no dockerhub-cred Secret was created.
-          Backend.yaml and Frontend.yaml reference it (imagePullSecrets). Unless it already exists in
-          nasat and nasat-staging, their pods will stay in ImagePullBackOff.
-      when: dockerhub_username is not defined or dockerhub_token is not defined
 
     - name: Save a kubeconfig that reaches the master over the LAN
       ansible.builtin.copy:
