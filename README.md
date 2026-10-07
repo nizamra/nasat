@@ -85,6 +85,7 @@ graph TD
 - **`nasat`** and **`nasat-staging`** are two live, separate copies of the app — deliberately, so `staging` can be validated before promoting to `master`.
 - **`playground`, `longhorn`, `prometheus-stack`, `loki-stack`** are infrastructure — there is intentionally only **one** copy of each. They are not meant to be duplicated the way the app is; there's no useful concept of a "staging Jellyfin."
 - Sync is automated (`prune: true`, `selfHeal: true`) everywhere, so the cluster is expected to converge to whatever's in git without manual `kubectl apply`.
+- Child applications sync in waves: Longhorn and the Infisical operator (`-30`), Prometheus/Grafana (`-20`), Infisical (`-10`), then the backend/frontend, staging app, ArgoCD self-management, and playground (default wave `0`). ArgoCD waits for each earlier wave to become healthy before starting the next. The operator's `CreateNamespace` option ensures its `infisical` destination exists; the bootstrap prepares `infisical-secrets` before ArgoCD starts.
 
 ### Feature flags: parts that are switched off until you want them
 

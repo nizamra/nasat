@@ -8,6 +8,7 @@
     repo_branch: "{{ argocd_branch | default('master') }}"
     repo_dir: /opt/nasat-bootstrap
     create_infisical_secret: true
+    operator_namespaces: [nasat, nasat-staging]
     # Local copy of the generated Infisical secret.
     infisical_backup: "{{ playbook_dir }}/../kubeconfig/infisical-secrets.yaml"
 
@@ -154,28 +155,77 @@
 
     # ---------------------------------------------------------------- 5. app-of-apps
 
+    - name: Create the namespaces the Infisical operator is scoped to
+      ansible.builtin.shell: |
+        set -o pipefail
+        k3s kubectl create namespace {{ item }} --dry-run=client -o yaml | k3s kubectl apply -f -
+      args:
+        executable: /bin/bash
+      loop: "{{ operator_namespaces }}"
+      register: operator_ns
+      changed_when: "'created' in operator_ns.stdout"
+
     - name: Apply the root application (app-of-apps)
       ansible.builtin.command: k3s kubectl apply -f {{ repo_dir }}/argocd/app-of-apps.yaml
       register: root_apply
       changed_when: "'unchanged' not in root_apply.stdout"
+
+    - name: Wait until Longhorn's CSI driver is registered on its nodes
+      ansible.builtin.shell: |
+        set -o pipefail
+        want=$(k3s kubectl -n longhorn-system get ds longhorn-csi-plugin \
+               -o jsonpath='{.status.desiredNumberScheduled}' 2>/dev/null || true)
+        have=$(k3s kubectl get csinodes \
+               -o jsonpath='{range .items[*]}{.spec.drivers[*].name}{"\n"}{end}' \
+               | grep -c 'driver.longhorn.io' || true)
+        echo "$have of ${want:-?} nodes"
+        [ -n "$want" ] && [ "$want" -gt 0 ] && [ "$have" -ge "$want" ]
+      args:
+        executable: /bin/bash
+      register: csi
+      until: csi.rc == 0
+      retries: 90
+      delay: 10
+      changed_when: false
+      failed_when: false
+
+    - name: Stop with a hint if the CSI driver never registered
+      ansible.builtin.assert:
+        that: csi.rc == 0
+        fail_msg: >-
+          Longhorn's CSI driver is registered on {{ csi.stdout | default('?') }} after 15 minutes.
+          Look at: k3s kubectl -n longhorn-system get pods -o wide
+          On each node: systemctl status iscsid ; lsmod | grep iscsi_tcp
+          If you installed packages after Longhorn started, restart the plugin:
+          k3s kubectl -n longhorn-system rollout restart daemonset longhorn-csi-plugin
 
     - name: Wait until the root application is Synced
       ansible.builtin.command: >-
         k3s kubectl -n argocd get application app-of-apps -o jsonpath='{.status.sync.status}'
       register: root_sync
       until: root_sync.stdout == "Synced"
-      retries: 60
-      delay: 10
+      retries: 120
+      delay: 8
       changed_when: false
       failed_when: false
+
+    - name: Show every application's status
+      ansible.builtin.command: k3s kubectl -n argocd get applications
+      register: apps_now
+      changed_when: false
+      when: root_sync.stdout != "Synced"
 
     - name: Stop with a hint if the root application never synced
       ansible.builtin.assert:
         that: root_sync.stdout == "Synced"
         fail_msg: >-
-          app-of-apps is "{{ root_sync.stdout | default('unknown') }}" after 10 minutes. ArgoCD applies the
-          child apps in sync-wave order (infisical first) and waits for each wave to be Healthy.
-          Look at: k3s kubectl -n argocd get applications  and  k3s kubectl -n infisical get pods
+          app-of-apps is "{{ root_sync.stdout | default('unknown') }}" after 30 minutes. This is not an
+          Ansible problem: ArgoCD applies the child apps in sync-wave order (longhorn, then infisical,
+          then the operator, then the rest) and waits for each one to be Healthy, so one stuck app
+          holds back everything after it. Applications now:
+          {{ apps_now.stdout | default('') }}
+          Next: k3s kubectl -n argocd describe application <the one that is not Healthy>
+          and  k3s kubectl get pods -A | grep -v Running
 
     - name: List the applications ArgoCD created
       ansible.builtin.command: k3s kubectl -n argocd get applications

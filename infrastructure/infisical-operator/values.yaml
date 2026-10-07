@@ -5,7 +5,7 @@ scopedRBAC: true
 scopedNamespaces:
   - infisical 
   # - immich
-  - gotify
+  # - gotify
   - nasat
   - nasat-staging
 installCRDs: true
