@@ -84,7 +84,7 @@
           ENCRYPTION_KEY: "$ENC"
           AUTH_SECRET: "$AUTH"
           POSTGRES_PASSWORD: "$PG"
-          DB_CONNECTION_URI: "postgres://infisical:${PG}@postgres.infisical.svc.cluster.local:5432/infisical"
+          DB_CONNECTION_URI: "postgresql://infisical:${PG}@postgres.infisical.svc.cluster.local:5432/infisical"
         EOF
       args:
         executable: /bin/bash

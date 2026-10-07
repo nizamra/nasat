@@ -69,3 +69,5 @@ infisical/secret.local.yaml
 ansible-k3s/kubeconfig/
 *.retry
 
+# --- Infisical ---
+infisical/auto-bootstrap.yaml

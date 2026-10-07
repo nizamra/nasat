@@ -34,9 +34,9 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 
 nodeSelector:
-  node-role.kubernetes.io/worker: worker
+  node-role.kubernetes.io/master: master
 
 longhornUI:
   replicas: 1
   nodeSelector:
-    node-role.kubernetes.io/worker: worker
+    node-role.kubernetes.io/master: master

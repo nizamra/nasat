@@ -15,8 +15,8 @@ spec:
       labels:
         app: minio
     spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
+      # nodeSelector:
+      #   node-role.kubernetes.io/worker: worker
       initContainers:
         # Create bucket directory
         - name: create-bucket

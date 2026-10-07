@@ -22,9 +22,9 @@ spec:
         app: gotify
         tier: application
     spec:
-      # Ensure pods run on worker nodes only
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
+      # # Ensure pods run on worker nodes only
+      # nodeSelector:
+      #   node-role.kubernetes.io/worker: worker
 
       terminationGracePeriodSeconds: 15
 

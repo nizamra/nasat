@@ -22,8 +22,8 @@ spec:
     spec:
       serviceAccountName: homepage
 
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
+      # nodeSelector:
+      #   node-role.kubernetes.io/worker: worker
 
       terminationGracePeriodSeconds: 10
 
