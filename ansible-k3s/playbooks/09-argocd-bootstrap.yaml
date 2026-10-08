@@ -184,10 +184,52 @@
         executable: /bin/bash
       register: csi
       until: csi.rc == 0
-      retries: 90
+      retries: 30
       delay: 10
       changed_when: false
       failed_when: false
+
+    - name: Collect Longhorn CSI diagnostics after registration timeout
+      ansible.builtin.shell: |
+        set +e
+        echo '=== Longhorn CSI DaemonSet readiness ==='
+        k3s kubectl -n longhorn-system get ds longhorn-csi-plugin \
+          -o 'custom-columns=NAME:.metadata.name,DESIRED:.status.desiredNumberScheduled,CURRENT:.status.currentNumberScheduled,READY:.status.numberReady,AVAILABLE:.status.numberAvailable,UNAVAILABLE:.status.numberUnavailable'
+
+        echo '=== Longhorn CSI pod placement and readiness ==='
+        k3s kubectl -n longhorn-system get pods -l app=longhorn-csi-plugin -o wide
+
+        echo '=== Longhorn CSI pod events and scheduling details ==='
+        k3s kubectl -n longhorn-system describe pods -l app=longhorn-csi-plugin
+
+        echo '=== CSI node-driver-registrar logs (last 100 lines per pod) ==='
+        for pod in $(k3s kubectl -n longhorn-system get pods -l app=longhorn-csi-plugin -o name); do
+          echo "--- ${pod} ---"
+          k3s kubectl -n longhorn-system logs "${pod}" -c node-driver-registrar --tail=100
+        done
+
+        echo '=== Longhorn CSI plugin logs (last 100 lines per pod) ==='
+        for pod in $(k3s kubectl -n longhorn-system get pods -l app=longhorn-csi-plugin -o name); do
+          echo "--- ${pod} ---"
+          k3s kubectl -n longhorn-system logs "${pod}" -c longhorn-csi-plugin --tail=100
+        done
+
+        echo '=== CSI drivers registered on each Kubernetes node ==='
+        k3s kubectl get csinode \
+          -o 'custom-columns=NODE:.metadata.name,DRIVERS:.spec.drivers[*].name'
+
+        echo '=== Recent Longhorn namespace events ==='
+        k3s kubectl -n longhorn-system get events --sort-by=.metadata.creationTimestamp
+      args:
+        executable: /bin/bash
+      register: csi_diagnostics
+      changed_when: false
+      when: csi.rc != 0
+
+    - name: Show Longhorn CSI diagnostics after registration timeout
+      ansible.builtin.debug:
+        var: csi_diagnostics.stdout_lines
+      when: csi.rc != 0
 
     - name: Stop with a hint if the CSI driver never registered
       ansible.builtin.assert:
