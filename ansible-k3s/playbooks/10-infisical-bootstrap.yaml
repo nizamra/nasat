@@ -14,7 +14,7 @@
     universal_file: "{{ playbook_dir }}/../kubeconfig/infisical-universal.json"
     lan_kubeconfig: "{{ playbook_dir }}/../kubeconfig/k3s-lan.yaml"
     tf_dir: "{{ playbook_dir }}/../../terraform/infisical"
-    app_namespaces: [nasat, nasat-staging]
+    app_namespaces: [nasat, nasat-staging, gotify]
 
   tasks:
     # ------------------------------------------------------------ 1. tools on the control host
