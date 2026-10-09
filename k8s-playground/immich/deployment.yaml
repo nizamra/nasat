@@ -24,8 +24,8 @@ spec:
       annotations:
         immich.nasat.local/machine-learning: "disabled"
     spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
+      # nodeSelector:
+      #   node-role.kubernetes.io/worker: worker
       terminationGracePeriodSeconds: 30
       initContainers:
         - name: initialize-storage
@@ -129,8 +129,8 @@ spec:
         app: immich-db
         tier: database
     spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
+      # nodeSelector:
+      #   node-role.kubernetes.io/worker: worker
       containers:
         - name: postgres
           image: ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvector0.8.0
@@ -204,8 +204,8 @@ spec:
         app: immich-redis
         tier: cache
     spec:
-      nodeSelector:
-        node-role.kubernetes.io/worker: worker
+      # nodeSelector:
+      #   node-role.kubernetes.io/worker: worker
       containers:
         - name: redis
           image: redis:7.2-alpine

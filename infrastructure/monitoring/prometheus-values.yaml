@@ -60,6 +60,8 @@ grafana:
     size: 2Gi
     accessModes: ["ReadWriteOnce"]
   adminPassword: "J2T9UY9RrlkAp-sj"
+  nodeSelector:
+    node-role.kubernetes.io/master: master
   ingress:
     enabled: true
     ingressClassName: traefik

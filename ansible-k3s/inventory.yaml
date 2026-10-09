@@ -7,8 +7,10 @@ all:
         master:
           ansible_host: 192.168.10.30
           ansible_user: sys1
+          ansible_connection: ssh
     k3s_worker:
       hosts:
         worker:
           ansible_host: 192.168.10.20
           ansible_user: sys2
+          ansible_connection: ssh

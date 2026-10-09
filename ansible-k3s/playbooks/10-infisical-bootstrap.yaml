@@ -130,6 +130,8 @@
     - name: Cluster side - values only the master can read
       delegate_to: "{{ master_name }}"
       become: true
+      environment:
+        PATH: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
       block:
         - name: Wait for the Infisical operator CRDs (ArgoCD installs them)
           ansible.builtin.command: >-
@@ -137,7 +139,7 @@
             infisicalauths.secrets.infisical.com
           register: crd
           until: crd.rc == 0
-          retries: 60
+          retries: 10
           delay: 10
           changed_when: false
 
@@ -146,7 +148,7 @@
             k3s kubectl -n infisical wait --for=condition=Available deployment --all --timeout=60s
           register: inf_ready
           until: inf_ready.rc == 0
-          retries: 60
+          retries: 10
           delay: 10
           changed_when: false
 
@@ -164,7 +166,7 @@
           ansible.builtin.command: k3s kubectl -n infisical get serviceaccount infisical-token-reviewer
           register: sa
           until: sa.rc == 0
-          retries: 60
+          retries: 10
           delay: 10
           changed_when: false
 
@@ -189,7 +191,7 @@
                    -o, "jsonpath={.data.token}"]
           register: reviewer_token_b64
           until: reviewer_token_b64.stdout | length > 0
-          retries: 12
+          retries: 10
           delay: 5
           changed_when: false
           no_log: true
@@ -225,7 +227,7 @@
         status_code: 200
       register: inf_status
       until: inf_status.status == 200
-      retries: 60
+      retries: 10
       delay: 10
 
     - name: Has Infisical been bootstrapped by this playbook before?
@@ -345,7 +347,7 @@
       no_log: true
 
     - name: terraform init
-      ansible.builtin.command: terraform init -input=false
+      ansible.builtin.command: terraform init -input=false -upgrade
       args:
         chdir: "{{ tf_dir }}"
       register: tf_init
@@ -391,7 +393,7 @@
       become: true
       register: backend_secret
       until: backend_secret.rc == 0
-      retries: 30
+      retries: 10
       delay: 10
       changed_when: false
 
