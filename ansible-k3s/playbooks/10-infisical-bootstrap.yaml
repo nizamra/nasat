@@ -139,7 +139,7 @@
             infisicalauths.secrets.infisical.com
           register: crd
           until: crd.rc == 0
-          retries: 10
+          retries: 30
           delay: 10
           changed_when: false
 
@@ -148,7 +148,7 @@
             k3s kubectl -n infisical wait --for=condition=Available deployment --all --timeout=60s
           register: inf_ready
           until: inf_ready.rc == 0
-          retries: 10
+          retries: 30
           delay: 10
           changed_when: false
 
@@ -166,7 +166,7 @@
           ansible.builtin.command: k3s kubectl -n infisical get serviceaccount infisical-token-reviewer
           register: sa
           until: sa.rc == 0
-          retries: 10
+          retries: 30
           delay: 10
           changed_when: false
 
@@ -191,7 +191,7 @@
                    -o, "jsonpath={.data.token}"]
           register: reviewer_token_b64
           until: reviewer_token_b64.stdout | length > 0
-          retries: 10
+          retries: 30
           delay: 5
           changed_when: false
           no_log: true
@@ -227,7 +227,7 @@
         status_code: 200
       register: inf_status
       until: inf_status.status == 200
-      retries: 10
+      retries: 30
       delay: 10
 
     - name: Has Infisical been bootstrapped by this playbook before?
@@ -393,7 +393,7 @@
       become: true
       register: backend_secret
       until: backend_secret.rc == 0
-      retries: 10
+      retries: 30
       delay: 10
       changed_when: false
 

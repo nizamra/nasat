@@ -17,26 +17,33 @@ spec:
     spec:
       # nodeSelector:
       #   node-role.kubernetes.io/worker: worker
+
       initContainers:
-        # Create bucket directory
         - name: create-bucket
           image: busybox:1.36
+          imagePullPolicy: IfNotPresent
           command:
-            ["sh", "-c", "mkdir -p /data/nasat-media /data/longhorn-backups"]
+            - sh
+            - -c
+            - mkdir -p /data/nasat-media /data/longhorn-backups
           volumeMounts:
             - name: minio-data
               mountPath: /data
 
       containers:
         - name: minio
-          image: minio/minio
-          args: ["server", "/data", "--console-address", ":9001"]
+          image: ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+          imagePullPolicy: IfNotPresent
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
           env:
             - name: MINIO_ROOT_USER
               value: minioadmin
             - name: MINIO_ROOT_PASSWORD
               value: minioadmin
-            # Enable CORS globally for the MinIO API
             - name: MINIO_API_CORS_ALLOW_ORIGIN
               value: "*"
           ports:
@@ -48,24 +55,21 @@ spec:
 
         # Sidecar to automatically set bucket policy and CORS
         - name: setup-bucket-policy
-          image: minio/mc:latest
+          image: docker.io/netiedge/minio-mc:RELEASE.2025-01-17T23-25-50Z
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -c
             - |
-              # Wait for MinIO to be ready
-              until mc alias set local http://localhost:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} 2>/dev/null; do
+              until mc alias set local http://localhost:9000 "${MINIO_ROOT_USER}" "${MINIO_ROOT_PASSWORD}" 2>/dev/null; do
                 echo "Waiting for MinIO to start..."
                 sleep 2
               done
 
-              # Create bucket and set public download policy
               mc mb --ignore-existing local/nasat-media
               mc anonymous set download local/nasat-media
 
               echo "MinIO bucket nasat-media is now public."
-
-              # Keep container running
               sleep infinity
           env:
             - name: MINIO_ROOT_USER
