@@ -17,7 +17,7 @@ export default function Profile() {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`http://staging.nasat.local/api/users/${username}/`)
+    axios.get(`/api/users/${username}/`)
       .then(response => {
         setData(response.data);
         setLoading(false);

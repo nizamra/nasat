@@ -45,7 +45,6 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://staging.nasat.local",
     "http://localhost:3000",
 ]
 
@@ -88,9 +87,9 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get('MINIO_BUCKET_NAME', 'nasat-media')
 # Internal K3s endpoint for Django backend to upload files
 AWS_S3_ENDPOINT_URL = os.environ.get('MINIO_ENDPOINT', 'http://minio:9000')
 
-# Public domain for the browser to fetch images
-# Update this to match however you expose MinIO through your Ingress or NodePort
-AWS_S3_CUSTOM_DOMAIN = os.environ.get('MINIO_PUBLIC_DOMAIN', 'staging.nasat.local:9000')
+# Public host for direct S3 URLs, when configured. App serializers use the
+# incoming request host for media links so LAN IPs and staging hosts work too.
+AWS_S3_CUSTOM_DOMAIN = os.environ.get('MINIO_PUBLIC_DOMAIN') or None
 AWS_S3_URL_PROTOCOL = 'http'
 AWS_S3_REGION_NAME = 'us-east-1'
 AWS_S3_USE_SSL = False

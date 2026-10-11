@@ -134,9 +134,11 @@ class RelationUserSerializer(serializers.ModelSerializer):
         if not obj.avatar:
             return None
         avatar_path = str(obj.avatar)
-        base_url = "http://staging.nasat.local"
+        request = self.context.get("request")
+        if not request:
+            return None
         bucket = settings.AWS_STORAGE_BUCKET_NAME or 'nasat-media'
-        return f"{base_url}/media/{bucket}/{avatar_path}"
+        return request.build_absolute_uri(f"/media/{bucket}/{avatar_path}")
 
 
 class BirthdaySerializer(RelationUserSerializer):
@@ -239,12 +241,8 @@ class UserSerializer(serializers.ModelSerializer):
         avatar_path = str(obj.avatar)
         # print(f"[DEBUG] Raw avatar path: {avatar_path}")
 
-        # Construct URL using the Ingress path (no port, uses /media prefix)
-        base_url = "http://staging.nasat.local"
+        request = self.context.get("request")
+        if not request:
+            return None
         bucket = settings.AWS_STORAGE_BUCKET_NAME or 'nasat-media'
-
-        # Build URL that goes through the Ingress /media path
-        full_url = f"{base_url}/media/{bucket}/{avatar_path}"
-
-        # print(f"[DEBUG] Constructed full URL: {full_url}")
-        return full_url
+        return request.build_absolute_uri(f"/media/{bucket}/{avatar_path}")

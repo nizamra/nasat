@@ -28,6 +28,14 @@
       loop_control:
         label: "{{ item.port }}/{{ item.proto }} {{ item.comment }}"
 
+    - name: Allow NASAT HTTP NodePort from the LAN
+      community.general.ufw:
+        rule: allow
+        port: "30080"
+        proto: tcp
+        from_ip: "{{ lan_cidr }}"
+        comment: "NASAT frontend HTTP NodePort"
+
     - name: Open Kubernetes API (master only, LAN only)
       community.general.ufw:
         rule: allow

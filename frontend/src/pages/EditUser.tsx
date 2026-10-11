@@ -45,7 +45,7 @@ export default function EditUser() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`http://staging.nasat.local/api/users/${username}/`);
+        const response = await fetch(`/api/users/${username}/`);
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
@@ -137,7 +137,7 @@ export default function EditUser() {
         submitData.append("avatar", formData.avatar);
       }
 
-      const response = await fetch(`http://staging.nasat.local/api/users/${username}/`, {
+      const response = await fetch(`/api/users/${username}/`, {
         method: "PATCH",
         body: submitData,
       });
@@ -153,7 +153,7 @@ export default function EditUser() {
 
       // Delete all existing social links for this user
       try {
-        await fetch(`http://staging.nasat.local/api/users/${username}/social-links/`, {
+        await fetch(`/api/users/${username}/social-links/`, {
           method: "DELETE",
         });
       } catch (err) {
@@ -168,7 +168,7 @@ export default function EditUser() {
           socialLinkData.append("platform", link.platform);
           socialLinkData.append("url", link.url);
 
-          const socialResponse = await fetch("http://staging.nasat.local/api/social-links/", {
+          const socialResponse = await fetch("/api/social-links/", {
             method: "POST",
             body: socialLinkData,
           });
