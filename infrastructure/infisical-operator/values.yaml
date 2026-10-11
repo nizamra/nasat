@@ -9,3 +9,6 @@ scopedNamespaces:
   - nasat
   - nasat-staging
 installCRDs: true
+controllerManager:
+  nodeSelector:
+    node-role.kubernetes.io/master: master

@@ -38,6 +38,22 @@ spec:
                   key: POSTGRES_PASSWORD
           ports:
             - containerPort: 5432
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -h
+                - 127.0.0.1
+                - -p
+                - "5432"
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data

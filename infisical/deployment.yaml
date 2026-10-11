@@ -17,6 +17,8 @@ spec:
       labels:
         app: infisical
     spec:
+      nodeSelector:
+        node-role.kubernetes.io/master: master
       containers:
         - name: infisical
           image: infisical/infisical:v0.165.6

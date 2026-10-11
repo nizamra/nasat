@@ -15,6 +15,13 @@ type UserFormData = {
   bio: string;
   location: string;
   birth_date: string;
+  birth_date_precision: string;
+  death_date: string;
+  death_date_precision: string;
+  place_of_birth: string;
+  current_city: string;
+  height_cm: string;
+  weight_kg: string;
   avatar: File | null;
   social_links: SocialLink[];
 };
@@ -29,6 +36,13 @@ export default function EditUser() {
     bio: "",
     location: "",
     birth_date: "",
+    birth_date_precision: "exact",
+    death_date: "",
+    death_date_precision: "exact",
+    place_of_birth: "",
+    current_city: "",
+    height_cm: "",
+    weight_kg: "",
     avatar: null,
     social_links: [],
   });
@@ -58,6 +72,13 @@ export default function EditUser() {
           bio: data.bio || "",
           location: data.location || "",
           birth_date: data.birth_date || "",
+          birth_date_precision: data.birth_date_precision || "exact",
+          death_date: data.death_date || "",
+          death_date_precision: data.death_date_precision || "exact",
+          place_of_birth: data.place_of_birth || "",
+          current_city: data.current_city || "",
+          height_cm: data.height_cm == null ? "" : String(data.height_cm),
+          weight_kg: data.weight_kg == null ? "" : String(data.weight_kg),
           avatar: null,
           social_links: data.social_links || [],
         });
@@ -133,6 +154,13 @@ export default function EditUser() {
       submitData.append("bio", formData.bio);
       submitData.append("location", formData.location);
       submitData.append("birth_date", formData.birth_date);
+      submitData.append("birth_date_precision", formData.birth_date_precision);
+      submitData.append("death_date", formData.death_date);
+      submitData.append("death_date_precision", formData.death_date_precision);
+      submitData.append("place_of_birth", formData.place_of_birth);
+      submitData.append("current_city", formData.current_city);
+      submitData.append("height_cm", formData.height_cm);
+      submitData.append("weight_kg", formData.weight_kg);
       if (formData.avatar) {
         submitData.append("avatar", formData.avatar);
       }
@@ -195,7 +223,7 @@ export default function EditUser() {
     return (
       <div className="add-user-container">
         <div className="add-user-header">
-          <h1>Edit Profile</h1>
+          <h1>Edit Person</h1>
           <p className="text-muted">Loading...</p>
         </div>
       </div>
@@ -205,8 +233,8 @@ export default function EditUser() {
   return (
     <div className="add-user-container">
       <div className="add-user-header">
-        <h1>Edit Profile</h1>
-        <p className="text-muted">Update your profile information</p>
+        <h1>Edit Person</h1>
+        <p className="text-muted">Update this person's information</p>
       </div>
 
       {success && (
@@ -350,6 +378,54 @@ export default function EditUser() {
                 value={formData.birth_date}
                 onChange={handleInputChange}
                 className="input-field"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="birth_date_precision">Birth date precision</label>
+              <select id="birth_date_precision" name="birth_date_precision" className="input-field" value={formData.birth_date_precision} onChange={handleInputChange}>
+                <option value="exact">Exact</option><option value="day_approximate">Approximate day</option>
+                <option value="month">Month only</option><option value="year">Year only</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="death_date">Date of death</label>
+              <input type="date" id="death_date" name="death_date" value={formData.death_date} onChange={handleInputChange} className="input-field" />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="death_date_precision">Death date precision</label>
+              <select id="death_date_precision" name="death_date_precision" className="input-field" value={formData.death_date_precision} onChange={handleInputChange}>
+                <option value="exact">Exact</option><option value="day_approximate">Approximate day</option>
+                <option value="month">Month only</option><option value="year">Year only</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="place_of_birth">Place of birth</label>
+              <input id="place_of_birth" name="place_of_birth" value={formData.place_of_birth} onChange={handleInputChange} className="input-field" />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="current_city">Current city</label>
+              <input id="current_city" name="current_city" value={formData.current_city} onChange={handleInputChange} className="input-field" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="height_cm">Height (cm)</label>
+              <input
+                type="number" id="height_cm" name="height_cm"
+                min="1" step="1" value={formData.height_cm}
+                onChange={handleInputChange} className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="weight_kg">Weight (kg)</label>
+              <input
+                type="number" id="weight_kg" name="weight_kg"
+                min="0.1" step="0.1" value={formData.weight_kg}
+                onChange={handleInputChange} className="input-field"
               />
             </div>
           </div>

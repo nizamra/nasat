@@ -19,6 +19,8 @@ spec:
         app: redis
         tier: infisical
     spec:
+      nodeSelector:
+        node-role.kubernetes.io/master: master
       containers:
         - name: redis
           image: redis:7

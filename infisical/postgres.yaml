@@ -19,6 +19,8 @@ spec:
         app: postgres
         tier: infisical
     spec:
+      nodeSelector:
+        node-role.kubernetes.io/master: master
       containers:
         - name: postgres
           image: postgres:16

@@ -4,12 +4,17 @@ import { RELATION_TYPES, IMPLIED_SEX, type Sex } from "../constants/relations";
 export type EditableRelation = {
   id: number;
   relation_type: string;
+  start_date: string | null;
+  end_date: string | null;
+  date_precision: string;
   to_user: {
     id: number;
     username: string;
     first_name: string;
     last_name: string;
     sex?: string;
+    height_cm?: number | null;
+    weight_kg?: number | string | null;
   };
 };
 
@@ -18,6 +23,11 @@ type Draft = {
   last_name: string;
   sex: Sex;
   relation_type: string;
+  start_date: string;
+  end_date: string;
+  date_precision: string;
+  height_cm: number | null;
+  weight_kg: number | null;
 };
 
 const rowStyle = {
@@ -63,6 +73,11 @@ export default function EditRelations({ relations }: { relations: EditableRelati
     last_name: r.to_user.last_name,
     sex: (r.to_user.sex || "") as Sex,
     relation_type: r.relation_type,
+    start_date: r.start_date || "",
+    end_date: r.end_date || "",
+    date_precision: r.date_precision || "exact",
+    height_cm: r.to_user.height_cm ?? null,
+    weight_kg: r.to_user.weight_kg == null ? null : Number(r.to_user.weight_kg),
   });
 
   const startEdit = (r: EditableRelation) => {
@@ -88,6 +103,8 @@ export default function EditRelations({ relations }: { relations: EditableRelati
     const payload = Object.fromEntries(
       Object.entries(draft).filter(([k, v]) => v !== before[k as keyof Draft])
     );
+    if ("start_date" in payload) payload.start_date = payload.start_date || null;
+    if ("end_date" in payload) payload.end_date = payload.end_date || null;
     if (Object.keys(payload).length === 0) {
       cancelEdit();
       return;
@@ -154,6 +171,23 @@ export default function EditRelations({ relations }: { relations: EditableRelati
                 <>
                   <div className="form-row">
                     <div className="form-group">
+                      <label htmlFor={`rel-start-${r.id}`}>Relationship start</label>
+                      <input id={`rel-start-${r.id}`} type="date" className="input-field" value={draft.start_date} onChange={e => setDraft({ ...draft, start_date: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor={`rel-end-${r.id}`}>Relationship end</label>
+                      <input id={`rel-end-${r.id}`} type="date" className="input-field" value={draft.end_date} onChange={e => setDraft({ ...draft, end_date: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor={`rel-date-precision-${r.id}`}>Date precision</label>
+                    <select id={`rel-date-precision-${r.id}`} className="input-field" value={draft.date_precision} onChange={e => setDraft({ ...draft, date_precision: e.target.value })}>
+                      <option value="exact">Exact</option><option value="day_approximate">Approximate day</option>
+                      <option value="month">Month only</option><option value="year">Year only</option>
+                    </select>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
                       <label htmlFor={`rel-fn-${r.id}`}>First Name</label>
                       <input
                         id={`rel-fn-${r.id}`}
@@ -169,6 +203,28 @@ export default function EditRelations({ relations }: { relations: EditableRelati
                         className="input-field"
                         value={draft.last_name}
                         onChange={e => setDraft({ ...draft, last_name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor={`rel-height-${r.id}`}>Height (cm)</label>
+                      <input
+                        id={`rel-height-${r.id}`} type="number" min="1" step="1"
+                        className="input-field" value={draft.height_cm ?? ""}
+                        onChange={e => setDraft({
+                          ...draft, height_cm: e.target.value ? Number(e.target.value) : null,
+                        })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor={`rel-weight-${r.id}`}>Weight (kg)</label>
+                      <input
+                        id={`rel-weight-${r.id}`} type="number" min="0.1" step="0.1"
+                        className="input-field" value={draft.weight_kg ?? ""}
+                        onChange={e => setDraft({
+                          ...draft, weight_kg: e.target.value ? Number(e.target.value) : null,
+                        })}
                       />
                     </div>
                   </div>

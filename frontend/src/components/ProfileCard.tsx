@@ -7,9 +7,10 @@ type ProfileProps = {
   bio: string;
   avatar: string | null;
   is_verified: boolean;
+  notesCount: number;
 };
 
-export default function ProfileCard({ username, title, bio, avatar, is_verified }: ProfileProps) {
+export default function ProfileCard({ username, title, bio, avatar, is_verified, notesCount }: ProfileProps) {
   const navigate = useNavigate();
   // Use a data URI for default avatar to avoid network issues and infinite loops
   const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a2235' width='100' height='100'/%3E%3Ccircle cx='50' cy='35' r='20' fill='%2394a3b8'/%3E%3Cpath d='M30 70 Q30 55 50 55 Q70 55 70 70 L70 100 L30 100 Z' fill='%2394a3b8'/%3E%3C/svg%3E";
@@ -43,9 +44,8 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
               className="btn btn-secondary"
               onClick={() => navigate(`/edit-user/${username}`)}
             >
-              Edit Profile
+              Edit Person
             </button>
-            <button className="btn btn-primary">Add Story</button>
           </div>
         </div>
         {/* 
@@ -59,7 +59,7 @@ export default function ProfileCard({ username, title, bio, avatar, is_verified 
           <p className="text-muted">{bio}</p>
         </div>
         <div className="flex-row" style={{ marginTop: '24px', gap: '32px' }}>
-          <div><h3 style={{ margin: 0 }}>156</h3><span className="text-muted">Posts</span></div>
+          <div><h3 style={{ margin: 0 }}>{notesCount}</h3><span className="text-muted">Notes</span></div>
         </div>
       </div>
     </div>

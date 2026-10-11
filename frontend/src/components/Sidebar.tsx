@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   FaHome,
@@ -5,7 +6,9 @@ import {
   FaBell,
   FaCalendar,
   FaUser,
-  FaUserPlus
+  FaUserPlus,
+  FaChevronLeft,
+  FaChevronRight
 } from 'react-icons/fa';
 
 // 1. Define exactly what a Menu Item looks like
@@ -19,21 +22,32 @@ interface MenuItem {
 
 export default function Sidebar() {
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem("sidebar-collapsed") === "true");
+
+  const toggleCollapsed = () => setCollapsed(value => {
+    localStorage.setItem("sidebar-collapsed", String(!value));
+    return !value;
+  });
 
   // 2. Explicitly type the array as MenuItem[]
   const menuItems: MenuItem[] = [
     { name: "Home", icon: FaHome, path: "/" },
     { name: "Explore", icon: FaCompass, path: "/explore" },
-    { name: "Add User", icon: FaUserPlus, path: "/add-user" },
+    { name: "Add Person", icon: FaUserPlus, path: "/add-user" },
     { name: "Notifications", icon: FaBell, path: "/notifications", badge: 3 },
     { name: "Events", icon: FaCalendar, path: "/events" },
     { name: "Profile", icon: FaUser, path: "/profile/me" },
   ];
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
       <h2><span className="sidebar-logo">🌀</span> Nsat </h2>
 
+      <button type="button" className="sidebar-toggle" onClick={toggleCollapsed}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-expanded={!collapsed} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+        {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
+      </button>
       <ul className="menu-list">
         {menuItems.map((item) => {
           // Check if current URL matches the item path
@@ -47,8 +61,8 @@ export default function Sidebar() {
             >
               <li className={`menu-item ${isActive ? 'active' : ''}`}>
                 <span className="menu-icon"><item.icon size={20} /></span>
-                {item.name}
-                {item.badge && <span className="badge">{item.badge}</span>}
+                <span className="sidebar-label">{item.name}</span>
+                {item.badge && !collapsed && <span className="badge">{item.badge}</span>}
               </li>
             </Link>
           );
