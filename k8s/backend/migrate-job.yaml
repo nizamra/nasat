@@ -16,7 +16,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: nizamra/nasat-backend:b244185d110a572f813f5afac2b02cde0af9d3c9
+          image: nizamra/nasat-backend:df235dff14ed23e4922f2520e81daaeaf1ebdacb
           command: ["python", "manage.py", "migrate", "--noinput"]
           envFrom:
             - configMapRef:
