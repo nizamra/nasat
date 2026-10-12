@@ -19,7 +19,7 @@ spec:
         node-role.kubernetes.io/worker: worker
       containers:
         - name: backend
-          image: nizamra/nasat-backend:b244185d110a572f813f5afac2b02cde0af9d3c9
+          image: nizamra/nasat-backend:37a04e468193244eff4c26c223edf22c793f93fd
           ports:
             - containerPort: 8000
           envFrom:
