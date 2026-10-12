@@ -29,6 +29,10 @@ data:
             - abbr: DO
               href: https://www.instagram.com/direct/t/17843496342556189/
               icon: mdi-instagram
+        - JowoM:
+            - abbr: JO
+              href: https://www.instagram.com/direct/t/17842117848641739/
+              icon: mdi-instagram
 
   services.yaml: |
     # === CORE INFRASTRUCTURE ===

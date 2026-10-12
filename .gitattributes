@@ -1,0 +1,39 @@
+# Detect text files automatically, store LF in the repo and check out LF everywhere.
+# Most of this repo runs on Linux (containers, k3s, Ansible), so LF is the right default.
+* text=auto eol=lf
+
+# Windows-only scripts: batch files need CRLF, .ps1 works either way but CRLF is conventional
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# Binary files: never convert, never diff as text
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+*.zip   binary
+*.gz    binary
+*.tgz   binary
+
+# Better hunk headers in diffs (built-in drivers)
+*.py  diff=python
+*.md  diff=markdown
+*.html diff=html
+*.css diff=css
+
+# Generated or vendored files: collapsed in GitHub PRs and excluded from language stats
+package-lock.json                                  linguist-generated
+*.min.js                                           linguist-generated
+*.min.css                                          linguist-generated
+backend/apps/*/migrations/*.py                     linguist-generated
+infrastructure/monitoring/dashboards-configmaps/** linguist-generated
+infrastructure/monitoring/loki-dashboards/**       linguist-generated
