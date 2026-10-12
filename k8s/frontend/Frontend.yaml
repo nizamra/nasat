@@ -19,7 +19,7 @@ spec:
         node-role.kubernetes.io/worker: worker
       containers:
         - name: frontend
-          image: nizamra/nasat-frontend:e2645ef1f26e4940cf769743d84f67a77d7b9fe8
+          image: nizamra/nasat-frontend:37a04e468193244eff4c26c223edf22c793f93fd
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
