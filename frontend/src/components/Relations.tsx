@@ -12,6 +12,9 @@ type Relation = {
     avatar: string | null;
   };
   relation_type: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  date_precision?: string;
 };
 
 interface RelationsProps {
@@ -90,6 +93,12 @@ export default function Relations({ username }: RelationsProps) {
                 <div className="relation-info">
                   <p className="relation-name">{getFullName(r)}</p>
                   <span className="relation-type">{r.relation_type}</span>
+                  {(r.start_date || r.end_date) && (
+                    <span className="text-muted" style={{ display: "block", fontSize: "12px" }}>
+                      {r.start_date || "?"} – {r.end_date || "present"}
+                      {r.date_precision && r.date_precision !== "exact" ? ` (${r.date_precision.replace(/_/g, " ")})` : ""}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

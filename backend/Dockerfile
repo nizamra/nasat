@@ -1,3 +1,4 @@
+# ---------- Build Stage ----------
 FROM python:3.12-slim AS builder
 
 WORKDIR /app
@@ -8,6 +9,7 @@ COPY requirements.txt .
 
 RUN pip wheel --no-cache-dir --wheel-dir /app/wheels -r requirements.txt
 
+# ---------- Runtime Stage ----------
 FROM python:3.12-slim AS runtime
 
 WORKDIR /app

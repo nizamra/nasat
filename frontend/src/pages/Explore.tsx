@@ -126,9 +126,9 @@ export default function Explore() {
   return (
     <div className="explore-container">
       <div className="explore-header">
-        <h1>Explore Users</h1>
+        <h1>People</h1>
         <p className="text-muted">
-          Discover and connect with members of our community
+          Browse people and the relationships recorded between them.
         </p>
       </div>
 
@@ -150,23 +150,23 @@ export default function Explore() {
               checked={verifiedOnly}
               onChange={(e) => setVerifiedOnly(e.target.checked)}
             />
-            <span>Verified Users Only</span>
+            <span>Verified People Only</span>
           </label>
         </div>
       </div>
 
       {loading ? (
         <div className="explore-loading">
-          <p>Loading users...</p>
+          <p>Loading people...</p>
         </div>
       ) : filteredUsers.length === 0 ? (
         <div className="explore-empty">
-          <p>No users found</p>
+          <p>No people found</p>
         </div>
       ) : (
         <>
           <div className="explore-count">
-            Showing {filteredUsers.length} of {users.length} users
+            Showing {filteredUsers.length} of {users.length} people
           </div>
           <div className="users-grid">
             {filteredUsers.map(user => (

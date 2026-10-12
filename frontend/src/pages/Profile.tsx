@@ -6,9 +6,7 @@ import ProfileCard from "../components/ProfileCard";
 import AboutCard from "../components/AboutCard";
 import Relations from "../components/Relations";
 import SocialLinks from "../components/SocialLinks";
-import CreatePost from "../components/CreatePost";
-import PostCard from "../components/PostCard";
-import PhotosCard from "../components/PhotosCard";
+import PersonDetails from "../components/PersonDetails";
 
 export default function Profile() {
   const { username } = useParams();
@@ -17,9 +15,12 @@ export default function Profile() {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`http://staging.nasat.local/api/users/${username}/`)
-      .then(response => {
-        setData(response.data);
+    Promise.all([
+      axios.get(`/api/users/${username}/`),
+      axios.get(`/api/users/${username}/details/`),
+    ])
+      .then(([profile, details]) => {
+        setData({ ...profile.data, ...details.data });
         setLoading(false);
       })
       .catch(error => {
@@ -29,7 +30,7 @@ export default function Profile() {
   }, [username]);
 
   if (loading) return <div>Loading...</div>;
-  if (!data) return <div>User {username} not found.</div>;
+  if (!data) return <div>Person {username} not found.</div>;
 
   const avatarUrl = data.avatar || null;
 
@@ -43,6 +44,7 @@ export default function Profile() {
           bio={data.bio}
           avatar={avatarUrl || null}
           is_verified={data.is_verified}
+          notesCount={data.notes?.length || 0}
         />
       </div>
 
@@ -52,30 +54,7 @@ export default function Profile() {
         <SocialLinks links={data.social_links} />
       </div>
 
-      <div className="tabs">
-        <div className="tab active">Posts</div>
-        <div className="tab">About</div>
-        <div className="tab">Photos</div>
-        <div className="tab">Videos</div>
-        <div className="tab">Friends</div>
-        <div className="tab">Likes</div>
-      </div>
-
-      <div className="grid-layout">
-        <div className="flex-col" style={{ gap: '20px' }}>
-          <CreatePost avatar={avatarUrl || undefined} />
-          <PostCard
-            user={data.username}
-            handle={`@${data.username}`}
-            time="Now"
-            content="Finally connected to the backend!"
-            avatar={avatarUrl || undefined}
-          />
-        </div>
-        <div>
-          <PhotosCard />
-        </div>
-      </div>
+      <PersonDetails personId={data.id} data={data} />
     </>
   );
 }

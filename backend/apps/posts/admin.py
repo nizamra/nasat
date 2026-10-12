@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 from django.utils.html import format_html
 from .models import Post
 
@@ -22,5 +23,6 @@ class PostAdmin(admin.ModelAdmin):
     # Shows a small thumbnail in the "Edit" page
     def image_preview(self, obj):
         if obj.image:
-            return format_html('<img src="{}" style="max-height: 200px;"/>', obj.image.url)
+            image_url = f"/media/{settings.AWS_STORAGE_BUCKET_NAME}/{obj.image.name}"
+            return format_html('<img src="{}" style="max-height: 200px;"/>', image_url)
         return "No image uploaded"

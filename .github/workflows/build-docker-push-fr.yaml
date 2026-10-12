@@ -58,7 +58,10 @@ jobs:
 
       - name: Test Docker Container
         run: |
-          docker run -d -p 8080:80 --name frontend-test nasat-frontend:test
+          docker run -d -p 8080:80 \
+            --add-host backend:127.0.0.1 \
+            --add-host minio:127.0.0.1 \
+            --name frontend-test nasat-frontend:test
           sleep 5 # Wait for Nginx to start
           if [ "$(docker inspect -f '{{.State.Running}}' frontend-test)" != "true" ]; then
             echo "Frontend container crashed on startup"

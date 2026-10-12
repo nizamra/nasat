@@ -17,11 +17,9 @@ spec:
     spec:
       nodeSelector:
         node-role.kubernetes.io/worker: worker
-      imagePullSecrets:
-        - name: dockerhub-cred
       containers:
         - name: frontend
-          image: nizamra/nasat-frontend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
+          image: nizamra/nasat-frontend:e2645ef1f26e4940cf769743d84f67a77d7b9fe8
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: backend
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   revisionHistoryLimit: 2
   replicas: 1
@@ -17,20 +17,9 @@ spec:
     spec:
       nodeSelector:
         node-role.kubernetes.io/worker: worker
-      imagePullSecrets:
-        - name: dockerhub-cred
-      initContainers:
-        - name: migrate
-          image: nizamra/nasat-backend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
-          command: ["python", "manage.py", "migrate", "--noinput", "--fake-initial"]
-          envFrom:
-            - configMapRef:
-                name: backend-config
-            - secretRef:
-                name: backend-secrets
       containers:
         - name: backend
-          image: nizamra/nasat-backend:cdc44b3fdf9088c7ed6dad7f6c51e9070d2c23a4
+          image: nizamra/nasat-backend:b244185d110a572f813f5afac2b02cde0af9d3c9
           ports:
             - containerPort: 8000
           envFrom:

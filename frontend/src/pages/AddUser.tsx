@@ -12,6 +12,11 @@ type RelatedPerson = {
   last_name: string;
   sex: Sex;
   relation_type: string;
+  height_cm: number | null;
+  weight_kg: number | null;
+  start_date?: string;
+  end_date?: string;
+  date_precision?: string;
 };
 
 type UserFormData = {
@@ -24,6 +29,13 @@ type UserFormData = {
   bio: string;
   location: string;
   birth_date: string;
+  birth_date_precision: string;
+  death_date: string;
+  death_date_precision: string;
+  place_of_birth: string;
+  current_city: string;
+  height_cm: string;
+  weight_kg: string;
   avatar: File | null;
   social_links: SocialLink[];
   relations: RelatedPerson[];
@@ -40,6 +52,13 @@ export default function AddUser() {
     bio: "",
     location: "",
     birth_date: "",
+    birth_date_precision: "exact",
+    death_date: "",
+    death_date_precision: "exact",
+    place_of_birth: "",
+    current_city: "",
+    height_cm: "",
+    weight_kg: "",
     avatar: null,
     social_links: [],
     relations: [],
@@ -55,6 +74,11 @@ export default function AddUser() {
     last_name: "",
     sex: "",
     relation_type: "mother",
+    height_cm: null,
+    weight_kg: null,
+    start_date: "",
+    end_date: "",
+    date_precision: "exact",
   });
   const [relationError, setRelationError] = useState("");
   const navigate = useNavigate();
@@ -130,7 +154,7 @@ export default function AddUser() {
         { ...newRelation, first_name: newRelation.first_name.trim(), last_name: newRelation.last_name.trim() },
       ],
     }));
-    setNewRelation({ first_name: "", last_name: "", sex: "", relation_type: "mother" });
+    setNewRelation({ first_name: "", last_name: "", sex: "", relation_type: "mother", height_cm: null, weight_kg: null, start_date: "", end_date: "", date_precision: "exact" });
   };
 
   const handleRemoveRelation = (index: number) => {
@@ -157,12 +181,23 @@ export default function AddUser() {
       submitData.append("bio", formData.bio);
       submitData.append("location", formData.location);
       submitData.append("birth_date", formData.birth_date);
+      submitData.append("birth_date_precision", formData.birth_date_precision);
+      submitData.append("death_date", formData.death_date);
+      submitData.append("death_date_precision", formData.death_date_precision);
+      submitData.append("place_of_birth", formData.place_of_birth);
+      submitData.append("current_city", formData.current_city);
+      submitData.append("height_cm", formData.height_cm);
+      submitData.append("weight_kg", formData.weight_kg);
       if (formData.avatar) {
         submitData.append("avatar", formData.avatar);
       }
       // Related people are created by the backend in the same transaction
       if (formData.relations.length > 0) {
-        submitData.append("relations", JSON.stringify(formData.relations));
+        submitData.append("relations", JSON.stringify(formData.relations.map(relation => ({
+          ...relation,
+          start_date: relation.start_date || null,
+          end_date: relation.end_date || null,
+        }))));
       }
 
       const response = await fetch("/api/users/", {
@@ -218,11 +253,11 @@ export default function AddUser() {
 
   return (
     <div className="add-user-container">
-      <h2>Add New User</h2>
+      <h2>Add New Person</h2>
       
       {success && (
         <div className="success-banner">
-          ✓ User created successfully! Redirecting...
+          ✓ Person added successfully! Redirecting...
         </div>
       )}
 
@@ -292,6 +327,36 @@ export default function AddUser() {
                 placeholder="Doe"
               />
             </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="birth_date_precision">Birth date precision</label>
+              <select id="birth_date_precision" name="birth_date_precision" className="input-field" value={formData.birth_date_precision} onChange={handleInputChange}>
+                <option value="exact">Exact</option><option value="day_approximate">Approximate day</option>
+                <option value="month">Month only</option><option value="year">Year only</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="death_date">Date of death</label>
+              <input type="date" id="death_date" name="death_date" value={formData.death_date} onChange={handleInputChange} className="input-field" />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="death_date_precision">Death date precision</label>
+              <select id="death_date_precision" name="death_date_precision" className="input-field" value={formData.death_date_precision} onChange={handleInputChange}>
+                <option value="exact">Exact</option><option value="day_approximate">Approximate day</option>
+                <option value="month">Month only</option><option value="year">Year only</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="place_of_birth">Place of birth</label>
+              <input id="place_of_birth" name="place_of_birth" value={formData.place_of_birth} onChange={handleInputChange} className="input-field" />
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="current_city">Current city</label>
+            <input id="current_city" name="current_city" value={formData.current_city} onChange={handleInputChange} className="input-field" />
           </div>
 
           <div className="form-group">
@@ -390,6 +455,24 @@ export default function AddUser() {
               />
             </div>
           </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="height_cm">Height (cm)</label>
+              <input
+                type="number" id="height_cm" name="height_cm"
+                min="1" step="1" value={formData.height_cm}
+                onChange={handleInputChange} className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="weight_kg">Weight (kg)</label>
+              <input
+                type="number" id="weight_kg" name="weight_kg"
+                min="0.1" step="0.1" value={formData.weight_kg}
+                onChange={handleInputChange} className="input-field"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Social Links */}
@@ -484,7 +567,7 @@ export default function AddUser() {
           <h3>Relations</h3>
           <p className="text-muted" style={{ marginBottom: '12px' }}>
             Add family members or contacts. Each one is created as a simple profile
-            (name and sex) linked to this user.
+            (name and sex, with optional measurements) linked to this person.
           </p>
           <div className="form-row">
             <div className="form-group">
@@ -512,7 +595,7 @@ export default function AddUser() {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="rel-type">Relation to this user</label>
+              <label htmlFor="rel-type">Relation to this person</label>
               <select
                 id="rel-type"
                 value={newRelation.relation_type}
@@ -539,9 +622,43 @@ export default function AddUser() {
               </select>
             </div>
           </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="rel-height">Height (cm)</label>
+              <input
+                type="number" id="rel-height" min="1" step="1"
+                value={newRelation.height_cm ?? ""}
+                onChange={e => setNewRelation(prev => ({
+                  ...prev, height_cm: e.target.value ? Number(e.target.value) : null,
+                }))}
+                className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="rel-weight">Weight (kg)</label>
+              <input
+                type="number" id="rel-weight" min="0.1" step="0.1"
+                value={newRelation.weight_kg ?? ""}
+                onChange={e => setNewRelation(prev => ({
+                  ...prev, weight_kg: e.target.value ? Number(e.target.value) : null,
+                }))}
+                className="input-field"
+              />
+            </div>
+          </div>
           {relationError && (
             <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '8px' }}>{relationError}</p>
           )}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="relation-start-date">Relationship start date</label>
+              <input id="relation-start-date" type="date" className="input-field" value={newRelation.start_date || ""} onChange={e => setNewRelation(prev => ({ ...prev, start_date: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="relation-end-date">Relationship end date</label>
+              <input id="relation-end-date" type="date" className="input-field" value={newRelation.end_date || ""} onChange={e => setNewRelation(prev => ({ ...prev, end_date: e.target.value }))} />
+            </div>
+          </div>
           <button type="button" className="btn btn-primary" onClick={handleAddRelation}>
             Add Relation
           </button>
@@ -596,7 +713,7 @@ export default function AddUser() {
             className="btn btn-primary"
             disabled={loading}
           >
-            {loading ? "Creating User..." : "Create User"}
+            {loading ? "Adding Person..." : "Add Person"}
           </button>
           <button
             type="button"
