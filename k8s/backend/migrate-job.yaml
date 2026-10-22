@@ -18,6 +18,13 @@ spec:
         - name: migrate
           image: nizamra/nasat-backend:df235dff14ed23e4922f2520e81daaeaf1ebdacb
           command: ["python", "manage.py", "migrate", "--noinput"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
           envFrom:
             - configMapRef:
                 name: backend-config
