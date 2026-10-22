@@ -85,7 +85,6 @@ spec:
               value: minioadmin
             - name: MINIO_ROOT_PASSWORD
               value: minioadmin
-          # Phase 1 (provisional): re-check against 7d Prometheus data before keeping
           resources:
             requests:
               cpu: 5m

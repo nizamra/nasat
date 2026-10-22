@@ -1,0 +1,20 @@
+recommender:
+  enabled: true
+  nodeSelector:
+    node-role.kubernetes.io/master: master   # the stable node
+  resources:
+    requests:
+      cpu: 25m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
+  extraArgs:
+    v: "2"
+    pod-recommendation-min-cpu-millicores: 5
+    pod-recommendation-min-memory-mb: 16
+
+updater:
+  enabled: false
+
+admissionController:
+  enabled: false

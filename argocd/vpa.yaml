@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vpa
+  namespace: argocd
+  finalizers:
+    # Deleting this file removes the VPA chart, its CRDs and the VPA objects.
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.fairwinds.com/stable
+      chart: vpa
+      # Chart 5.1.0 ships VPA 1.7.1, which supports Kubernetes 1.35 - 1.37.
+      targetRevision: 5.1.0
+      helm:
+        valueFiles:
+          - $values/infrastructure/vpa/values.yaml
+    - repoURL: https://github.com/nizamra/nasat
+      targetRevision: master
+      ref: values
+    # The VerticalPodAutoscaler objects for the core app live next to the chart
+    # that installs their CRDs, so one Application owns both.
+    - repoURL: https://github.com/nizamra/nasat
+      targetRevision: master
+      path: infrastructure/vpa/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vpa
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      # The VPA objects are validated before their CRD exists on a first sync.
+      - SkipDryRunOnMissingResource=true
