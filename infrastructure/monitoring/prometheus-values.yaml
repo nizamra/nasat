@@ -37,7 +37,7 @@ prometheus:
 kubeApiServer:
   enabled: true
   serviceMonitor:
-    sampleLimit: 20000
+    sampleLimit: 50000
     metricRelabelings:
       - action: drop
         sourceLabels: [__name__, le]
