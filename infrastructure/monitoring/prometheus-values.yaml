@@ -13,10 +13,10 @@ prometheus:
     resources:
       requests:
         cpu: "50m"
-        memory: "256Mi"
+        memory: "512Mi"
       limits:
         cpu: "500m"
-        memory: "850Mi"
+        memory: "1280Mi"
 
     storageSpec:
       volumeClaimTemplate:
@@ -34,21 +34,34 @@ prometheus:
     path: /
     pathType: Prefix
 
-kubeApiServer: { enabled: false }
+kubeApiServer:
+  enabled: true
+  serviceMonitor:
+    sampleLimit: 20000
+    metricRelabelings:
+      - action: drop
+        sourceLabels: [__name__, le]
+        regex: '(etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\.15|0\.2|0\.3|0\.35|0\.4|0\.45|0\.6|0\.7|0\.8|0\.9|1\.25|1\.5|1\.75|2|3|3\.5|4|4\.5|6|7|8|9|15|20|40|45|50)(\.0)?'
+      - action: drop
+        sourceLabels: [__name__]
+        regex: '(apiserver_request_body_size_bytes|apiserver_response_sizes|apiserver_watch_events_sizes|apiserver_request_slo_duration_seconds|apiserver_admission_controller_admission_duration_seconds|apiserver_admission_step_admission_duration_seconds|apiserver_admission_webhook_admission_duration_seconds|apiserver_flowcontrol_request_wait_duration_seconds|apiserver_flowcontrol_request_execution_seconds|workqueue_queue_duration_seconds|workqueue_work_duration_seconds|rest_client_request_duration_seconds|rest_client_rate_limiter_duration_seconds|rest_client_request_size_bytes|rest_client_response_size_bytes)_bucket'
+
 defaultRules:
   rules:
     alertmanager: false
-    general: false
+    general: true
+    kubeApiserverAvailability: false
     kubeApiserverSlos: false
     kubeApiserverBurnrate: false
-    kubernetesApps: false
-    kubernetesResources: false
-    kubernetesStorage: false
-    kubernetesSystem: false
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
     network: false
-    prometheus: false
-    prometheusOperator: false
-    kubeScheduler: false
+    prometheus: true
+    prometheusOperator: true
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
     kubeControllerManager: false
     kubeProxy: false
     etcd: false
