@@ -19,10 +19,14 @@ persistence:
   defaultClassReplicaCount: 1
   defaultFsType: ext4
 
-# csi:
-#   kubeletRootDir: /var/lib/rancher/k3s/agent/kubelet
-#   pluginDir: /var/lib/rancher/k3s/agent/kubelet/plugins
-#   registrarDir: /var/lib/rancher/k3s/agent/kubelet/plugins_registry
+csi:
+  # kubeletRootDir: /var/lib/rancher/k3s/agent/kubelet
+  # pluginDir: /var/lib/rancher/k3s/agent/kubelet/plugins
+  # registrarDir: /var/lib/rancher/k3s/agent/kubelet/plugins_registry
+  attacherReplicaCount: 1
+  provisionerReplicaCount: 1
+  resizerReplicaCount: 1
+  snapshotterReplicaCount: 1
 
 
 ingress:
