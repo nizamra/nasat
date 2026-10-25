@@ -1,0 +1,20 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalAuth
+metadata:
+  name: alertmanager-auth
+  namespace: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  infisicalConnectionRef:
+    name: infisical-connection
+    namespace: infisical
+  method: kubernetes
+  kubernetes:
+    identityIdRef:
+      name: alertmanager-infisical-identity
+      namespace: monitoring
+      key: identityId
+    serviceAccountRef:
+      name: alertmanager-infisical-reader
+      namespace: monitoring

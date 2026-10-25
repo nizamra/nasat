@@ -37,7 +37,7 @@ prometheus:
 kubeApiServer:
   enabled: true
   serviceMonitor:
-    sampleLimit: 50000
+    sampleLimit: 28000
     metricRelabelings:
       - action: drop
         sourceLabels: [__name__, le]
@@ -48,7 +48,7 @@ kubeApiServer:
 
 defaultRules:
   rules:
-    alertmanager: false
+    alertmanager: true
     general: true
     kubeApiserverAvailability: false
     kubeApiserverSlos: false
@@ -65,6 +65,35 @@ defaultRules:
     kubeControllerManager: false
     kubeProxy: false
     etcd: false
+
+additionalPrometheusRulesMap:
+  nasat-worker:
+    groups:
+      - name: nasat-worker
+        interval: 30s
+        rules:
+          - alert: WorkerUnreachable
+            expr: up{job="node-exporter", instance="192.168.10.20:9100"} == 0
+            for: 1m
+            keep_firing_for: 10m
+            labels:
+              severity: critical
+            annotations:
+              summary: Worker node is unreachable
+              description: >-
+                Prometheus has not been able to scrape the worker (192.168.10.20) for over a minute.
+                With no battery on that node a power cut is the most likely cause, but this alert
+                cannot prove it. Everything scheduled on the worker is unavailable until it returns.
+          - alert: WorkerTargetMissing
+            expr: absent(up{job="node-exporter", instance="192.168.10.20:9100"})
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: The worker's node-exporter target does not exist
+              description: >-
+                No up series for 192.168.10.20:9100 for 10 minutes. The worker's IP may have changed
+                or the node was removed; WorkerUnreachable cannot fire until this is fixed.
 
 grafana:
   persistence:
@@ -102,9 +131,73 @@ grafana:
   livenessProbe:
     timeoutSeconds: 10
     
-# Disable Alerting
+# Alertmanager. Runs on master so it can still notify while the worker is down.
+# The Telegram token/chat id and the Healthchecks ping URL come from the Secret
+# `alertmanager-secrets` (synced from Infisical project "monitoring", env "prod").
 alertmanager:
-  enabled: false
+  enabled: true
+  alertmanagerSpec:
+    replicas: 1
+    nodeSelector:
+      node-role.kubernetes.io/master: master
+    secrets:
+      - alertmanager-secrets
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: telegram
+      group_by: ['alertname', 'namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      routes:
+        # Heartbeat: Watchdog always fires; pinging Healthchecks every ~2 minutes proves the
+        # whole chain (Prometheus -> Alertmanager -> internet) is alive.
+        - receiver: healthchecks
+          matchers: ['alertname = "Watchdog"']
+          group_wait: 0s
+          group_interval: 2m
+          repeat_interval: 1m
+        # Worker outage: one message, no repeats while it stays down, no "resolved" message.
+        - receiver: telegram-once
+          matchers: ['alertname = "WorkerUnreachable"']
+          group_wait: 0s
+          repeat_interval: 8760h
+        # Info-level alerts and the InfoInhibitor helper are not worth a notification.
+        - receiver: 'null'
+          matchers: ['severity =~ "info|none"']
+    inhibit_rules:
+      # While the worker is down, mute the warnings its outage causes (not-ready pods,
+      # TargetDown, DaemonSet and replica mismatches). Critical alerts still get through.
+      - source_matchers: ['alertname = "WorkerUnreachable"']
+        target_matchers: ['severity = "warning"']
+      - source_matchers: ['severity = "critical"']
+        target_matchers: ['severity =~ "warning|info"']
+        equal: ['namespace', 'alertname']
+    receivers:
+      - name: 'null'
+      - name: telegram
+        telegram_configs:
+          - bot_token_file: /etc/alertmanager/secrets/alertmanager-secrets/TELEGRAM_BOT_TOKEN
+            chat_id_file: /etc/alertmanager/secrets/alertmanager-secrets/TELEGRAM_CHAT_ID
+            send_resolved: true
+      - name: telegram-once
+        telegram_configs:
+          - bot_token_file: /etc/alertmanager/secrets/alertmanager-secrets/TELEGRAM_BOT_TOKEN
+            chat_id_file: /etc/alertmanager/secrets/alertmanager-secrets/TELEGRAM_CHAT_ID
+            send_resolved: false
+      - name: healthchecks
+        webhook_configs:
+          - url_file: /etc/alertmanager/secrets/alertmanager-secrets/HEALTHCHECKS_PING_URL
+            send_resolved: false
 
 # K3s Control Plane Disables
 kubeProxy:

@@ -20,6 +20,9 @@ spec:
     - repoURL: https://github.com/nizamra/nasat
       targetRevision: master
       path: infrastructure/monitoring/dashboards-configmaps
+    - repoURL: https://github.com/nizamra/nasat
+      targetRevision: master
+      path: infrastructure/monitoring/alerting
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
