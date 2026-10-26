@@ -1,6 +1,3 @@
-# Cluster-wide install: the operator watches InfisicalConnection / InfisicalAuth /
-# InfisicalStaticSecret CRDs in every namespace. This matches the trust level Argo CD
-# itself already has in this cluster.
 scopedRBAC: true
 scopedNamespaces:
   - infisical 
@@ -8,6 +5,7 @@ scopedNamespaces:
   - gotify
   - nasat
   - nasat-staging
+  - monitoring
 installCRDs: true
 controllerManager:
   nodeSelector:

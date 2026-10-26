@@ -123,6 +123,24 @@
       when: secrets_stat.stat.exists
       no_log: true
 
+    - name: Require the Alertmanager secrets
+      ansible.builtin.assert:
+        that:
+          - TELEGRAM_BOT_TOKEN is defined and TELEGRAM_BOT_TOKEN | string | length > 0
+          - TELEGRAM_CHAT_ID is defined and TELEGRAM_CHAT_ID | string | length > 0
+          - HEALTHCHECKS_PING_URL is defined and HEALTHCHECKS_PING_URL | string | length > 0
+        fail_msg: >-
+          secrets.yaml must define TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, and
+          HEALTHCHECKS_PING_URL before playbook 10 can provision Monitoring secrets.
+
+    - name: Build the Monitoring secret map
+      ansible.builtin.set_fact:
+        monitoring_secrets:
+          TELEGRAM_BOT_TOKEN: "{{ TELEGRAM_BOT_TOKEN }}"
+          TELEGRAM_CHAT_ID: "{{ TELEGRAM_CHAT_ID }}"
+          HEALTHCHECKS_PING_URL: "{{ HEALTHCHECKS_PING_URL }}"
+      no_log: true
+
 
 
     # ------------------------------------------------------------ 2. cluster side (on the master)
@@ -359,9 +377,10 @@
           ansible.builtin.command: terraform apply -input=false -auto-approve -no-color
           args:
             chdir: "{{ tf_dir }}"
-          environment: "{{ tf_env }}"
+          environment: "{{ tf_env | combine({'TF_VAR_monitoring_secrets': monitoring_secrets | to_json}) }}"
           register: tf_apply
           changed_when: "'0 added, 0 changed, 0 destroyed' not in tf_apply.stdout"
+          no_log: true
       rescue:
         - name: Explain the most likely causes
           ansible.builtin.fail:

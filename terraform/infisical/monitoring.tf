@@ -1,9 +1,19 @@
-# --- Monitoring (Alertmanager: Telegram bot token + chat id, Healthchecks.io ping URL) ---
-# The secret VALUES are typed into the Infisical UI (project "Monitoring", environment "prod");
-# Terraform only creates the project and the identity the operator logs in with.
 resource "infisical_project" "monitoring" {
   name = "Monitoring"
   slug = "monitoring"
+}
+
+resource "infisical_secret" "monitoring" {
+  for_each = toset([
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID",
+    "HEALTHCHECKS_PING_URL",
+  ])
+  name         = each.key
+  value        = var.monitoring_secrets[each.key]
+  env_slug     = "prod"
+  workspace_id = infisical_project.monitoring.id
+  folder_path  = "/"
 }
 
 resource "infisical_identity" "monitoring" {

@@ -30,3 +30,9 @@ variable "token_reviewer_jwt" {
 variable "organization_id" {
   type = string
 }
+
+variable "monitoring_secrets" {
+  description = "Secrets to publish in the Monitoring project prod environment. Values are stored in Terraform state."
+  type        = map(string)
+  sensitive   = true
+}
