@@ -94,7 +94,7 @@ jobs:
           sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-backend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-backend:${{ github.sha }}|g" k8s/backend/migrate-job.yaml
           
           git add k8s/backend/Backend.yaml k8s/backend/migrate-job.yaml
-          git commit -m "chore: update backend image tag to ${{ github.sha }} [skip ci]"
+          git commit -m "chore: update backend image tag to ${{ github.sha }}"
           
           git pull origin ${{ github.ref_name }} --rebase
           git push origin ${{ github.ref_name }}

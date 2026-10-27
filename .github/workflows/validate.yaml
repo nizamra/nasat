@@ -1,0 +1,220 @@
+name: Repository Validation
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  yaml:
+    name: YAML lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install yamllint
+        run: python -m pip install yamllint==1.37.1
+
+      - name: Lint tracked YAML files (report-only during baseline)
+        continue-on-error: true
+        shell: bash
+        run: git ls-files -z -- '*.yaml' '*.yml' | xargs -0 -r yamllint --strict
+
+  kubernetes:
+    name: Kubernetes manifests and Helm rendering
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.3'
+          cache: false
+
+      - name: Set up Helm
+        uses: Azure/setup-helm@v5
+        with:
+          version: v3.17.3
+
+      - name: Install kubeconform
+        run: |
+          go install github.com/yannh/kubeconform/cmd/kubeconform@v0.6.7
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Add pinned chart repositories
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add infisical https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add fairwinds https://charts.fairwinds.com/stable
+          helm repo update
+
+      - name: Render the charts Argo CD deploys (report-only during baseline)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          output_dir="${RUNNER_TEMP}/nasat-rendered"
+          mkdir -p "$output_dir"
+
+          helm template prometheus prometheus-community/kube-prometheus-stack \
+            --version 84.5.0 --namespace monitoring \
+            --values infrastructure/monitoring/prometheus-values.yaml \
+            --include-crds > "$output_dir/kube-prometheus-stack.yaml"
+
+          helm template secrets-operator infisical/secrets-operator \
+            --version 0.11.11 --namespace infisical \
+            --values infrastructure/infisical-operator/values.yaml \
+            --include-crds > "$output_dir/infisical-operator.yaml"
+
+          helm template loki grafana/loki --version 7.0.0 \
+            --namespace monitoring \
+            --values infrastructure/monitoring/loki-values.yaml \
+            --include-crds > "$output_dir/loki.yaml"
+
+          helm template vpa fairwinds/vpa --version 5.1.0 \
+            --namespace vpa --values infrastructure/vpa/values.yaml \
+            --include-crds > "$output_dir/vpa.yaml"
+
+      - name: Validate repository manifests and rendered charts (report-only during baseline)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          kubeconform \
+            -strict \
+            -summary \
+            -kubernetes-version 1.35.4 \
+            -ignore-filename-pattern 'kustomization.yaml' \
+            -ignore-missing-schemas \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            k8s k8s-playground argocd infisical \
+            infrastructure/argocd \
+            infrastructure/infisical-operator/manifests \
+            infrastructure/longhorn \
+            infrastructure/monitoring/alerting \
+            infrastructure/monitoring/dashboards-configmaps \
+            infrastructure/monitoring/loki-dashboards \
+            infrastructure/vpa/manifests \
+            "${RUNNER_TEMP}/nasat-rendered"
+
+  terraform:
+    name: Terraform format and validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: terraform/infisical
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.16.5
+          terraform_wrapper: false
+
+      - name: Check Terraform formatting (report-only during baseline)
+        continue-on-error: true
+        run: terraform fmt -check -recursive
+
+      - name: Initialize without a backend (report-only during baseline)
+        continue-on-error: true
+        run: terraform init -backend=false -input=false -lockfile=readonly
+
+      - name: Validate Terraform configuration (report-only during baseline)
+        continue-on-error: true
+        run: terraform validate -no-color
+
+  ansible:
+    name: Ansible lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install ansible-lint
+        run: python -m pip install ansible-lint==25.9.0
+
+      - name: Lint Ansible playbooks from repository root (report-only during baseline)
+        continue-on-error: true
+        run: ansible-lint ansible-k3s/playbooks
+
+  secrets:
+    name: Gitleaks secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out full repository history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Scan Git history (report-only during baseline)
+        uses: gitleaks/gitleaks-action@v3
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: 'false'
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'false'
+          GITLEAKS_ENABLE_SUMMARY: 'true'
+          GITLEAKS_VERSION: 8.30.1
+
+  trivy:
+    name: Trivy configuration scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Scan infrastructure configuration (report-only)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          format: table
+          version: v0.70.0

@@ -98,7 +98,7 @@ jobs:
           sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-frontend:${{ github.sha }}|g" k8s/frontend/Frontend.yaml
           
           git add k8s/frontend/Frontend.yaml
-          git commit -m "chore: update frontend image tag to ${{ github.sha }} [skip ci]"
+          git commit -m "chore: update frontend image tag to ${{ github.sha }}"
           
           git pull origin ${{ github.ref_name }} --rebase
           git push origin ${{ github.ref_name }}
