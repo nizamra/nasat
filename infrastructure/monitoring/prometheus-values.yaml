@@ -81,9 +81,8 @@ additionalPrometheusRulesMap:
             annotations:
               summary: Worker node is unreachable
               description: >-
-                Prometheus has not been able to scrape the worker (192.168.10.20) for over a minute.
-                With no battery on that node a power cut is the most likely cause, but this alert
-                cannot prove it. Everything scheduled on the worker is unavailable until it returns.
+                Prometheus has not been able to scrape the worker for over a minute.
+                A power cut is the most likely cause.
           - alert: WorkerTargetMissing
             expr: absent(up{job="node-exporter", instance="192.168.10.20:9100"})
             for: 10m
@@ -171,6 +170,8 @@ alertmanager:
           matchers: ['alertname = "WorkerUnreachable"']
           group_wait: 0s
           repeat_interval: 8760h
+        - receiver: 'null'
+          matchers: ['alertname =~ "AlertmanagerFailedToSendAlerts|AlertmanagerClusterFailedToSendAlerts"']
         # Info-level alerts and the InfoInhibitor helper are not worth a notification.
         - receiver: 'null'
           matchers: ['severity =~ "info|none"']

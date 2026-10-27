@@ -99,6 +99,22 @@ data:
             href: https://github.com/nizamra/nasat
             description: Project documentation and source
             icon: mdi-text-box-multiple
+        - Healthchecks:
+            href: https://healthchecks.io/projects/b43243ad-8911-4ed6-af05-25da1997453b/checks/
+            description: Scheduled job health checks
+            icon: mdi-heart-pulse
+        - Prometheus:
+            href: http://prometheus.nasat.local/query
+            description: Metrics query interface
+            icon: prometheus
+        - Node Exporter Dashboard:
+            href: http://grafana.nasat.local/d/rYdddlPWk/1-node-exporter-full
+            description: Node-level metrics in Grafana
+            icon: grafana
+        - YouTube Subscriptions:
+            href: https://www.youtube.com/feed/subscriptions
+            description: YouTube subscription feed
+            icon: youtube
 
   widgets.yaml: |
     - search:
