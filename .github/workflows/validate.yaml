@@ -1,3 +1,4 @@
+---
 name: Repository Validation
 
 on:
@@ -62,12 +63,15 @@ jobs:
       - name: Install kubeconform
         run: |
           go install github.com/yannh/kubeconform/cmd/kubeconform@v0.6.7
+          go install sigs.k8s.io/kustomize/kustomize/v5@v5.7.1
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Add pinned chart repositories
         run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add infisical https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
+          helm repo add prometheus-community \
+            https://prometheus-community.github.io/helm-charts
+          helm repo add infisical \
+            https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo add fairwinds https://charts.fairwinds.com/stable
           helm repo update
@@ -99,11 +103,20 @@ jobs:
             --namespace vpa --values infrastructure/vpa/values.yaml \
             --include-crds > "$output_dir/vpa.yaml"
 
-      - name: Validate repository manifests and rendered charts (report-only during baseline)
+          # Render the actual Longhorn Kustomize app. Its values file and patch
+          # fragment are inputs, not standalone Kubernetes resources.
+          kustomize build --enable-helm infrastructure/longhorn \
+            > "$output_dir/longhorn.yaml"
+
+      - name: Validate manifests and rendered charts (report-only)
         continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
+          crd_schema_location='https://raw.githubusercontent.com/'
+          crd_schema_location+='datreeio/CRDs-catalog/main/'
+          crd_schema_location+='{{.Group}}/{{.ResourceKind}}_'
+          crd_schema_location+='{{.ResourceAPIVersion}}.json'
           kubeconform \
             -strict \
             -summary \
@@ -111,11 +124,10 @@ jobs:
             -ignore-filename-pattern 'kustomization.yaml' \
             -ignore-missing-schemas \
             -schema-location default \
-            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            -schema-location "$crd_schema_location" \
             k8s k8s-playground argocd infisical \
             infrastructure/argocd \
             infrastructure/infisical-operator/manifests \
-            infrastructure/longhorn \
             infrastructure/monitoring/alerting \
             infrastructure/monitoring/dashboards-configmaps \
             infrastructure/monitoring/loki-dashboards \
@@ -173,7 +185,7 @@ jobs:
       - name: Install ansible-lint
         run: python -m pip install ansible-lint==25.9.0
 
-      - name: Lint Ansible playbooks from repository root (report-only during baseline)
+      - name: Lint Ansible playbooks from repository root (report-only)
         continue-on-error: true
         run: ansible-lint ansible-k3s/playbooks
 

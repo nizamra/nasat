@@ -1,3 +1,4 @@
+---
 name: BK Build Push
 
 on:
@@ -41,8 +42,8 @@ jobs:
         working-directory: ./backend
         run: |
           pip install -r requirements.txt
-          # Replace with your actual test command (e.g., pytest, python manage.py test)
-          echo "Running backend tests..." 
+          # Replace with test command (e.g. pytest or Django tests).
+          echo "Running backend tests..."
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,7 +61,8 @@ jobs:
           docker run -d -p 8000:8000 --name backend-test nasat-backend:test
           sleep 5 # Wait for Gunicorn to start
           # Check if container is still running (didn't crash on startup)
-          if [ "$(docker inspect -f '{{.State.Running}}' backend-test)" != "true" ]; then
+          container_running=$(docker inspect -f '{{.State.Running}}' backend-test)
+          if [ "$container_running" != "true" ]; then
             echo "Backend container crashed on startup"
             docker logs backend-test
             exit 1
@@ -85,17 +87,22 @@ jobs:
       - name: Update K8s Image Tag in Git
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+          git config --global user.email \
+            "github-actions[bot]@users.noreply.github.com"
+
           git pull origin ${{ github.ref_name }} --rebase
 
           # 2. Now apply the image tag update
-          sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-backend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-backend:${{ github.sha }}|g" k8s/backend/Backend.yaml
-          sed -i "s|image: ${{ env.IMAGE_PREFIX }}/nasat-backend:.*|image: ${{ env.IMAGE_PREFIX }}/nasat-backend:${{ github.sha }}|g" k8s/backend/migrate-job.yaml
-          
+          image_prefix='${{ env.IMAGE_PREFIX }}'
+          image_tag='${{ github.sha }}'
+          sed -i "s|image: ${image_prefix}/nasat-backend:.*|image: ${image_prefix}/nasat-backend:${image_tag}|g" \
+            k8s/backend/Backend.yaml
+          sed -i "s|image: ${image_prefix}/nasat-backend:.*|image: ${image_prefix}/nasat-backend:${image_tag}|g" \
+            k8s/backend/migrate-job.yaml
+
           git add k8s/backend/Backend.yaml k8s/backend/migrate-job.yaml
           git commit -m "chore: update backend image tag to ${{ github.sha }}"
-          
+
           git pull origin ${{ github.ref_name }} --rebase
           git push origin ${{ github.ref_name }}
         env:

@@ -109,7 +109,6 @@
         mode: "0700"
 
 
-
     # ------------------------------------------------------------ optional secrets file
 
     - name: Look for the optional secrets file
@@ -140,7 +139,6 @@
           TELEGRAM_CHAT_ID: "{{ TELEGRAM_CHAT_ID }}"
           HEALTHCHECKS_PING_URL: "{{ HEALTHCHECKS_PING_URL }}"
       no_log: true
-
 
 
     # ------------------------------------------------------------ 2. cluster side (on the master)
@@ -236,7 +234,6 @@
       no_log: true
 
 
-
     # ------------------------------------------------------------ 3. Infisical itself
 
     - name: Wait until the Infisical API answers
@@ -313,7 +310,6 @@
       when: bootstrap_out is not skipped
 
 
-
     # ------------------------------------------------------------ 4. Terraform
 
     - name: Re-check which credential files exist now
@@ -387,9 +383,9 @@
             msg: >-
               terraform apply failed (details above). Usual causes: the bootstrap token expired
               (401 - use kubeconfig/infisical-universal.json, see the header), the operator CRDs are
-              missing, the Kubernetes provider cannot reach the cluster (check kubeconfig/k3s-lan.yaml), or the nasat / nasat-staging
+              missing, the Kubernetes provider cannot reach the cluster (check
+              kubeconfig/k3s-lan.yaml), or the nasat / nasat-staging
               namespaces do not exist.
-
 
 
     # ------------------------------------------------------------ 5. let the apps catch up
@@ -436,7 +432,13 @@
     - name: Summary
       ansible.builtin.debug:
         msg:
-          - "Infisical UI: {{ infisical_url }}  (admin: the e-mail you chose; add '{{ master_ip }} {{ infisical_host }}' to the Windows hosts file for your browser)"
+          - >-
+            Infisical UI: {{ infisical_url }} (admin: the e-mail you chose; add
+            '{{ master_ip }} {{ infisical_host }}' to the Windows hosts file for
+            your browser)
           - "nasat Deployments Available: {{ 'yes' if nasat_ready.rc == 0 else 'NOT YET - see the pod lists below' }}"
           - "{{ pods.results | map(attribute='stdout_lines') | list }}"
-          - "Private files: kubeconfig/infisical-bootstrap.json (root token), terraform/infisical/terraform.tfvars and terraform.tfstate (generated passwords). All gitignored - back them up somewhere safe."
+          - >-
+            Private files: kubeconfig/infisical-bootstrap.json (root token),
+            terraform/infisical/terraform.tfvars and terraform.tfstate
+            (generated passwords). All gitignored; back them up somewhere safe.

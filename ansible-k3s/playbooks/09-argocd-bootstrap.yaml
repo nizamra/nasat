@@ -213,5 +213,10 @@
           - "{{ apps.stdout_lines }}"
           - "Turned off by flags (see README, Feature flags): Loki + dashboard, Gotify, Immich."
           - "UI: add '{{ ansible_host }} argo.nasat.local' to your hosts file, then open http://argo.nasat.local"
-          - "Admin password: ansible master -b -m shell -a \"k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d\""
-          - "A copy of the generated Infisical secret (if one was created) is in kubeconfig/infisical-secrets.yaml. Keep it private."
+          - >-
+            Admin password: ansible master -b -m shell -a "k3s kubectl -n argocd
+            get secret argocd-initial-admin-secret -o
+            jsonpath='{.data.password}' | base64 -d"
+          - >-
+            A copy of the generated Infisical secret (if one was created) is in
+            kubeconfig/infisical-secrets.yaml. Keep it private.
