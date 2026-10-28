@@ -10,3 +10,6 @@ rules:
     level: error
   truthy:
     check-keys: false
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true

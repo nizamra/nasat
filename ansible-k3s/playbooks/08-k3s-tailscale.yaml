@@ -44,9 +44,12 @@
       changed_when: false
 
     - name: Read the names the API certificate lists (retry until the new cert is served)
-      ansible.builtin.shell: >-
-        echo | openssl s_client -connect 127.0.0.1:6443 2>/dev/null
-        | openssl x509 -noout -ext subjectAltName
+      ansible.builtin.shell:
+        cmd: >-
+          set -o pipefail &&
+          echo | openssl s_client -connect 127.0.0.1:6443 2>/dev/null |
+          openssl x509 -noout -ext subjectAltName
+        executable: /bin/bash
       register: san_out
       until: ts_ip in san_out.stdout
       retries: 12

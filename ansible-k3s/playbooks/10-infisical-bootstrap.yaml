@@ -24,11 +24,21 @@
       failed_when: false
       changed_when: false
 
-    - name: Add the Infisical apt repository
-      ansible.builtin.shell: curl -1sLf 'https://artifacts-cli.infisical.com/setup.deb.sh' | bash
-      args:
-        executable: /bin/bash
+    - name: Download the Infisical CLI repository setup script
+      ansible.builtin.get_url:
+        url: https://artifacts-cli.infisical.com/setup.deb.sh
+        dest: /tmp/infisical-cli-setup.deb.sh
+        mode: "0700"
       become: true
+      when: infisical_cli.rc != 0
+
+    - name: Configure the Infisical CLI apt repository
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - /tmp/infisical-cli-setup.deb.sh
+      become: true
+      changed_when: true
       when: infisical_cli.rc != 0
 
     - name: Install the Infisical CLI
@@ -95,7 +105,7 @@
       changed_when: false
       failed_when: terraform_final.rc != 0 or 'Terraform v1.16.5' not in terraform_final.stdout
 
-    - name: Point {{ infisical_host }} at the master node (WSL /etc/hosts)
+    - name: Add the master IP mapping for {{ infisical_host }}
       ansible.builtin.lineinfile:
         path: /etc/hosts
         regexp: '\s{{ infisical_host | regex_escape }}\s*$'
@@ -360,14 +370,14 @@
           EOT
       no_log: true
 
-    - name: terraform init
+    - name: Initialize Terraform
       ansible.builtin.command: terraform init -input=false -upgrade
       args:
         chdir: "{{ tf_dir }}"
       register: tf_init
       changed_when: "'Terraform has been successfully initialized' in tf_init.stdout and 'Installing' in tf_init.stdout"
 
-    - name: terraform apply (project, identities, generated passwords)
+    - name: Apply Terraform project, identities, and generated passwords
       block:
         - name: Apply
           ansible.builtin.command: terraform apply -input=false -auto-approve -no-color

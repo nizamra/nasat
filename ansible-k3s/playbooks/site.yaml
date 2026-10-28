@@ -1,12 +1,23 @@
 ---
-- import_playbook: 00-sudo.yaml
-- import_playbook: 01-base.yaml
-- import_playbook: 02-firewall.yaml
-- import_playbook: 03-ssh-hardening.yaml
-- import_playbook: 04-k3s-prereq.yaml
-- import_playbook: 05-k3s-master.yaml
-- import_playbook: 06-k3s-worker.yaml
-- import_playbook: 07-tailscale.yaml
-- import_playbook: 08-k3s-tailscale.yaml
-- import_playbook: 09-argocd-bootstrap.yaml
-- import_playbook: 10-infisical-bootstrap.yaml
+- name: Configure sudo access
+  import_playbook: 00-sudo.yaml
+- name: Configure the base operating system
+  import_playbook: 01-base.yaml
+- name: Configure the firewall
+  import_playbook: 02-firewall.yaml
+- name: Harden SSH access
+  import_playbook: 03-ssh-hardening.yaml
+- name: Prepare hosts for K3s
+  import_playbook: 04-k3s-prereq.yaml
+- name: Install the K3s master
+  import_playbook: 05-k3s-master.yaml
+- name: Join the K3s worker
+  import_playbook: 06-k3s-worker.yaml
+- name: Install Tailscale
+  import_playbook: 07-tailscale.yaml
+- name: Configure the K3s API certificate for Tailscale
+  import_playbook: 08-k3s-tailscale.yaml
+- name: Bootstrap Argo CD
+  import_playbook: 09-argocd-bootstrap.yaml
+- name: Bootstrap Infisical and Terraform
+  import_playbook: 10-infisical-bootstrap.yaml

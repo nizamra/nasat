@@ -89,7 +89,6 @@
         EOF
       args:
         executable: /bin/bash
-      register: infisical_created
       changed_when: true
       when: create_infisical_secret | bool and infisical_secret.rc != 0
 
@@ -98,7 +97,7 @@
       register: infisical_secret_yaml
       changed_when: false
       no_log: true
-      when: infisical_created is changed
+      when: create_infisical_secret | bool and infisical_secret.rc != 0
 
     - name: Save the copy next to the kubeconfig (gitignored folder)
       ansible.builtin.copy:
@@ -108,7 +107,7 @@
       delegate_to: localhost
       become: false
       no_log: true
-      when: infisical_created is changed
+      when: create_infisical_secret | bool and infisical_secret.rc != 0
 
 
     # ---------------------------------------------------------------- 4. ArgoCD
