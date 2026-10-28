@@ -17,7 +17,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: nizamra/nasat-backend:66591b45e5dfd9ef92021a147ea8164bd74c40b1
+          image: nizamra/nasat-backend:50f02f609b2c315aaa01f63c138770612c24ab4f
           command: ["python", "manage.py", "migrate", "--noinput"]
           resources:
             requests:
