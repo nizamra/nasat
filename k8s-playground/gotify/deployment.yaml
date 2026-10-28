@@ -16,14 +16,14 @@ spec:
     matchLabels:
       app: gotify
   strategy:
-    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+    type: Recreate  # Use Recreate since we use ReadWriteOnce PVC
   template:
     metadata:
       labels:
         app: gotify
         tier: application
     spec:
-      # # Ensure pods run on worker nodes only
+      #  # Ensure pods run on worker nodes only
       # nodeSelector:
       #   node-role.kubernetes.io/worker: worker
 

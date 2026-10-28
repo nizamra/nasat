@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app: trilium
   strategy:
-    type: Recreate # Use Recreate since we use ReadWriteOnce PVC
+    type: Recreate  # Use Recreate since we use ReadWriteOnce PVC
   template:
     metadata:
       labels:

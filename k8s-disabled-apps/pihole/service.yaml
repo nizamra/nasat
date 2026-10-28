@@ -44,7 +44,7 @@ metadata:
     app: pihole
 spec:
   type: ClusterIP
-  clusterIP: None # Headless service
+  clusterIP: None  # Headless service
   selector:
     app: pihole
   ports:

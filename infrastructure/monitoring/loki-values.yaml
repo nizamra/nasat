@@ -85,7 +85,7 @@ gateway:
       cpu: 50m
       memory: 64Mi
 
-# # Caches that appear as StatefulSets in the 7.x chart
+#  # Caches that appear as StatefulSets in the 7.x chart
 chunksCache:  { enabled: false }
 resultsCache: { enabled: false }
 lokiCanary:   { enabled: false }
@@ -98,7 +98,7 @@ test:         { enabled: false }
 #   nodeSelector:
 #     node-role.kubernetes.io/worker: worker
 
-# # Canary pods (loki-canary-*)
+#  # Canary pods (loki-canary-*)
 # canary:
 #   nodeSelector:
 #     node-role.kubernetes.io/worker: worker

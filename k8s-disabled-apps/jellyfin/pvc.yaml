@@ -28,4 +28,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Gi # Adjust based on your media size requirements
+      storage: 100Gi  # Adjust based on your media size requirements

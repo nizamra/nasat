@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app: jellyfin
   strategy:
-    type: Recreate # Use Recreate since we use ReadWriteOnce PVCs
+    type: Recreate  # Use Recreate since we use ReadWriteOnce PVCs
   template:
     metadata:
       labels:
