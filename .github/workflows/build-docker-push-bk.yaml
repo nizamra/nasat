@@ -84,6 +84,17 @@ jobs:
             ${{ env.IMAGE_PREFIX }}/nasat-backend:${{ github.ref_name }}
             ${{ env.IMAGE_PREFIX }}/nasat-backend:${{ github.sha }}
 
+      # TODO: Add a step to scan the built Docker image for vulnerabilities using Trivy or another scanner.
+      # - name: Scan backend image for vulnerabilities
+      #   uses: aquasecurity/trivy-action@v0.36.0
+      #   with:
+      #     scan-type: image
+      #     image-ref: your-backend-image:tag
+      #     severity: HIGH,CRITICAL
+      #     format: table
+      #     exit-code: '0'
+      #     version: v0.76.1
+
       - name: Update K8s Image Tag in Git
         run: |
           git config --global user.name "github-actions[bot]"
