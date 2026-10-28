@@ -34,7 +34,6 @@ jobs:
         run: python -m pip install yamllint==1.37.1
 
       - name: Lint tracked YAML files (report-only during baseline)
-        # continue-on-error: true
         shell: bash
         run: git ls-files -z -- '*.yaml' | xargs -0 -r yamllint --strict
 
@@ -77,7 +76,6 @@ jobs:
           helm repo update
 
       - name: Render the charts Argo CD deploys (report-only during baseline)
-        # continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -109,7 +107,6 @@ jobs:
             > "$output_dir/longhorn.yaml"
 
       - name: Validate manifests and rendered charts (report-only)
-        # continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -155,15 +152,12 @@ jobs:
           terraform_wrapper: false
 
       - name: Check Terraform formatting (report-only during baseline)
-        # continue-on-error: true
         run: terraform fmt -check -recursive
 
       - name: Initialize without a backend (report-only during baseline)
-        # continue-on-error: true
         run: terraform init -backend=false -input=false -lockfile=readonly
 
       - name: Validate Terraform configuration (report-only during baseline)
-        # continue-on-error: true
         run: terraform validate -no-color
 
   ansible:
@@ -186,10 +180,9 @@ jobs:
         run: python -m pip install ansible-lint==26.10.1
 
       - name: Install Ansible collections
-        run: ansible-galaxy collection install -r ansible-k3s/requirements.yml
+        run: ansible-galaxy collection install --no-cache -r ansible-k3s/requirements.yml
 
       - name: Lint Ansible playbooks from repository root (report-only)
-        # continue-on-error: true
         run: ansible-lint ansible-k3s/playbooks
 
   secrets:
@@ -205,7 +198,6 @@ jobs:
 
       - name: Scan Git history (report-only during baseline)
         uses: gitleaks/gitleaks-action@v3
-        # continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: 'false'
@@ -231,6 +223,6 @@ jobs:
           scan-ref: .
           skip-dirs: k8s-disabled-apps
           severity: HIGH,CRITICAL
-          exit-code: '0'
+          exit-code: '1'
           format: table
           version: v0.76.1
