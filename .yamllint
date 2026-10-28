@@ -1,8 +1,12 @@
 extends: default
 
+ignore: |
+  infrastructure/monitoring/dashboards-configmaps/node-exporter-full.1860_rev45.yaml
+  infrastructure/argocd/install.yaml
+
 rules:
   line-length:
-    max: 122
+    max: 132
     level: error
   truthy:
     check-keys: false

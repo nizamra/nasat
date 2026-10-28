@@ -116,7 +116,7 @@ data:
           "id": 21,
           "interval": "",
           "options": {
-            "content": "<div class=\"left dashboard-header\">\n   <img src=\"https://marketplace-assets.digitalocean.com/logos/loki-logo.svg\" style=\"height:29px;\"/>\n  <span>Loki Global Metrics</span>\n</div>",
+            "content": "<div class=\"left dashboard-header\"><span>Loki Global Metrics</span></div>",
             "mode": "html"
           },
           "pluginVersion": "7.3.1",
@@ -520,7 +520,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "histogram_quantile(0.95, sum(rate(loki_logql_querystats_latency_seconds_bucket[5m])) by (le,type))",
+              "expr": "histogram_quantile(0.95,sum(rate(loki_logql_querystats_latency_seconds_bucket[5m])) by (le,type))",
               "interval": "",
               "legendFormat": "{{ type }}",
               "refId": "A"
@@ -621,7 +621,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "histogram_quantile(0.95, sum(rate(loki_logql_querystats_bytes_processed_per_seconds_bucket[5m])) by (le,type))",
+              "expr": "histogram_quantile(0.95,sum(rate(loki_logql_querystats_bytes_processed_per_seconds_bucket[5m]))by(le,type))",
               "interval": "",
               "legendFormat": "{{ type }}",
               "refId": "A"
@@ -756,7 +756,7 @@ data:
           },
           "yaxes": [
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -765,7 +765,7 @@ data:
               "show": true
             },
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -853,7 +853,7 @@ data:
           },
           "yaxes": [
             {
-              
+
               "format": "Bps",
               "label": null,
               "logBase": 1,
@@ -862,7 +862,7 @@ data:
               "show": true
             },
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -956,7 +956,7 @@ data:
           },
           "yaxes": [
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -965,7 +965,7 @@ data:
               "show": true
             },
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -1073,7 +1073,7 @@ data:
           },
           "yaxes": [
             {
-              
+
               "format": "none",
               "label": null,
               "logBase": 1,
@@ -1082,7 +1082,7 @@ data:
               "show": true
             },
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -1176,7 +1176,7 @@ data:
           },
           "yaxes": [
             {
-              
+
               "format": "decbytes",
               "label": null,
               "logBase": 1,
@@ -1185,7 +1185,7 @@ data:
               "show": true
             },
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -1279,7 +1279,7 @@ data:
           },
           "yaxes": [
             {
-              
+
               "format": "s",
               "label": null,
               "logBase": 1,
@@ -1288,7 +1288,7 @@ data:
               "show": true
             },
             {
-              
+
               "format": "short",
               "label": null,
               "logBase": 1,

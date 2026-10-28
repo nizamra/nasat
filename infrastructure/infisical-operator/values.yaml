@@ -1,7 +1,7 @@
 ---
 scopedRBAC: true
 scopedNamespaces:
-  - infisical 
+  - infisical
   # - immich
   - gotify
   - nasat
