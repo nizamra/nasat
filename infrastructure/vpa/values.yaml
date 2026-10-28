@@ -1,3 +1,4 @@
+---
 recommender:
   enabled: true
   nodeSelector:

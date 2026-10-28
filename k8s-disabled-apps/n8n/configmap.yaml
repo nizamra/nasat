@@ -1,3 +1,4 @@
+---
 # ConfigMap for n8n environment configuration
 apiVersion: v1
 kind: ConfigMap

@@ -1,3 +1,4 @@
+---
 scopedRBAC: true
 scopedNamespaces:
   - infisical 

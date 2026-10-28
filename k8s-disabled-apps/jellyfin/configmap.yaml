@@ -1,3 +1,4 @@
+---
 # ConfigMap for Jellyfin environment configuration
 apiVersion: v1
 kind: ConfigMap

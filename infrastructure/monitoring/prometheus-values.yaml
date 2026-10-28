@@ -1,3 +1,4 @@
+---
 prometheus:
   prometheusSpec:
     scrapeInterval: "40s"
