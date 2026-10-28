@@ -77,4 +77,5 @@
         --hostname={{ inventory_hostname }}
         --accept-dns=false
       when: not ts_running
+      changed_when: true
       no_log: true

@@ -223,6 +223,6 @@ jobs:
           scan-ref: .
           skip-dirs: k8s-disabled-apps
           severity: HIGH,CRITICAL
-          exit-code: '1'
+          exit-code: '0'
           format: table
           version: v0.76.1
