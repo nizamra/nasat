@@ -57,7 +57,8 @@ infisical/secret.local.yaml
 *.sublime-workspace
 
 # --- personal ---
-.meta/
+.meta/*
+!.meta/nasat-roadmap-2026-11-19.md
 
 # --- Terraform ---
 .terraform/
