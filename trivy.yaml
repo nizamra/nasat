@@ -1,0 +1,19 @@
+---
+# Trivy configuration for the NASAT repository (used by the Trivy job in
+# .github/workflows/validate.yaml and by a plain `trivy config .` on any machine).
+# Reference: https://trivy.dev/docs/latest/references/configuration/config-file/
+#
+# Only list things here that are NOT ours to fix or are not live.
+# A finding in your own manifests belongs in the backlog, not in this list.
+scan:
+  skip-dirs:
+    # Apps that are switched off in the cluster.
+    - k8s-disabled-apps
+    - k8s-playground/immich
+  skip-files:
+    # Vendored upstream Argo CD install manifest. Its cluster-wide RBAC is by
+    # design and is replaced wholesale when Argo CD is upgraded.
+    - infrastructure/argocd/install.yaml
+    # Kustomize patch fragment, not a complete workload; the Longhorn CSI
+    # plugin needs elevated privileges anyway.
+    - infrastructure/longhorn/patch-csi-plugin-prestop.yaml

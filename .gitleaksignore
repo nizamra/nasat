@@ -1,0 +1,55 @@
+# Gitleaks baseline: findings that already existed in git history (all branches) on 2026-10-29.
+# Format: <commit>:<file>:<rule>:<line> - one fingerprint per line.
+#
+# Listing a fingerprint only stops gitleaks from reporting THAT finding at THAT
+# commit and line. It does not remove the secret from history and it does not
+# hide new secrets: anything added in a new commit is still reported.
+#
+# To baseline a future false positive, copy the fingerprint from the job log
+# (the action prints it) and add it here with a comment saying why.
+
+# Grafana adminPassword in infrastructure/monitoring/prometheus-values.yaml (current and
+# earlier revisions of the same line).
+1099e9ff040c56b6f0847f1a4840c1c11c7ab3b1:infrastructure/monitoring/prometheus-values.yaml:generic-api-key:44
+9f0f990a95e32ef153e8e1047b28afaf6bea31bf:infrastructure/monitoring/prometheus-values.yaml:generic-api-key:28
+a11b92fb5f897c2c808117fbb0c3fef716add72d:infrastructure/monitoring/prometheus-values.yaml:generic-api-key:35
+bf02a81f2d712ebe36e659805ca139be0f63b794:infrastructure/monitoring/prometheus-values.yaml:generic-api-key:62
+
+# Longhorn backup target credentials in infrastructure/longhorn/resources/backup-secret.yaml.
+fa48f20295af280287ed1f1e76399dc23137564b:infrastructure/longhorn/resources/backup-secret.yaml:generic-api-key:9
+
+# Values in terraform/infisical/terraform.tfvars.example (an example file whose values look
+# like real credentials; swapping them for placeholders would let you drop these lines).
+27ea0e2d38b25bb0bbfa198b5a729ac7547e3b21:terraform/infisical/terraform.tfvars.example:generic-api-key:2
+27ea0e2d38b25bb0bbfa198b5a729ac7547e3b21:terraform/infisical/terraform.tfvars.example:jwt:4
+a610842e2790e203b8f10a4449d3c13dadc45645:terraform/infisical/terraform.tfvars.example:jwt:7
+
+# terraform/infisical/terraform.tfstate.backup, committed in the past and deleted since;
+# it stays in git history (master and staging).
+7fbce455dcc022e6e419cae5aa0ae82e308a4075:terraform/infisical/terraform.tfstate.backup:jwt:138
+7fbce455dcc022e6e419cae5aa0ae82e308a4075:terraform/infisical/terraform.tfstate.backup:jwt:88
+86fb621b803e2cc813ab558cb2e12ad106582712:terraform/infisical/terraform.tfstate.backup:jwt:110
+958b7606fda16b6bb7667826540df4628a4e9c18:terraform/infisical/terraform.tfstate.backup:jwt:134
+958b7606fda16b6bb7667826540df4628a4e9c18:terraform/infisical/terraform.tfstate.backup:jwt:84
+ae6bf5b0bb8c75421d8ae0b19c1ba21b32112197:terraform/infisical/terraform.tfstate.backup:jwt:134
+ae6bf5b0bb8c75421d8ae0b19c1ba21b32112197:terraform/infisical/terraform.tfstate.backup:jwt:84
+bf0e11eacbb0ed89aead00fac2f5d117ae98671b:terraform/infisical/terraform.tfstate.backup:jwt:134
+bf0e11eacbb0ed89aead00fac2f5d117ae98671b:terraform/infisical/terraform.tfstate.backup:jwt:84
+
+# Demo-app credentials in manifests of disabled or removed apps (k8s-disabled-apps/, and
+# the former k8s-playground/ copies of the same apps). These apps are not deployed.
+72167bf4ff812990f75b8b2bd617f6e3db6c5c2e:k8s-playground/paperless/secret.yaml:generic-api-key:10
+72167bf4ff812990f75b8b2bd617f6e3db6c5c2e:k8s-playground/paperless/secret.yaml:generic-api-key:13
+72167bf4ff812990f75b8b2bd617f6e3db6c5c2e:k8s-playground/paperless/secret.yaml:generic-api-key:8
+d930f4035822bedc2f4cdb806a7d51c35065a9ee:k8s-playground/n8n/secret.yaml:generic-api-key:12
+e8389a8b31b8ca6f510f3065e2c9fb7d27834f7c:k8s-playground/immich/secret.yaml:generic-api-key:10
+e8389a8b31b8ca6f510f3065e2c9fb7d27834f7c:k8s-playground/immich/secret.yaml:generic-api-key:8
+e8389a8b31b8ca6f510f3065e2c9fb7d27834f7c:k8s-playground/immich/secret.yaml:generic-api-key:9
+f878f688851afe08c1af5c2566b136c3fe5efd7b:k8s-disabled-apps/jspwiki/configmap.yaml:generic-api-key:17
+f878f688851afe08c1af5c2566b136c3fe5efd7b:k8s-disabled-apps/n8n/secret.yaml:generic-api-key:14
+f878f688851afe08c1af5c2566b136c3fe5efd7b:k8s-disabled-apps/paperless/secret.yaml:generic-api-key:10
+f878f688851afe08c1af5c2566b136c3fe5efd7b:k8s-disabled-apps/paperless/secret.yaml:generic-api-key:12
+f878f688851afe08c1af5c2566b136c3fe5efd7b:k8s-disabled-apps/paperless/secret.yaml:generic-api-key:15
+f878f688851afe08c1af5c2566b136c3fe5efd7b:k8s-disabled-apps/pihole/configmap.yaml:generic-api-key:12
+fbf5034e4a73f9a38f4c1f5fb34cac9cd46f20d1:k8s-playground/jspwiki/configmap.yaml:generic-api-key:15
+fbf5034e4a73f9a38f4c1f5fb34cac9cd46f20d1:k8s-playground/pihole/configmap.yaml:generic-api-key:10
